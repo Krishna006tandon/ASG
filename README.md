@@ -1,2 +1,8 @@
-# ASG
-The Avinash Personal Brand &amp; Knowledge Platform is a responsive single-page web application designed to establish Avinash's online footprint while offering curated educational components, startup guidance, authored books, webinars, and slot consultations
+1. Introduction 1.1 Project Overview The Avinash Personal Brand & Knowledge Platform is a responsive single-page web application designed to establish Avinash's online footprint while offering curated educational components, startup guidance, authored books, webinars, and slot consultations. The application architecture leverages a decoupled layout consisting of a fast, stateful React client communicating via secure REST API calls to a high-performance Node.js environment handling data persistence inside MongoDB database structures.
+
+2.  Core Objectives Establish Avinash's professional digital ecosystem footprint. Automate authored physical bookstore orders and payment updates. Manage calendar consultation appointments and slot availability tracking. Conduct gated masterclasses and webinar seat registrations via Razorpay. Publish long-form SEO articles focusing on Startup Planning and Financial Literacy.
+
+3.  Scope Matrix The system encompasses: responsive frontend landing routes, biography profiles, an e-commerce catalog, local-storage stateful shopping carts, automated Razorpay webhooks, a robust Content Management System (CMS), webinar sign-up grids, administrative analytic control dashboards, and programmatic serverrendered SEO tags.
+
+4.  Target Audience Structure Primary Audience: Aspiring entrepreneurs, startup founders, students hunting career guidance frameworks, young working professionals, book readers, and masterclass webinar participants.
+    Secondary Audience: Educational safety institutes, corporate learning bodies, trainers, digital mentors, and existing social media followers looking for centralized consultation assets
