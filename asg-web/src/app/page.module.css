@@ -1,0 +1,74 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6rem 2rem; /* Increased top padding for breathing room */
+  min-height: 100vh;
+}
+
+.hero {
+  text-align: center;
+  max-width: 800px;
+  margin-bottom: 5rem;
+}
+
+.heroBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: var(--primary-light);
+  color: #7942b5;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--primary-medium-light);
+}
+
+.hero h1 {
+  font-size: 4rem; /* Larger, sleeker font */
+  line-height: 1.1;
+  color: #111827; /* Solid dark color for professional look */
+  margin-bottom: 1.25rem;
+}
+
+.hero h1 span {
+  background: linear-gradient(135deg, #7942b5, var(--primary-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.7;
+}
+
+.ctaGroup {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2.5rem;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.grid h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.grid p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
