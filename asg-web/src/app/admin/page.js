@@ -1,19 +1,54 @@
+"use client";
+
+import { useState, useEffect } from 'react';
 import styles from './admin.module.css';
 
 export default function AdminDashboard() {
-  const kpis = [
-    { label: "Total Revenue", value: "₹45,230", trend: "+12%" },
-    { label: "Active Orders", value: "14", trend: "+3" },
-    { label: "Upcoming Consultations", value: "8", trend: "-1" },
-    { label: "Webinar Registrations", value: "112", trend: "+45" }
-  ];
+  const [kpis, setKpis] = useState([]);
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const recentOrders = [
-    { id: "ORD-9821", customer: "Rahul Sharma", status: "Paid", amount: "₹899" },
-    { id: "ORD-9822", customer: "Priya Patel", status: "Pending", amount: "₹1,250" },
-    { id: "ORD-9823", customer: "Vikram Singh", status: "Dispatched", amount: "₹1,499" },
-    { id: "ORD-9824", customer: "Anjali Gupta", status: "Delivered", amount: "₹599" },
-  ];
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const token = localStorage.getItem('asg_token');
+        if (!token) {
+          window.location.href = '/login';
+          return;
+        }
+
+        const res = await fetch('/api/admin/dashboard', {
+          headers: {
+            // In a real app, pass the authorization token
+            // 'Authorization': `Bearer ${token}` 
+          }
+        });
+
+        if (!res.ok) {
+          throw new Error('Failed to fetch dashboard data');
+        }
+
+        const data = await res.json();
+        setKpis(data.kpis);
+        setRecentOrders(data.recentOrders);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return <div className={styles.dashboard}><h2>Loading dashboard data...</h2></div>;
+  }
+
+  if (error) {
+    return <div className={styles.dashboard}><h2>Error: {error}</h2></div>;
+  }
 
   return (
     <div className={styles.dashboard}>
@@ -36,32 +71,36 @@ export default function AdminDashboard() {
       <div className={styles.tablesGrid}>
         <div className={styles.tableCard}>
           <h2>Recent Orders Queue</h2>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>Customer</th>
-                <th>Status</th>
-                <th>Amount</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentOrders.map(order => (
-                <tr key={order.id}>
-                  <td>{order.id}</td>
-                  <td>{order.customer}</td>
-                  <td>
-                    <span className={`${styles.badge} ${styles[order.status.toLowerCase()]}`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td>{order.amount}</td>
-                  <td><button className={styles.actionBtn}>Manage</button></td>
+          {recentOrders.length === 0 ? (
+            <p>No recent orders found.</p>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Status</th>
+                  <th>Amount</th>
+                  <th>Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {recentOrders.map(order => (
+                  <tr key={order.id}>
+                    <td>{order.id}</td>
+                    <td>{order.customer}</td>
+                    <td>
+                      <span className={`${styles.badge} ${styles[order.status.toLowerCase()] || styles.pending}`}>
+                        {order.status}
+                      </span>
+                    </td>
+                    <td>{order.amount}</td>
+                    <td><button className={styles.actionBtn}>Manage</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

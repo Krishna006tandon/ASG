@@ -46,3 +46,58 @@
   display: flex;
   gap: 1rem;
 }
+
+.userActions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.cartIcon {
+  position: relative;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background: #EF4444; /* red */
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.1rem 0.35rem;
+  border-radius: 999px;
+  border: 2px solid white;
+}
+
+.profileMenu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-left: 1px solid var(--border-color);
+  padding-left: 1.5rem;
+}
+
+.avatar {
+  font-size: 1.25rem;
+  background: var(--primary-light);
+  border-radius: 50%;
+  padding: 0.35rem;
+}
+
+.logoutBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.logoutBtn:hover {
+  color: #EF4444;
+}
