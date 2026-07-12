@@ -1,0 +1,130 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.title {
+  font-size: 2rem;
+  color: #111827;
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.kpiCard {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.kpiCard h3 {
+  font-size: 0.9rem;
+  color: #6B7280;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.kpiValueRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1;
+}
+
+.trendUp {
+  color: #059669; /* emerald */
+  font-weight: 600;
+  font-size: 0.9rem;
+  background: #D1FAE5;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.trendDown {
+  color: #DC2626; /* red */
+  font-weight: 600;
+  font-size: 0.9rem;
+  background: #FEE2E2;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.tablesGrid {
+  display: flex;
+  flex-direction: column;
+}
+
+.tableCard {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow-x: auto;
+}
+
+.tableCard h2 {
+  font-size: 1.25rem;
+  color: #111827;
+  margin-bottom: 1.5rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th {
+  padding: 1rem;
+  border-bottom: 2px solid #E5E7EB;
+  color: #6B7280;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid #E5E7EB;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.paid { background: #D1FAE5; color: #065F46; }
+.pending { background: #FEF3C7; color: #92400E; }
+.dispatched { background: #DBEAFE; color: #1E40AF; }
+.delivered { background: #E0E7FF; color: #3730A3; }
+
+.actionBtn {
+  background: #F3F4F6;
+  border: 1px solid #D1D5DB;
+  color: #374151;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.actionBtn:hover {
+  background: #E5E7EB;
+}
