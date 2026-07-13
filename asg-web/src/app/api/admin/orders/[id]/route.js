@@ -6,7 +6,7 @@ export async function PATCH(req, { params }) {
   try {
     await connectToDatabase();
     
-    const { id } = params;
+    const { id } = await params;
     const { status } = await req.json();
 
     if (!status) {
@@ -16,7 +16,7 @@ export async function PATCH(req, { params }) {
     const updatedOrder = await Order.findByIdAndUpdate(
       id,
       { status },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!updatedOrder) {

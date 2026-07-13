@@ -5,7 +5,7 @@ import Webinar from '@/models/Webinar';
 export async function DELETE(req, { params }) {
   try {
     await connectToDatabase();
-    const { id } = params;
+    const { id } = await params;
 
     const deletedWebinar = await Webinar.findByIdAndDelete(id);
 

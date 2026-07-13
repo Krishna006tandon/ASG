@@ -82,6 +82,10 @@
   padding-left: 1.5rem;
 }
 
+.avatarLink {
+  text-decoration: none;
+}
+
 .avatar {
   font-size: 1.25rem;
   background: var(--primary-light);

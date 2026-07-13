@@ -5,7 +5,7 @@ import Book from '@/models/Book';
 export async function DELETE(req, { params }) {
   try {
     await connectToDatabase();
-    const { id } = params;
+    const { id } = await params;
 
     const deletedBook = await Book.findByIdAndDelete(id);
 

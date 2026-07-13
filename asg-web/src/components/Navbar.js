@@ -46,7 +46,9 @@ export default function Navbar() {
                 🛒 <span className={styles.badge}>{cartCount}</span>
               </Link>
               <div className={styles.profileMenu}>
-                <span className={styles.avatar}>👤</span>
+                <Link href="/dashboard" className={styles.avatarLink}>
+                  <span className={styles.avatar} title="My Dashboard">👤</span>
+                </Link>
                 <button onClick={handleLogout} className={styles.logoutBtn}>Logout</button>
               </div>
             </div>
