@@ -1,34 +1,33 @@
+"use client";
+
 import styles from './blog.module.css';
 import Link from 'next/link';
-
-export const metadata = {
-  title: "Blog | Avinash Professional",
-};
+import { useState, useEffect } from 'react';
 
 export default function Blog() {
-  const posts = [
-    {
-      id: 1,
-      title: "The Ultimate Guide to Scaling Your E-Commerce Store",
-      excerpt: "Learn the core strategies used by top founders to scale revenue without compromising profit margins.",
-      date: "Oct 15, 2026",
-      category: "E-Commerce",
-    },
-    {
-      id: 2,
-      title: "Mastering the Art of Angel Investing",
-      excerpt: "A deep dive into identifying high-growth startups and structuring your early-stage portfolio.",
-      date: "Sep 28, 2026",
-      category: "Investing",
-    },
-    {
-      id: 3,
-      title: "Building Resilient Teams in 2027",
-      excerpt: "Why the traditional management structure is fading and how to foster extreme ownership.",
-      date: "Aug 12, 2026",
-      category: "Leadership",
-    }
-  ];
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const res = await fetch('/api/admin/blogs');
+        if (res.ok) {
+          const data = await res.json();
+          // Filter to show only published posts
+          setPosts(data.filter(post => post.isPublished !== false));
+        }
+      } catch (error) {
+        console.error("Failed to load blogs", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchBlogs();
+  }, []);
+
+  if (loading) return <div className={styles.main}><div className={styles.loader}>Loading insights...</div></div>;
 
   return (
     <main className={styles.main}>
@@ -38,19 +37,23 @@ export default function Blog() {
       </header>
 
       <section className={styles.grid}>
-        {posts.map((post) => (
-          <article key={post.id} className="glass-card">
-            <div className={styles.meta}>
-              <span className={styles.category}>{post.category}</span>
-              <span className={styles.date}>{post.date}</span>
-            </div>
-            <h2>{post.title}</h2>
-            <p className={styles.excerpt}>{post.excerpt}</p>
-            <Link href={`/blog/${post.id}`} className={styles.readMore}>
-              Read Full Article &rarr;
-            </Link>
-          </article>
-        ))}
+        {posts.length === 0 ? (
+          <p style={{ textAlign: 'center', gridColumn: '1 / -1', color: '#6B7280' }}>No articles published yet.</p>
+        ) : (
+          posts.map((post) => (
+            <article key={post._id} className="glass-card">
+              <div className={styles.meta}>
+                <span className={styles.category}>{post.category}</span>
+                <span className={styles.date}>{new Date(post.createdAt).toLocaleDateString()}</span>
+              </div>
+              <h2>{post.title}</h2>
+              <p className={styles.excerpt}>{post.excerpt}</p>
+              <Link href={`/blog/${post.slug}`} className={styles.readMore}>
+                Read Full Article &rarr;
+              </Link>
+            </article>
+          ))
+        )}
       </section>
     </main>
   );
