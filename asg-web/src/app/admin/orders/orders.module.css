@@ -1,0 +1,83 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.header h1 {
+  font-size: 2rem;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.header p {
+  color: #6B7280;
+}
+
+.tableWrapper {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th {
+  padding: 1rem;
+  border-bottom: 2px solid #E5E7EB;
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid #E5E7EB;
+  color: #4B5563;
+  font-size: 0.95rem;
+  vertical-align: middle;
+}
+
+.badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.paid { background: #D1FAE5; color: #065F46; }
+.pending { background: #FEF3C7; color: #92400E; }
+.processing { background: #E0E7FF; color: #3730A3; }
+.dispatched { background: #DBEAFE; color: #1E40AF; }
+.delivered { background: #D1FAE5; color: #065F46; }
+.cancelled { background: #FEE2E2; color: #991B1B; }
+
+.statusSelect {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #D1D5DB;
+  background: #F9FAFB;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+.statusSelect:focus {
+  outline: none;
+  border-color: var(--primary-dark);
+}
+
+.statusSelect:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
