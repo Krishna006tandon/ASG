@@ -14,17 +14,8 @@ export default function EcommerceStore() {
     // For preview purposes without a connected DB, we use mock data
     const fetchBooks = async () => {
       try {
-        // const res = await fetch('/api/books');
-        // const data = await res.json();
-        
-        // Mock data fallback
-        const data = [
-          { _id: '1', title: 'The Startup Playbook', price: 899, description: 'A comprehensive guide to scaling your first venture from 0 to 1.', stock: 15 },
-          { _id: '2', title: 'Financial Intelligence', price: 1250, description: 'Understanding numbers, budgets, and investments for non-finance leaders.', stock: 8 },
-          { _id: '3', title: 'E-Commerce Mastery', price: 1499, description: 'Advanced strategies for driving traffic and optimizing conversion rates.', stock: 24 },
-          { _id: '4', title: 'Productivity Frameworks', price: 599, description: 'Time management and deep work strategies for busy professionals.', stock: 5 },
-        ];
-        
+        const res = await fetch('/api/admin/books');
+        const data = await res.json();
         setBooks(data);
       } catch (error) {
         console.error("Failed to load books", error);
