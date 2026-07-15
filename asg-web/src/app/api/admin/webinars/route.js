@@ -16,9 +16,9 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     await connectToDatabase();
-    const { title, description, date, time, price, seatsTotal } = await req.json();
+    const { title, description, date, time, originalPrice, price, seatsTotal } = await req.json();
 
-    if (!title || !description || !date || !time || !price || !seatsTotal) {
+    if (!title || !date || !time || !price || !seatsTotal) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -27,6 +27,7 @@ export async function POST(req) {
       description,
       date: new Date(date),
       time,
+      originalPrice: Number(originalPrice || 0),
       price: Number(price),
       seatsTotal: Number(seatsTotal),
     });

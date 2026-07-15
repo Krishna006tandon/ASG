@@ -52,10 +52,23 @@ export default function EcommerceStore() {
                 <h3>{book.title}</h3>
                 <p className={styles.desc}>{book.description}</p>
                 <div className={styles.priceRow}>
-                  <span className={styles.price}>₹{book.price}</span>
+                  <div>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                      <span className={styles.price}>₹{book.price}</span>
+                      {book.originalPrice > book.price && (
+                        <span style={{textDecoration: 'line-through', color: '#9CA3AF', fontSize: '0.9rem'}}>
+                          ₹{book.originalPrice}
+                        </span>
+                      )}
+                    </div>
+                    <span style={{fontSize: '0.8rem', color: '#6B7280', display: 'block'}}>Digital E-Book</span>
+                  </div>
                   <span className={styles.stock}>
                     {book.stock > 0 ? `In Stock (${book.stock})` : 'Out of Stock'}
                   </span>
+                </div>
+                <div style={{fontSize: '0.8rem', color: '#4F46E5', marginBottom: '1rem', fontStyle: 'italic'}}>
+                  *Physical copy upgrade available after purchase.
                 </div>
                 
                 {getCartCount(book._id) > 0 ? (

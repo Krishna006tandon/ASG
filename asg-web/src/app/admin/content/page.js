@@ -15,6 +15,7 @@ export default function AdminContent() {
   const [excerpt, setExcerpt] = useState('');
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     fetchBlogs();
@@ -33,25 +34,42 @@ export default function AdminContent() {
     }
   };
 
+  const handleEditClick = (blog) => {
+    setEditingId(blog._id);
+    setTitle(blog.title);
+    setCategory(blog.category);
+    setReadTime(blog.readTime || '');
+    setExcerpt(blog.excerpt);
+    setContent(blog.content);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setTitle('');
+    setCategory('');
+    setReadTime('');
+    setExcerpt('');
+    setContent('');
+  };
+
   const handlePublish = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
-      const res = await fetch('/api/admin/blogs', {
-        method: 'POST',
+      const url = editingId ? `/api/admin/blogs/${editingId}` : '/api/admin/blogs';
+      const method = editingId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, category, readTime, excerpt, content })
       });
       
-      if (!res.ok) throw new Error('Failed to publish blog');
+      if (!res.ok) throw new Error(editingId ? 'Failed to update blog' : 'Failed to publish blog');
       
       // Reset form
-      setTitle('');
-      setCategory('');
-      setReadTime('');
-      setExcerpt('');
-      setContent('');
+      handleCancelEdit();
       
       // Refresh list
       fetchBlogs();
@@ -87,7 +105,7 @@ export default function AdminContent() {
       <div className={styles.grid}>
         {/* Left Side: Compose Post */}
         <div className={styles.card}>
-          <h2>Compose New Post</h2>
+          <h2>{editingId ? 'Edit Post' : 'Compose New Post'}</h2>
           <form onSubmit={handlePublish} className={styles.form}>
             <div className={styles.inputGroup}>
               <label>Post Title</label>
@@ -115,9 +133,16 @@ export default function AdminContent() {
               <textarea rows="8" value={content} onChange={(e) => setContent(e.target.value)} required></textarea>
             </div>
             
-            <button type="submit" className={`btn-primary ${styles.submitBtn}`} disabled={isSubmitting}>
-              {isSubmitting ? 'Publishing...' : 'Publish Post'}
-            </button>
+            <div style={{display: 'flex', gap: '1rem'}}>
+              <button type="submit" className={`btn-primary ${styles.submitBtn}`} disabled={isSubmitting} style={{flex: 1}}>
+                {isSubmitting ? 'Saving...' : (editingId ? 'Update Post' : 'Publish Post')}
+              </button>
+              {editingId && (
+                <button type="button" onClick={handleCancelEdit} className="btn-secondary" style={{flex: 1}}>
+                  Cancel
+                </button>
+              )}
+            </div>
           </form>
         </div>
 
@@ -152,9 +177,17 @@ export default function AdminContent() {
                           {blog.isPublished ? 'Published' : 'Draft'}
                         </span>
                       </td>
-                      <td>
+                      <td style={{display: 'flex', gap: '0.5rem'}}>
+                        <button 
+                          className="btn-secondary"
+                          style={{padding: '0.25rem 0.75rem', fontSize: '0.85rem'}}
+                          onClick={() => handleEditClick(blog)}
+                        >
+                          Edit
+                        </button>
                         <button 
                           className={styles.deleteBtn}
+                          style={{padding: '0.25rem 0.75rem', fontSize: '0.85rem'}}
                           onClick={() => handleDelete(blog._id)}
                         >
                           Delete

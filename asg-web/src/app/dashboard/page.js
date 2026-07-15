@@ -120,6 +120,84 @@ export default function ClientDashboard() {
     }
   };
 
+  const handlePhysicalUpgrade = async (orderId, bookId) => {
+    const address = window.prompt("Please enter your complete shipping address for physical delivery:");
+    if (!address) return;
+
+    setIsProcessing(orderId + bookId);
+
+    try {
+      const token = localStorage.getItem('asg_token');
+      const res = await loadRazorpayScript();
+      if (!res) {
+        alert("Razorpay SDK failed to load.");
+        return;
+      }
+
+      // 1. Create Upgrade Order on Backend
+      const orderRes = await fetch('/api/razorpay/create-physical-upgrade', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ orderId, bookId })
+      });
+      const orderData = await orderRes.json();
+      
+      if (!orderRes.ok) throw new Error(orderData.error);
+
+      // 2. Initialize Razorpay Checkout
+      const options = {
+        key: orderData.key_id, 
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "Avinash Book Store",
+        description: "Physical Book Upgrade",
+        order_id: orderData.orderId,
+        handler: async function (response) {
+          try {
+            // 3. Verify Payment
+            const verifyRes = await fetch('/api/razorpay/verify-physical-upgrade', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                orderId,
+                bookId,
+                shippingAddress: address
+              })
+            });
+
+            if (!verifyRes.ok) throw new Error("Verification failed");
+            
+            alert("Physical copy requested successfully! We will dispatch it soon.");
+            fetchMyConsultations(); // Refresh Dashboard
+          } catch (err) {
+            alert("Payment verification failed: " + err.message);
+          }
+        },
+        prefill: {
+          name: orderData.customerDetails.name,
+          email: orderData.customerDetails.email,
+        },
+        theme: {
+          color: "#4F46E5",
+        },
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+
+    } catch (err) {
+      alert("Error initiating upgrade: " + err.message);
+    } finally {
+      setIsProcessing(null);
+    }
+  };
+
   if (loading) return <div className={styles.main}><div className={styles.loader}>Loading your dashboard...</div></div>;
   if (error) return <div className={styles.main}><div className={styles.error}>Error: {error}</div></div>;
 
@@ -218,14 +296,53 @@ export default function ClientDashboard() {
                   </div>
                   
                   <div className={styles.cardBody}>
-                    <ul style={{listStyle: 'none', padding: 0, margin: '0 0 1rem 0'}}>
+                    <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem'}}>
                       {order.items.map((item, i) => (
-                        <li key={i} style={{display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem'}}>
-                          <span>{item.quantity}x {item.title}</span>
-                          <span style={{fontWeight: 'bold'}}>₹{item.price * item.quantity}</span>
-                        </li>
+                        <div key={i} style={{padding: '1rem', background: '#F9FAFB', borderRadius: '8px', border: '1px solid #F3F4F6'}}>
+                          <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontWeight: '500'}}>
+                            <span>{item.quantity}x {item.title}</span>
+                            <span>₹{item.price * item.quantity}</span>
+                          </div>
+                          
+                          <div style={{display: 'flex', gap: '0.75rem', marginTop: '1rem', flexWrap: 'wrap'}}>
+                            {/* Read E-Book Button */}
+                            {item.bookId?.ebookUrl ? (
+                              <a href={item.bookId.ebookUrl} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{padding: '0.4rem 0.8rem', fontSize: '0.85rem', textDecoration: 'none'}}>
+                                📖 Read E-Book
+                              </a>
+                            ) : (
+                              <span style={{fontSize: '0.8rem', color: '#6B7280', padding: '0.4rem 0'}}>E-Book processing...</span>
+                            )}
+
+                            {/* Request Physical Copy Button */}
+                            {!item.isPhysicalRequested ? (
+                              item.bookId?.physicalPrice > 0 ? (
+                                <button 
+                                  onClick={() => handlePhysicalUpgrade(order._id, item.bookId._id)}
+                                  className="btn-accent" 
+                                  style={{padding: '0.4rem 0.8rem', fontSize: '0.85rem'}}
+                                  disabled={isProcessing === order._id + item.bookId._id}
+                                >
+                                  {isProcessing === order._id + item.bookId._id ? 'Processing...' : `📦 Request Physical Copy (+₹${(item.bookId.physicalPrice || 0) + (item.bookId.shippingCost || 0)})`}
+                                </button>
+                              ) : (
+                                <span style={{fontSize: '0.8rem', color: '#6B7280', padding: '0.4rem 0'}}>Physical copy unavailable</span>
+                              )
+                            ) : (
+                              <span style={{fontSize: '0.85rem', color: '#059669', background: '#D1FAE5', padding: '0.4rem 0.8rem', borderRadius: '4px', fontWeight: '500'}}>
+                                ✓ Physical Copy Requested ({item.physicalStatus})
+                              </span>
+                            )}
+                          </div>
+                          
+                          {item.isPhysicalRequested && item.shippingAddress && (
+                            <div style={{marginTop: '0.75rem', fontSize: '0.8rem', color: '#4B5563', padding: '0.5rem', background: '#F3F4F6', borderRadius: '4px'}}>
+                              <strong>Shipping to:</strong> {item.shippingAddress}
+                            </div>
+                          )}
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                     <div style={{display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #E5E7EB', paddingTop: '1rem', fontWeight: 'bold'}}>
                       <span>Total Amount</span>
                       <span>₹{order.totalAmount}</span>

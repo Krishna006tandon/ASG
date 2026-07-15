@@ -85,7 +85,21 @@ export default function OrderManagement() {
                     {order.customerDetails?.name || 'N/A'}<br/>
                     <small style={{ color: '#6B7280' }}>{order.customerDetails?.email || ''}</small>
                   </td>
-                  <td style={{ fontWeight: '600' }}>₹{order.totalAmount}</td>
+                  <td>
+                    <div style={{fontWeight: '600', marginBottom: '0.5rem'}}>₹{order.totalAmount}</div>
+                    {order.items.map((item, i) => (
+                      <div key={i} style={{fontSize: '0.8rem', padding: '0.25rem 0', borderTop: '1px dashed #E5E7EB'}}>
+                        {item.quantity}x {item.title}
+                        {item.isPhysicalRequested && (
+                          <div style={{marginTop: '0.25rem', padding: '0.25rem', background: '#FEF3C7', border: '1px solid #F59E0B', borderRadius: '4px'}}>
+                            <strong>📦 Physical Copy Requested</strong><br/>
+                            Status: {item.physicalStatus}<br/>
+                            To: {item.shippingAddress}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </td>
                   <td><small>{order.razorpayOrderId}</small></td>
                   <td>
                     <span className={`${styles.badge} ${styles[order.status.toLowerCase()] || styles.pending}`}>

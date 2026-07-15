@@ -19,6 +19,7 @@ export async function GET(req) {
       .lean();
 
     const orders = await Order.find({ 'customerDetails.email': user.email })
+      .populate('items.bookId', 'ebookUrl physicalPrice shippingCost')
       .sort({ createdAt: -1 })
       .lean();
 

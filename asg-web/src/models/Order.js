@@ -7,8 +7,16 @@ const OrderSchema = new mongoose.Schema({
   items: [{
     bookId: { type: mongoose.Schema.Types.ObjectId, ref: 'Book' },
     title: String,
-    price: Number,
-    quantity: Number
+    price: Number, // This is the E-book base price they paid
+    quantity: Number,
+    isPhysicalRequested: { type: Boolean, default: false },
+    physicalUpgradeOrderId: { type: String, default: null }, // Tracking secondary payment
+    shippingAddress: { type: String, default: '' },
+    physicalStatus: { 
+      type: String, 
+      enum: ['Not Requested', 'Pending Dispatch', 'Dispatched', 'Delivered'],
+      default: 'Not Requested'
+    }
   }],
   customerDetails: {
     name: String,
