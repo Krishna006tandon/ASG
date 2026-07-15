@@ -121,3 +121,44 @@
   padding: 0.75rem;
   border-radius: 6px;
 }
+
+.error {
+  color: #DC2626;
+  font-weight: 500;
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Tabs Navigation */
+.tabsNav {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #E5E7EB;
+  padding-bottom: 0px;
+}
+
+.tabBtn {
+  background: none;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6B7280;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  margin-bottom: -1px; /* Overlap the border-bottom */
+}
+
+.tabBtn:hover {
+  color: #374151;
+}
+
+.tabBtn.activeTab {
+  color: #4F46E5;
+  border-bottom: 2px solid #4F46E5;
+}

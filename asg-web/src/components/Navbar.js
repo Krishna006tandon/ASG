@@ -8,6 +8,7 @@ import styles from './Navbar.module.css';
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const { cart, clearCart, removeFromCart, updateQuantity } = useCart();
 
@@ -193,10 +194,16 @@ export default function Navbar() {
                 )}
               </div>
 
-              <div className={styles.profileMenu}>
-                <Link href="/dashboard" className={styles.avatarLink}>
-                  <span className={styles.avatar} title="My Dashboard">👤</span>
+              <div className={styles.profileMenuContainer}>
+                <Link href="/dashboard" className={styles.avatarBtn} title="My Dashboard">
+                  <span className={styles.avatar}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width: '18px', height: '18px'}}>
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </span>
                 </Link>
+                <Link href="/dashboard" className={styles.navTextLink}>Dashboard</Link>
                 <button onClick={handleLogout} className={styles.logoutBtn}>Logout</button>
               </div>
             </div>
