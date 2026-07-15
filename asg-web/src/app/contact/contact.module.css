@@ -23,7 +23,22 @@
 
 .formSection {
   width: 100%;
-  max-width: 600px;
+  max-width: 1000px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .formSection {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ctaCard {
+  background: linear-gradient(135deg, rgba(208, 162, 247, 0.2), rgba(160, 100, 255, 0.1));
+  border: 1px solid var(--primary-color);
 }
 
 .formCard {

@@ -53,6 +53,52 @@
   display: flex;
   gap: 1rem;
   justify-content: center;
+  margin-top: 2rem;
+}
+
+.section {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.sectionHeader h2 {
+  font-size: 1.75rem;
+  color: #111827;
+}
+
+.viewAll {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.viewAll:hover {
+  color: var(--primary-dark);
+}
+
+.dynamicGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.dynamicGrid > div {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .grid {

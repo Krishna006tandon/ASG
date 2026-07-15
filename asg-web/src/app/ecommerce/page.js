@@ -7,7 +7,7 @@ import { useCart } from '@/context/CartContext';
 export default function EcommerceStore() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { addToCart, cart } = useCart();
+  const { addToCart, cart, updateQuantity } = useCart();
 
   useEffect(() => {
     // In a real scenario, this fetches from /api/books
@@ -37,10 +37,6 @@ export default function EcommerceStore() {
       <header className={`${styles.header} animate-fade-in`}>
         <h1>Avinash Book Store</h1>
         <p>Expert literature curated for your professional journey.</p>
-        <div className={styles.cartStatus}>
-          <span>Cart Items: {cart.reduce((sum, i) => sum + i.quantity, 0)}</span>
-          <button className="btn-accent" onClick={() => alert("Checkout flow coming next!")}>Checkout</button>
-        </div>
       </header>
 
       {loading ? (
@@ -63,12 +59,23 @@ export default function EcommerceStore() {
                 </div>
                 
                 {getCartCount(book._id) > 0 ? (
-                  <button 
-                    className={`btn-primary ${styles.addButton} ${styles.added}`}
-                    onClick={() => addToCart(book)}
-                  >
-                    Add More ({getCartCount(book._id)} in cart)
-                  </button>
+                  <div className={styles.storeQtyControls}>
+                    <button 
+                      className={styles.storeQtyBtn}
+                      onClick={() => updateQuantity(book._id, getCartCount(book._id) - 1)}
+                    >
+                      -
+                    </button>
+                    <span className={styles.storeQtySpan}>{getCartCount(book._id)}</span>
+                    <button 
+                      className={styles.storeQtyBtn}
+                      onClick={() => updateQuantity(book._id, getCartCount(book._id) + 1)}
+                      disabled={getCartCount(book._id) >= book.stock}
+                      style={{ opacity: getCartCount(book._id) >= book.stock ? 0.5 : 1, cursor: getCartCount(book._id) >= book.stock ? 'not-allowed' : 'pointer' }}
+                    >
+                      +
+                    </button>
+                  </div>
                 ) : (
                   <button 
                     className={`btn-primary ${styles.addButton}`}

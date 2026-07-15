@@ -5,6 +5,7 @@ import styles from './dashboard.module.css';
 
 export default function ClientDashboard() {
   const [consultations, setConsultations] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(null);
@@ -33,7 +34,10 @@ export default function ClientDashboard() {
 
       if (!res.ok) throw new Error('Failed to fetch your data');
       const data = await res.json();
-      setConsultations(data);
+      
+      // Data contains both { consultations, orders }
+      setConsultations(data.consultations || []);
+      setOrders(data.orders || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -122,67 +126,116 @@ export default function ClientDashboard() {
   return (
     <main className={styles.main}>
       <div className={styles.container}>
-        <header className={styles.header}>
-          <h1>My Consultations</h1>
-          <p>View your past strategy sessions and pending appointments.</p>
-        </header>
+        <div className={styles.section}>
+          <div className={styles.headerRow}>
+            <h2>My Consultations</h2>
+            <Link href="/consulting" className="btn-primary">Book New Session</Link>
+          </div>
 
-        <section className={styles.grid}>
           {consultations.length === 0 ? (
-            <div className={`glass-card ${styles.emptyCard}`}>
-              You haven't booked any consultations yet.
+            <div className={styles.emptyState}>
+              <p>You haven't booked any consultations yet.</p>
             </div>
           ) : (
-            consultations.map(appt => (
-              <div key={appt._id} className={`glass-card ${styles.card}`}>
-                <div className={styles.cardHeader}>
-                  <div className={styles.dateBlock}>
-                    <span className={styles.date}>{new Date(appt.date).toLocaleDateString()}</span>
-                    <span className={styles.time}>{appt.time}</span>
+            <div className={styles.grid}>
+              {consultations.map(appt => (
+                <div key={appt._id} className={styles.card}>
+                  <div className={styles.cardHeader}>
+                    <div className={styles.dateBadge}>
+                      <span className={styles.month}>{new Date(appt.date).toLocaleDateString('en-US', { month: 'short' })}</span>
+                      <span className={styles.day}>{new Date(appt.date).getDate()}</span>
+                    </div>
+                    <div className={styles.timeInfo}>
+                      <h3>{appt.time}</h3>
+                      <span className={`${styles.statusBadge} ${styles[appt.status.toLowerCase()] || styles.pending}`}>
+                        {appt.status}
+                      </span>
+                    </div>
                   </div>
-                  <div className={`${styles.badge} ${styles[appt.status.toLowerCase()] || styles.pending}`}>
-                    {appt.status}
+                  
+                  <div className={styles.cardBody}>
+                    {appt.message && (
+                      <p className={styles.message}>"{appt.message}"</p>
+                    )}
+                    {appt.charges && appt.paymentStatus === 'Pending' && (
+                      <div className={styles.chargesAlert}>
+                        Admin has set the charges for this session at <strong>₹{appt.charges}</strong>
+                      </div>
+                    )}
+                    
+                    {appt.status === 'Confirmed' && appt.paymentStatus === 'Pending' && appt.charges && (
+                      <button 
+                        onClick={() => handlePayment(appt._id, appt.charges)} 
+                        className={`btn-accent ${styles.payBtn}`}
+                        disabled={isProcessing}
+                      >
+                        {isProcessing ? 'Processing...' : `Pay ₹${appt.charges} with Razorpay`}
+                      </button>
+                    )}
+                    {appt.paymentStatus === 'Paid' && (
+                      <div className={styles.paidContainer}>
+                        <div className={styles.paidBadge}>✓ Payment Complete</div>
+                        {appt.meetingLink ? (
+                          <a href={appt.meetingLink} target="_blank" rel="noopener noreferrer" className={`btn-primary ${styles.zoomBtn}`}>
+                            📹 Join Zoom Meeting
+                          </a>
+                        ) : (
+                          <div className={styles.pendingLink}>Meeting link pending...</div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-                <div className={styles.details}>
-                  <p className={styles.message}><strong>Subject:</strong> {appt.message || 'No description provided'}</p>
-                </div>
+        <div className={styles.section} style={{marginTop: '3rem'}}>
+          <div className={styles.headerRow}>
+            <h2>My Store Orders</h2>
+            <Link href="/ecommerce" className="btn-primary">Visit Store</Link>
+          </div>
 
-                <div className={styles.paymentSection}>
-                  <div className={styles.chargeRow}>
-                    <span>Confirmed Charges:</span>
-                    <span className={styles.price}>
-                      {appt.charges ? `₹${appt.charges}` : 'Pending Admin Review'}
+          {orders.length === 0 ? (
+            <div className={styles.emptyState}>
+              <p>You haven't purchased any items yet.</p>
+            </div>
+          ) : (
+            <div className={styles.grid}>
+              {orders.map(order => (
+                <div key={order._id} className={styles.card}>
+                  <div className={styles.cardHeader} style={{borderBottom: '1px solid #E5E7EB', paddingBottom: '1rem', marginBottom: '1rem'}}>
+                    <div>
+                      <h3 style={{fontSize: '1.1rem', margin: '0'}}>Order #{order._id.substring(0, 8).toUpperCase()}</h3>
+                      <div style={{fontSize: '0.85rem', color: '#6B7280', marginTop: '0.2rem'}}>
+                        Placed on {new Date(order.createdAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <span className={`${styles.statusBadge} ${styles[order.status.toLowerCase()] || styles.pending}`}>
+                      {order.status}
                     </span>
                   </div>
-
-                  {appt.charges && appt.paymentStatus === 'Unpaid' && (
-                    <button 
-                      className={`btn-primary ${styles.payBtn}`}
-                      onClick={() => handlePayment(appt)}
-                      disabled={isProcessing === appt._id}
-                    >
-                      {isProcessing === appt._id ? 'Processing...' : 'Pay with Razorpay'}
-                    </button>
-                  )}
-                  {appt.paymentStatus === 'Paid' && (
-                    <div className={styles.paidContainer}>
-                      <div className={styles.paidBadge}>✓ Payment Complete</div>
-                      {appt.meetingLink ? (
-                        <a href={appt.meetingLink} target="_blank" rel="noopener noreferrer" className={`btn-primary ${styles.zoomBtn}`} style={{ background: '#2D8CFF', marginTop: '1rem', display: 'block', textAlign: 'center', textDecoration: 'none' }}>
-                          📹 Join Zoom Meeting
-                        </a>
-                      ) : (
-                        <div style={{ fontSize: '0.85rem', color: '#6B7280', marginTop: '0.5rem', textAlign: 'center' }}>Meeting link pending...</div>
-                      )}
+                  
+                  <div className={styles.cardBody}>
+                    <ul style={{listStyle: 'none', padding: 0, margin: '0 0 1rem 0'}}>
+                      {order.items.map((item, i) => (
+                        <li key={i} style={{display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem'}}>
+                          <span>{item.quantity}x {item.title}</span>
+                          <span style={{fontWeight: 'bold'}}>₹{item.price * item.quantity}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div style={{display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #E5E7EB', paddingTop: '1rem', fontWeight: 'bold'}}>
+                      <span>Total Amount</span>
+                      <span>₹{order.totalAmount}</span>
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
-        </section>
+        </div>
       </div>
     </main>
   );
