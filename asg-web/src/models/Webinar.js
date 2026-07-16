@@ -9,6 +9,7 @@ const WebinarSchema = new mongoose.Schema({
   price: { type: Number, required: true }, // Selling Price
   seatsTotal: { type: Number, required: true },
   seatsBooked: { type: Number, default: 0 },
+  meetingLink: { type: String, default: '' },
 }, { timestamps: true });
 
 export default mongoose.models.Webinar || mongoose.model('Webinar', WebinarSchema);

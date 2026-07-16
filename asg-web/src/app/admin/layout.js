@@ -18,6 +18,7 @@ export default function AdminLayout({ children }) {
           <Link href="/admin/orders">Order Management</Link>
           <Link href="/admin/ecommerce">E-Commerce Settings</Link>
           <Link href="/admin/webinars">Webinars</Link>
+          <Link href="/admin/webinar-registrations">Webinar Attendees</Link>
           <Link href="/admin/appointments">Consulting Queue</Link>
           <Link href="/admin/content">Content & Blogs</Link>
         </nav>

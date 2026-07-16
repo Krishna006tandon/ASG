@@ -7,10 +7,11 @@ import styles from './dashboard.module.css';
 export default function ClientDashboard() {
   const [consultations, setConsultations] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [webinars, setWebinars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(null);
-  const [activeTab, setActiveTab] = useState('consultations'); // 'consultations', 'orders'
+  const [activeTab, setActiveTab] = useState('consultations'); // 'consultations', 'orders', 'webinars'
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -37,9 +38,10 @@ export default function ClientDashboard() {
       if (!res.ok) throw new Error('Failed to fetch your data');
       const data = await res.json();
       
-      // Data contains both { consultations, orders }
+      // Data contains { consultations, orders, webinars }
       setConsultations(data.consultations || []);
       setOrders(data.orders || []);
+      setWebinars(data.webinars || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -215,6 +217,12 @@ export default function ClientDashboard() {
             My Consultations
           </button>
           <button 
+            className={`${styles.tabBtn} ${activeTab === 'webinars' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('webinars')}
+          >
+            My Webinars
+          </button>
+          <button 
             className={`${styles.tabBtn} ${activeTab === 'orders' ? styles.activeTab : ''}`}
             onClick={() => setActiveTab('orders')}
           >
@@ -369,6 +377,56 @@ export default function ClientDashboard() {
                       <div style={{display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #E5E7EB', paddingTop: '1rem', fontWeight: 'bold'}}>
                         <span>Total Amount</span>
                         <span>₹{order.totalAmount}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Webinars Tab */}
+        {activeTab === 'webinars' && (
+          <div className={styles.section}>
+            <div className={styles.headerRow}>
+              <h2>My Registered Masterclasses</h2>
+              <Link href="/webinars" className="btn-primary">Browse Masterclasses</Link>
+            </div>
+
+            {webinars.length === 0 ? (
+              <div className={styles.emptyState}>
+                <p>You haven't registered for any masterclasses yet.</p>
+              </div>
+            ) : (
+              <div className={styles.grid}>
+                {webinars.map(reg => (
+                  <div key={reg._id} className={styles.card}>
+                    <div className={styles.cardHeader}>
+                      <div className={styles.dateBadge}>
+                        <span className={styles.month}>{new Date(reg.webinarId?.date).toLocaleDateString('en-US', { month: 'short' })}</span>
+                        <span className={styles.day}>{new Date(reg.webinarId?.date).getDate()}</span>
+                      </div>
+                      <div className={styles.timeInfo}>
+                        <h3>{reg.webinarId?.time}</h3>
+                        <span className={`${styles.statusBadge} ${styles.paid}`}>
+                          {reg.paymentStatus}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className={styles.cardBody}>
+                      <h4 style={{margin: '0 0 1rem 0', color: '#111827'}}>{reg.webinarId?.title}</h4>
+                      
+                      <div className={styles.paidContainer}>
+                        <div className={styles.paidBadge}>✓ Registration Confirmed</div>
+                        {reg.webinarId?.meetingLink ? (
+                          <a href={reg.webinarId.meetingLink} target="_blank" rel="noopener noreferrer" className={`btn-primary ${styles.zoomBtn}`}>
+                            📹 Join Meeting
+                          </a>
+                        ) : (
+                          <div className={styles.pendingLink}>Meeting link will be updated soon.</div>
+                        )}
                       </div>
                     </div>
                   </div>

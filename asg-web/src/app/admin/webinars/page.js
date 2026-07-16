@@ -16,6 +16,7 @@ export default function AdminWebinars() {
   const [originalPrice, setOriginalPrice] = useState('');
   const [price, setPrice] = useState('');
   const [seatsTotal, setSeatsTotal] = useState('');
+  const [meetingLink, setMeetingLink] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
@@ -48,6 +49,7 @@ export default function AdminWebinars() {
     setOriginalPrice(webinar.originalPrice || '');
     setPrice(webinar.price);
     setSeatsTotal(webinar.seatsTotal);
+    setMeetingLink(webinar.meetingLink || '');
   };
 
   const handleCancelEdit = () => {
@@ -59,6 +61,7 @@ export default function AdminWebinars() {
     setOriginalPrice('');
     setPrice('');
     setSeatsTotal('');
+    setMeetingLink('');
   };
 
   const handleAddWebinar = async (e) => {
@@ -72,7 +75,7 @@ export default function AdminWebinars() {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description, date, time, originalPrice, price, seatsTotal })
+        body: JSON.stringify({ title, description, date, time, originalPrice, price, seatsTotal, meetingLink })
       });
       
       if (!res.ok) throw new Error(editingId ? 'Failed to update webinar' : 'Failed to add webinar');
@@ -136,6 +139,11 @@ export default function AdminWebinars() {
                 <label>Time (e.g. 6:00 PM IST)</label>
                 <input type="text" value={time} onChange={(e) => setTime(e.target.value)} required placeholder="e.g. 10:00 AM - 12:00 PM" />
               </div>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label>Meeting Link (Zoom/Google Meet) - <span style={{fontWeight: 'normal', color: '#6B7280'}}>Users will see this in their dashboard after purchasing</span></label>
+              <input type="url" value={meetingLink} onChange={(e) => setMeetingLink(e.target.value)} placeholder="https://us02web.zoom.us/j/..." />
             </div>
 
             <div className={styles.row}>
