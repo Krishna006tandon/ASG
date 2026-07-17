@@ -137,7 +137,7 @@ export default function AdminSeminars() {
               </div>
               <div className={styles.inputGroup}>
                 <label>Time</label>
-                <input type="text" value={time} onChange={(e) => setTime(e.target.value)} required placeholder="e.g. 10:00 AM - 4:00 PM" />
+                <input type="time" value={time} onChange={(e) => setTime(e.target.value)} required />
               </div>
             </div>
 

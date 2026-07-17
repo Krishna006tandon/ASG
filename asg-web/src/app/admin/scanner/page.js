@@ -32,9 +32,13 @@ export default function ScannerPage() {
     return () => {
       // Cleanup on unmount
       if (scannerRef.current) {
-        scannerRef.current.clear().catch(error => {
-          console.error("Failed to clear html5QrcodeScanner. ", error);
-        });
+        try {
+          scannerRef.current.clear().catch(error => {
+            console.warn("Ignored async clear error: ", error);
+          });
+        } catch (error) {
+          console.warn("Ignored sync clear error: ", error);
+        }
         scannerRef.current = null;
       }
     };

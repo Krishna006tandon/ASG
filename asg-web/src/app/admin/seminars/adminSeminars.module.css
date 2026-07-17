@@ -21,7 +21,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: 350px 1fr;
+  grid-template-columns: 420px 1fr;
   gap: 2rem;
   align-items: start;
 }
@@ -60,10 +60,12 @@
 .row {
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .row .inputGroup {
   flex: 1;
+  min-width: 120px;
 }
 
 .inputGroup label {

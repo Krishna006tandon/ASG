@@ -30,26 +30,52 @@
 
 .qrReader {
   width: 100%;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qrReader > div {
+  width: 100% !important;
+  border: none !important;
 }
 
 /* Override html5-qrcode default styling */
 .qrReader button {
-  background: #059669;
+  background: #4F46E5;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  padding: 0.75rem 2rem;
+  border-radius: 99px;
   font-weight: 600;
   cursor: pointer;
-  margin: 0.5rem;
+  margin: 1rem auto;
+  display: block;
+  transition: all 0.2s ease;
+}
+
+.qrReader button:hover {
+  background: #4338CA;
 }
 
 .qrReader select {
-  padding: 0.5rem;
+  padding: 0.75rem 1rem;
   border-radius: 8px;
   border: 1px solid #D1D5DB;
+  margin: 0 auto 1rem auto;
+  display: block;
+  min-width: 250px;
+  font-family: inherit;
+}
+
+.qrReader a {
+  color: #4F46E5;
+  text-decoration: none;
+  font-weight: 500;
+  display: block;
+  text-align: center;
   margin-bottom: 1rem;
 }
 
