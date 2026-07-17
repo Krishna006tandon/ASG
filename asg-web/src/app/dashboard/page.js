@@ -2,16 +2,26 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { QRCodeCanvas } from 'qrcode.react';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import TicketPDF from '@/components/TicketPDF';
+import { useRef } from 'react';
 import styles from './dashboard.module.css';
 
 export default function ClientDashboard() {
   const [consultations, setConsultations] = useState([]);
   const [orders, setOrders] = useState([]);
   const [webinars, setWebinars] = useState([]);
+  const [seminars, setSeminars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(null);
   const [activeTab, setActiveTab] = useState('consultations'); // 'consultations', 'orders', 'webinars'
+  const [generatingPdfFor, setGeneratingPdfFor] = useState(null);
+  const [sharingFor, setSharingFor] = useState(null);
+  const [pdfTicketData, setPdfTicketData] = useState(null);
+  const ticketRef = useRef(null);
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -38,10 +48,11 @@ export default function ClientDashboard() {
       if (!res.ok) throw new Error('Failed to fetch your data');
       const data = await res.json();
       
-      // Data contains { consultations, orders, webinars }
+      // Data contains { consultations, orders, webinars, seminarRegistrations }
       setConsultations(data.consultations || []);
       setOrders(data.orders || []);
       setWebinars(data.webinars || []);
+      setSeminars(data.seminarRegistrations || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -52,6 +63,86 @@ export default function ClientDashboard() {
   useEffect(() => {
     fetchMyConsultations();
   }, []);
+
+  const handleDownloadPDF = async (ticket) => {
+    setGeneratingPdfFor(ticket._id);
+    setPdfTicketData(ticket);
+    
+    // Give React a moment to render the hidden component with the new data
+    setTimeout(async () => {
+      try {
+        if (!ticketRef.current) return;
+        
+        const canvas = await html2canvas(ticketRef.current, {
+          scale: 3, // High resolution
+          useCORS: true,
+          backgroundColor: null,
+        });
+        
+        const imgData = canvas.toDataURL('image/png');
+        
+        // Calculate dimensions (Landscape A4 roughly or custom size)
+        // A4 size: 297mm x 210mm
+        // Let's use custom size based on aspect ratio
+        const pdf = new jsPDF({
+          orientation: 'landscape',
+          unit: 'px',
+          format: [canvas.width, canvas.height]
+        });
+        
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save(`VIP_Ticket_${ticket.ticketNumber}.pdf`);
+        
+      } catch (err) {
+        console.error("PDF Generation failed", err);
+        alert("Failed to generate PDF. Please try again.");
+      } finally {
+        setGeneratingPdfFor(null);
+      }
+    }, 500);
+  };
+
+  const handleShareWhatsApp = async (ticket) => {
+    setSharingFor(ticket._id);
+    setPdfTicketData(ticket);
+    
+    // Give React a moment to render the hidden component
+    setTimeout(async () => {
+      try {
+        if (!ticketRef.current) return;
+        
+        const canvas = await html2canvas(ticketRef.current, {
+          scale: 3,
+          useCORS: true,
+          backgroundColor: null,
+        });
+        
+        canvas.toBlob(async (blob) => {
+          const file = new File([blob], `VIP_Ticket_${ticket.ticketNumber}.png`, { type: 'image/png' });
+          
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                title: 'Masterclass VIP Ticket',
+                text: 'Here is your VIP Ticket for the Masterclass!',
+                files: [file]
+              });
+            } catch (shareError) {
+              console.error("User cancelled or error sharing:", shareError);
+            }
+          } else {
+            alert("Direct file sharing is not supported on this browser (usually requires Safari iOS or Chrome Android). Please download the PDF instead.");
+          }
+          setSharingFor(null);
+        }, 'image/png');
+        
+      } catch (err) {
+        console.error("Image Generation failed", err);
+        alert("Failed to generate ticket image. Please try again.");
+        setSharingFor(null);
+      }
+    }, 500);
+  };
 
   const handlePayment = async (appt) => {
     setIsProcessing(appt._id);
@@ -208,7 +299,6 @@ export default function ClientDashboard() {
   return (
     <main className={styles.main}>
       <div className={styles.container}>
-        {/* Tabs Navigation */}
         <div className={styles.tabsNav}>
           <button 
             className={`${styles.tabBtn} ${activeTab === 'consultations' ? styles.activeTab : ''}`}
@@ -228,9 +318,14 @@ export default function ClientDashboard() {
           >
             Store Orders
           </button>
+          <button 
+            className={`${styles.tabBtn} ${activeTab === 'seminars' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('seminars')}
+          >
+            My Seminars
+          </button>
         </div>
 
-        {/* Consultations Tab */}
         {activeTab === 'consultations' && (
           <div className={styles.section}>
             <div className={styles.headerRow}>
@@ -273,9 +368,9 @@ export default function ClientDashboard() {
                         <button 
                           onClick={() => handlePayment(appt._id, appt.charges)} 
                           className={`btn-accent ${styles.payBtn}`}
-                          disabled={isProcessing}
+                          disabled={isProcessing === appt._id}
                         >
-                          {isProcessing ? 'Processing...' : `Pay ₹${appt.charges} with Razorpay`}
+                          {isProcessing === appt._id ? 'Processing...' : `Pay ₹${appt.charges} with Razorpay`}
                         </button>
                       )}
                       {appt.paymentStatus === 'Paid' && (
@@ -298,7 +393,6 @@ export default function ClientDashboard() {
           </div>
         )}
 
-        {/* Store Orders Tab */}
         {activeTab === 'orders' && (
           <div className={styles.section}>
             <div className={styles.headerRow}>
@@ -435,6 +529,95 @@ export default function ClientDashboard() {
             )}
           </div>
         )}
+
+        {/* Seminars Tab */}
+        {activeTab === 'seminars' && (
+          <div className={styles.section}>
+            <div className={styles.headerRow}>
+              <h2>My In-Person Seminars</h2>
+              <Link href="/seminars" className="btn-primary">Browse Seminars</Link>
+            </div>
+
+            {seminars.length === 0 ? (
+              <div className={styles.emptyState}>
+                <p>You haven't booked any seminar tickets yet.</p>
+              </div>
+            ) : (
+              <div className={styles.grid}>
+                {seminars.map(reg => (
+                  <div key={reg._id} className={styles.card} style={{ borderLeft: '4px solid #059669', overflow: 'hidden' }}>
+                    <div style={{ background: '#059669', color: 'white', padding: '0.5rem 1rem', fontSize: '0.85rem', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span>ASG VIP TICKET</span>
+                      <span style={{ fontFamily: 'monospace', fontSize: '1rem', letterSpacing: '2px' }}>{reg.ticketNumber}</span>
+                    </div>
+                    <div className={styles.cardHeader} style={{ paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', gap: '1rem' }}>
+                        <div className={styles.dateBadge} style={{ background: '#ECFDF5', color: '#059669' }}>
+                          <span className={styles.month}>{new Date(reg.seminarId?.date).toLocaleDateString('en-US', { month: 'short' })}</span>
+                          <span className={styles.day}>{new Date(reg.seminarId?.date).getDate()}</span>
+                        </div>
+                        <div className={styles.timeInfo}>
+                          <h3>{reg.seminarId?.time}</h3>
+                          <span className={`${styles.statusBadge} ${styles.paid}`}>
+                            {reg.paymentStatus}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* QR Code Block */}
+                      <div style={{ background: 'white', padding: '0.5rem', borderRadius: '8px', border: '1px solid #E5E7EB', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                        <QRCodeCanvas 
+                          value={`${typeof window !== 'undefined' ? window.location.origin : ''}/ticket/${reg.ticketNumber}`} 
+                          size={60} 
+                          bgColor={"#ffffff"}
+                          fgColor={"#000000"}
+                          level={"Q"}
+                          includeMargin={false}
+                        />
+                        <span style={{ fontSize: '0.6rem', color: '#6B7280', marginTop: '0.25rem' }}>Scan at Entry</span>
+                      </div>
+                    </div>
+                    
+                    <div className={styles.cardBody}>
+                      <h4 style={{margin: '0 0 0.5rem 0', color: '#111827', fontSize: '1.2rem'}}>{reg.seminarId?.title}</h4>
+                      
+                      <div style={{ padding: '1rem', background: '#F9FAFB', borderRadius: '8px', marginBottom: '1rem', border: '1px dashed #D1D5DB' }}>
+                        <div style={{ fontSize: '0.85rem', color: '#6B7280', marginBottom: '0.25rem' }}>VENUE LOCATION</div>
+                        <div style={{ fontWeight: '500', color: '#111827' }}>📍 {reg.seminarId?.locationAddress}</div>
+                      </div>
+
+                      <div className={styles.paidContainer} style={{ background: '#ECFDF5', border: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div className={styles.paidBadge} style={{ color: '#059669' }}>✓ Ticket Confirmed for {reg.registrationData?.name}</div>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button 
+                            className="btn-accent" 
+                            style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#25D366', color: 'white' }}
+                            onClick={() => handleShareWhatsApp(reg)}
+                            disabled={sharingFor === reg._id}
+                          >
+                            {sharingFor === reg._id ? '⏳...' : '💬 WhatsApp'}
+                          </button>
+                          <button 
+                            className="btn-accent" 
+                            style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                            onClick={() => handleDownloadPDF(reg)}
+                            disabled={generatingPdfFor === reg._id}
+                          >
+                            {generatingPdfFor === reg._id ? '⏳ Generating...' : '⬇ Download PDF'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        {/* Hidden Ticket Component for PDF Rendering */}
+        <div style={{ position: 'fixed', top: 0, left: 0, pointerEvents: 'none', zIndex: -100 }}>
+          <TicketPDF ticket={pdfTicketData} ticketRef={ticketRef} />
+        </div>
       </div>
     </main>
   );

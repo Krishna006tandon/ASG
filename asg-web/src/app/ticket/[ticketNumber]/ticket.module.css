@@ -1,0 +1,107 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F3F4F6;
+  padding: 2rem;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.validCard {
+  background: white;
+  width: 100%;
+  max-width: 450px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border-top: 8px solid #059669;
+}
+
+.invalidCard {
+  background: white;
+  width: 100%;
+  max-width: 450px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border-top: 8px solid #DC2626;
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.invalidCard .icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.invalidCard h2 {
+  color: #DC2626;
+  margin-bottom: 0.5rem;
+}
+
+.header {
+  background: #ECFDF5;
+  padding: 2rem;
+  text-align: center;
+  border-bottom: 1px dashed #D1D5DB;
+}
+
+.header .icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.header h2 {
+  color: #059669;
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+}
+
+.ticketDetails {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: #6B7280;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.value {
+  font-size: 1.1rem;
+  color: #111827;
+  font-weight: 500;
+}
+
+.badge {
+  display: inline-block;
+  background: #D1FAE5;
+  color: #065F46;
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.footer {
+  background: #F9FAFB;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #9CA3AF;
+  border-top: 1px solid #E5E7EB;
+}

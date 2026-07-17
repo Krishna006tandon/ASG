@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -131,6 +133,8 @@ export default function Navbar() {
           <Link href="/about">About</Link>
           <Link href="/ecommerce">Store</Link>
           <Link href="/recommends">Recommends</Link>
+          <Link href="/webinars" className={pathname === '/webinars' ? styles.active : ''}>Masterclasses</Link>
+          <Link href="/seminars" className={pathname === '/seminars' ? styles.active : ''}>Seminars</Link>
           <Link href="/contact">Contact</Link>
         </div>
         
