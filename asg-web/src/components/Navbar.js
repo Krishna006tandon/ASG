@@ -129,13 +129,13 @@ export default function Navbar() {
           Avinash<span>.</span>
         </Link>
         <div className={styles.links}>
-          <Link href="/">Home</Link>
-          <Link href="/about">About</Link>
-          <Link href="/ecommerce">Store</Link>
-          <Link href="/recommends">Recommends</Link>
+          <Link href="/" className={pathname === '/' ? styles.active : ''}>Home</Link>
+          <Link href="/about" className={pathname === '/about' ? styles.active : ''}>About</Link>
+          <Link href="/ecommerce" className={pathname === '/ecommerce' ? styles.active : ''}>Store</Link>
+          <Link href="/recommends" className={pathname === '/recommends' ? styles.active : ''}>Recommends</Link>
           <Link href="/webinars" className={pathname === '/webinars' ? styles.active : ''}>Masterclasses</Link>
           <Link href="/seminars" className={pathname === '/seminars' ? styles.active : ''}>Seminars</Link>
-          <Link href="/contact">Contact</Link>
+          <Link href="/contact" className={pathname === '/contact' ? styles.active : ''}>Contact</Link>
         </div>
         
         <div className={styles.actions}>

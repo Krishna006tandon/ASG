@@ -16,7 +16,7 @@
   display: inline-block;
   padding: 0.25rem 0.75rem;
   background: var(--primary-light);
-  color: #7942b5;
+  color: #1D4ED8;
   border-radius: 9999px;
   font-size: 0.85rem;
   font-weight: 600;
@@ -34,7 +34,7 @@
 }
 
 .hero h1 span {
-  background: linear-gradient(135deg, #7942b5, var(--primary-dark));
+  background: linear-gradient(135deg, #1D4ED8, var(--primary-dark));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
