@@ -42,5 +42,6 @@
 }
 
 .buyLink:hover {
+  color: #FFFFFF;
   opacity: 0.8;
 }
