@@ -129,13 +129,13 @@ export default function Navbar() {
           Avinash<span>.</span>
         </Link>
         <div className={styles.links}>
-          <Link href="/">Home</Link>
-          <Link href="/about">About</Link>
-          <Link href="/ecommerce">Store</Link>
-          <Link href="/recommends">Recommends</Link>
+          <Link href="/" className={pathname === '/' ? styles.active : ''}>Home</Link>
+          <Link href="/about" className={pathname === '/about' ? styles.active : ''}>About</Link>
+          <Link href="/ecommerce" className={pathname === '/ecommerce' ? styles.active : ''}>Store</Link>
+          <Link href="/recommends" className={pathname === '/recommends' ? styles.active : ''}>Recommends</Link>
           <Link href="/webinars" className={pathname === '/webinars' ? styles.active : ''}>Masterclasses</Link>
           <Link href="/seminars" className={pathname === '/seminars' ? styles.active : ''}>Seminars</Link>
-          <Link href="/contact">Contact</Link>
+          <Link href="/contact" className={pathname === '/contact' ? styles.active : ''}>Contact</Link>
         </div>
         
         <div className={styles.actions}>
@@ -145,9 +145,22 @@ export default function Navbar() {
                 <button 
                   className={styles.cartIcon} 
                   onClick={() => setIsCartOpen(!isCartOpen)}
-                  style={{background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', position: 'relative'}}
+                  style={{background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', position: 'relative', padding: 0}}
                 >
-                  🛒 <span className={styles.badge}>{cartCount}</span>
+                  <svg 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    style={{ width: '22px', height: '22px', color: '#374151' }}
+                  >
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                  </svg>
+                  <span className={styles.badge}>{cartCount}</span>
                 </button>
                 
                 {isCartOpen && (
@@ -217,9 +230,22 @@ export default function Navbar() {
                 <button 
                   className={styles.cartIcon} 
                   onClick={() => setIsCartOpen(!isCartOpen)}
-                  style={{background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', position: 'relative'}}
+                  style={{background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', position: 'relative', padding: 0}}
                 >
-                  🛒 <span className={styles.badge}>{cartCount}</span>
+                  <svg 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    style={{ width: '22px', height: '22px', color: '#374151' }}
+                  >
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                  </svg>
+                  <span className={styles.badge}>{cartCount}</span>
                 </button>
                 {isCartOpen && (
                   <div className={styles.cartDropdown}>
