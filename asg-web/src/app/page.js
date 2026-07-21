@@ -21,7 +21,7 @@ export default async function Home() {
       {/* Hero Section */}
       <header className={`${styles.hero} animate-fade-in`}>
         <div className={styles.heroBadge}>Avinash Professional</div>
-        <h1>Elevate Your <span>Business & Finances</span></h1>
+        <h1><span className={styles.gradientText}>Elevate Your</span> <span>Business & Finances</span></h1>
         <p>Expert Guidance in Startups, E-Commerce, and Financial Literacy tailored for the modern professional.</p>
         
         <div className={styles.ctaGroup}>
