@@ -17,7 +17,7 @@
 }
 
 .header p {
-  color: var(--text-secondary);
+  color: #111827;
   font-size: 1.15rem;
 }
 
@@ -35,7 +35,7 @@
   font-size: 0.9rem;
   font-weight: 600;
   color: #FFFFFF;
-  background: var(--primary-dark);
+  background: var(--primary-color);
   padding: 0.5rem 1rem;
   border-radius: 6px;
   transition: opacity 0.2s;
