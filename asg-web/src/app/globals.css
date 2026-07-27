@@ -1,10 +1,10 @@
 :root {
-  /* Refined Color Palette - Professional Blue Theme */
-  --primary-light: #EFF6FF;
-  --primary-medium-light: #DBEAFE;
-  --primary-medium: #BFDBFE;
-  --primary-dark: #3B82F6;
-  --primary-color: #2563EB;
+  /* Refined Color Palette - Professional Purple Theme */
+  --primary-light: #F1EAFF;
+  --primary-medium-light: #E5D4FF;
+  --primary-medium: #DCBFFF;
+  --primary-dark: #D0A2F7;
+  --primary-color: #7942b5;
   
   --bg-color: #FAFAFB;
   --text-primary: #1F2937;
@@ -15,7 +15,7 @@
   --glass-bg: rgba(255, 255, 255, 0.9);
   --glass-border: rgba(255, 255, 255, 0.9);
   --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.03), inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 1px 3px rgba(0, 0, 0, 0.02);
-  --glass-shadow-hover: 0 20px 40px rgba(59, 130, 246, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.8), 0 4px 6px rgba(0, 0, 0, 0.02);
+  --glass-shadow-hover: 0 20px 40px rgba(208, 162, 247, 0.08), inset 0 1px 2px rgba(255, 255, 255, 0.8), 0 4px 6px rgba(0, 0, 0, 0.02);
 }
 
 * {
@@ -29,11 +29,11 @@ body {
   color: var(--text-primary);
   font-family: var(--font-geist-sans), 'Inter', sans-serif;
   line-height: 1.6;
-  /* Clean, professional background mesh - Blue style */
+  /* Clean, professional background mesh - Purple style */
   background-image: 
-    radial-gradient(at 0% 0%, rgba(239, 246, 255, 0.8) 0px, transparent 40%),
-    radial-gradient(at 100% 0%, rgba(219, 234, 254, 0.6) 0px, transparent 40%),
-    radial-gradient(at 50% 100%, rgba(147, 197, 253, 0.2) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(241, 234, 255, 0.8) 0px, transparent 40%),
+    radial-gradient(at 100% 0%, rgba(229, 212, 255, 0.6) 0px, transparent 40%),
+    radial-gradient(at 50% 100%, rgba(208, 162, 247, 0.2) 0px, transparent 50%);
   background-attachment: fixed;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -90,7 +90,7 @@ a:hover {
   transform: translateY(-6px) scale(1.01);
   background: rgba(255, 255, 255, 0.95);
   box-shadow: var(--glass-shadow-hover);
-  border-color: rgba(59, 130, 246, 0.25);
+  border-color: rgba(208, 162, 247, 0.25);
 }
 
 /* Professional Button */
@@ -118,7 +118,7 @@ a:hover {
 
 /* Accent Button for contrast */
 .btn-accent {
-  background: var(--primary-dark);
+  background: var(--primary-color);
   color: #FFFFFF;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -130,9 +130,9 @@ a:hover {
 }
 
 .btn-accent:hover {
-  background: #2563EB;
+  background: #b886e5;
   color: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 12px rgba(208, 162, 247, 0.4);
 }
 
 /* Animations */

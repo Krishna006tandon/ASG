@@ -17,7 +17,7 @@
 }
 
 .header p {
-  color: var(--text-secondary);
+  color: #111827;
   font-size: 1.15rem;
 }
 
@@ -37,7 +37,7 @@
   bottom: 0;
   left: 20px;
   width: 2px;
-  background: var(--border-color);
+  background: var(--primary-medium);
 }
 
 .timelineItem {
@@ -52,14 +52,14 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--primary-dark);
+  background: var(--primary-color);
   border: 3px solid #FFFFFF;
   box-shadow: 0 0 0 2px var(--primary-medium-light);
 }
 
 .date {
   font-weight: 600;
-  color: var(--primary-dark);
+  color: var(--primary-color);
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
 }
@@ -69,7 +69,7 @@
   margin-top: 1rem;
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--primary-dark);
+  color: var(--primary-color);
   transition: opacity 0.2s;
 }
 
