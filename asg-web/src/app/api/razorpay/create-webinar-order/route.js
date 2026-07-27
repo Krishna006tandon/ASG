@@ -28,11 +28,11 @@ export async function POST(req) {
 
     const webinar = await Webinar.findById(webinarId);
     if (!webinar) {
-      return NextResponse.json({ error: 'Masterclass not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Webinar not found' }, { status: 404 });
     }
 
     if (webinar.seatsBooked >= webinar.seatsTotal) {
-      return NextResponse.json({ error: 'This masterclass is completely sold out.' }, { status: 400 });
+      return NextResponse.json({ error: 'This webinar is completely sold out.' }, { status: 400 });
     }
 
     const amountInPaise = webinar.price * 100;

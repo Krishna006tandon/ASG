@@ -30,10 +30,10 @@ export default function TicketPDF({ ticket, ticketRef }) {
         </div>
         
         <h3 style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#059669', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: '700' }}>
-          Official Masterclass Pass
+          Official Webinar Pass
         </h3>
         <h1 style={{ margin: '0 0 30px 0', fontSize: '32px', fontWeight: '800', lineHeight: '1.2', maxWidth: '450px', color: '#111827' }}>
-          {ticket.seminarId?.title || 'Exclusive Masterclass'}
+          {ticket.seminarId?.title || 'Exclusive Webinar'}
         </h1>
         
         <div style={{ display: 'flex', gap: '50px' }}>

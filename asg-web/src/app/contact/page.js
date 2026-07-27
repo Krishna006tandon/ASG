@@ -17,7 +17,7 @@ export default function Contact() {
     <main className={styles.main}>
       <header className={`${styles.header} animate-fade-in`}>
         <h1>Contact Us</h1>
-        <p>Reach out for masterclass inquiries, business advice, or direct consultations.</p>
+        <p>Reach out for webinar inquiries, business advice, or direct consultations.</p>
       </header>
 
       <section className={styles.formSection}>

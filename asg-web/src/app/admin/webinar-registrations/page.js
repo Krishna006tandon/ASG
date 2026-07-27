@@ -32,7 +32,7 @@ export default function AdminWebinarRegistrations() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Webinar Registrations</h1>
-        <p>View all attendees who have registered for masterclasses.</p>
+        <p>View all attendees who have registered for webinars.</p>
       </div>
 
       <div className={styles.card}>
@@ -41,7 +41,7 @@ export default function AdminWebinarRegistrations() {
             <thead>
               <tr>
                 <th>Attendee Details</th>
-                <th>Masterclass</th>
+                <th>Webinar</th>
                 <th>Profession / Role</th>
                 <th>Payment</th>
                 <th>Registration Date</th>

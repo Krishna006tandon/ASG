@@ -93,7 +93,7 @@ export default function AdminWebinars() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this masterclass?')) return;
+    if (!window.confirm('Are you sure you want to delete this webinar?')) return;
     
     try {
       const res = await fetch(`/api/admin/webinars/${id}`, { method: 'DELETE' });
@@ -111,14 +111,14 @@ export default function AdminWebinars() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>Webinar & Masterclass Manager</h1>
+        <h1>Webinar Manager</h1>
         <p>Schedule live sessions and manage available seats.</p>
       </div>
 
       <div className={styles.grid}>
         {/* Left Side: Add New Webinar */}
         <div className={styles.card}>
-          <h2>{editingId ? 'Edit Masterclass' : 'Schedule New Masterclass'}</h2>
+          <h2>{editingId ? 'Edit Webinar' : 'Schedule New Webinar'}</h2>
           <form onSubmit={handleAddWebinar} className={styles.form}>
             <div className={styles.inputGroup}>
               <label>Webinar Title</label>
@@ -163,7 +163,7 @@ export default function AdminWebinars() {
             
             <div style={{display: 'flex', gap: '1rem'}}>
               <button type="submit" className={`btn-primary ${styles.submitBtn}`} disabled={isSubmitting} style={{flex: 1}}>
-                {isSubmitting ? 'Saving...' : (editingId ? 'Update Masterclass' : 'Publish Masterclass')}
+                {isSubmitting ? 'Saving...' : (editingId ? 'Update Webinar' : 'Publish Webinar')}
               </button>
               {editingId && (
                 <button type="button" onClick={handleCancelEdit} className="btn-secondary" style={{flex: 1}}>
@@ -176,7 +176,7 @@ export default function AdminWebinars() {
 
         {/* Right Side: Current Webinars */}
         <div className={`${styles.card} ${styles.inventoryCard}`}>
-          <h2>Scheduled Masterclasses</h2>
+          <h2>Scheduled Webinars</h2>
           <div className={styles.tableWrapper}>
             <table className={styles.table}>
               <thead>

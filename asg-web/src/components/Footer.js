@@ -13,7 +13,7 @@ export default function Footer() {
           <div className={styles.column}>
             <h4>Platform</h4>
             <Link href="/about">About</Link>
-            <Link href="/recommends">Recommendations</Link>
+            <Link href="/recommends">Blog</Link>
             <Link href="/contact">Contact</Link>
           </div>
           <div className={styles.column}>

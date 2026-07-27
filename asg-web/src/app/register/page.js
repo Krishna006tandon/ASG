@@ -41,7 +41,7 @@ export default function Register() {
       <div className={`glass-card ${styles.authCard}`}>
         <div className={styles.header}>
           <h2>Create an Account</h2>
-          <p>Join the Avinash Platform to book masterclasses and manage your orders.</p>
+          <p>Join the Avinash Platform to book webinars and manage your orders.</p>
         </div>
 
         <form onSubmit={handleRegister} className={styles.form}>

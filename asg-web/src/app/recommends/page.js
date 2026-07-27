@@ -1,34 +1,42 @@
 import styles from './recommends.module.css';
+import Link from 'next/link';
+import connectToDatabase from '@/lib/mongodb';
+import Blog from '@/models/Blog';
 
 export const metadata = {
-  title: "Avinash Recommends | Matrix",
+  title: "Avinash Blog | Matrix",
 };
 
-export default function Recommends() {
-  const recommendations = [
-    { title: "Fitness Items", desc: "Adjustable dumbbells and smart scales to track physical health, which is crucial for mental stamina.", link: "#" },
-    { title: "Productivity Tools", desc: "Notion for organizing startup strategies and Todoist for daily task tracking.", link: "#" },
-    { title: "Meditation", desc: "Headspace subscriptions to maintain focus and reduce burnout during scaling phases.", link: "#" },
-    { title: "Travel Setups", desc: "Minimalist carry-on tech backpacks and noise-cancelling headphones for deep work anywhere.", link: "#" },
-    { title: "Associate Businesses", desc: "Trusted legal consultants and accounting firms for rapid business registration.", link: "#" },
-  ];
+export const dynamic = 'force-dynamic';
+
+export default async function Recommends() {
+  await connectToDatabase();
+  const blogs = await Blog.find({ isPublished: true }).sort({ createdAt: -1 }).lean();
 
   return (
     <main className={styles.main}>
       <header className={`${styles.header} animate-fade-in`}>
-        <h1>Avinash Recommends Matrix</h1>
-        <p>Curated assets, tools, and services highly recommended for personal and professional growth.</p>
+        <h1>Avinash Blog Matrix</h1>
+        <p>Curated insights, strategies, and articles for personal and professional growth.</p>
       </header>
 
-      <section className={styles.grid}>
-        {recommendations.map((item, idx) => (
-          <div key={idx} className="glass-card">
-            <h3>{item.title}</h3>
-            <p>{item.desc}</p>
-            <a href={item.link} className={styles.buyLink}>Purchase / View &rarr;</a>
-          </div>
-        ))}
-      </section>
+      {blogs.length === 0 ? (
+        <section style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-secondary)' }}>
+          <h2>Blogs coming soon!</h2>
+          <p>Stay tuned for exciting new content.</p>
+        </section>
+      ) : (
+        <section className={styles.grid}>
+          {blogs.map(blog => (
+            <div key={blog._id.toString()} className="glass-card">
+              <div style={{fontSize: '0.8rem', color: 'var(--primary-color)', fontWeight: 'bold', marginBottom: '0.5rem'}}>{blog.category}</div>
+              <h3>{blog.title}</h3>
+              <p style={{fontSize: '0.9rem', color: '#6B7280', margin: '0.5rem 0'}}>{blog.excerpt}</p>
+              <Link href={`/blog/${blog.slug}`} style={{fontSize: '0.9rem', color: 'var(--primary-dark)', fontWeight: 'bold', textDecoration: 'none'}}>Read More &rarr;</Link>
+            </div>
+          ))}
+        </section>
+      )}
     </main>
   );
 }

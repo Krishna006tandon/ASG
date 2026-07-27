@@ -123,8 +123,8 @@ export default function ClientDashboard() {
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             try {
               await navigator.share({
-                title: 'Masterclass VIP Ticket',
-                text: 'Here is your VIP Ticket for the Masterclass!',
+                title: 'Webinar VIP Ticket',
+                text: 'Here is your VIP Ticket for the Webinar!',
                 files: [file]
               });
             } catch (shareError) {
@@ -484,13 +484,13 @@ export default function ClientDashboard() {
         {activeTab === 'webinars' && (
           <div className={styles.section}>
             <div className={styles.headerRow}>
-              <h2>My Registered Masterclasses</h2>
-              <Link href="/webinars" className="btn-primary">Browse Masterclasses</Link>
+              <h2>My Registered Webinars</h2>
+              <Link href="/webinars" className="btn-primary">Browse Webinars</Link>
             </div>
 
             {webinars.length === 0 ? (
               <div className={styles.emptyState}>
-                <p>You haven't registered for any masterclasses yet.</p>
+                <p>You haven't registered for any webinars yet.</p>
               </div>
             ) : (
               <div className={styles.grid}>
