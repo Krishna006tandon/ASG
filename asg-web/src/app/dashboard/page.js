@@ -6,6 +6,7 @@ import { QRCodeCanvas } from 'qrcode.react';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import TicketPDF from '@/components/TicketPDF';
+import InvoicePDF from '@/components/InvoicePDF';
 import { useRef } from 'react';
 import styles from './dashboard.module.css';
 
@@ -20,6 +21,12 @@ export default function ClientDashboard() {
   const [activeTab, setActiveTab] = useState('consultations'); // 'consultations', 'orders', 'webinars'
   const [generatingPdfFor, setGeneratingPdfFor] = useState(null);
   const [sharingFor, setSharingFor] = useState(null);
+  
+  // Invoice state
+  const [generatingInvoiceFor, setGeneratingInvoiceFor] = useState(null);
+  const [invoiceData, setInvoiceData] = useState(null);
+  const invoiceRef = useRef(null);
+  
   const [pdfTicketData, setPdfTicketData] = useState(null);
   const ticketRef = useRef(null);
 
@@ -142,6 +149,73 @@ export default function ClientDashboard() {
         setSharingFor(null);
       }
     }, 500);
+  };
+
+  const handleDownloadInvoice = async (item, type) => {
+    try {
+      setGeneratingInvoiceFor(item._id);
+
+      // Map item to unified invoiceData format based on type
+      let mappedData = {
+        id: item._id,
+        date: item.createdAt || item.date || new Date().toISOString(),
+        type: type,
+        customer: item.customerDetails || item.registrationData || { name: 'Valued Customer', email: 'Customer' }, 
+        items: [],
+        totalAmount: 0
+      };
+
+      if (type === 'Consultation') {
+        mappedData.items = [{ title: `Consultation (${item.time})`, quantity: 1, price: item.charges }];
+        mappedData.totalAmount = item.charges;
+      } else if (type === 'Webinar Registration') {
+        mappedData.items = [{ title: item.webinarId?.title || 'Webinar', quantity: 1, price: item.amountPaid }];
+        mappedData.totalAmount = item.amountPaid;
+      } else if (type === 'Seminar Ticket') {
+        mappedData.items = [{ title: item.seminarId?.title || 'Seminar', quantity: 1, price: item.amountPaid }];
+        mappedData.totalAmount = item.amountPaid;
+      } else if (type === 'Store Order') {
+        mappedData.items = item.items.map(i => ({
+          title: i.title + (i.isPhysicalRequested ? ' (Physical)' : ' (E-Book)'),
+          quantity: i.quantity,
+          price: i.price + (i.isPhysicalRequested ? ((i.bookId?.physicalPrice || 0) + (i.bookId?.shippingCost || 0)) : 0)
+        }));
+        mappedData.totalAmount = item.totalAmount;
+      }
+
+      setInvoiceData(mappedData);
+
+      // Wait for state to update and React to render the hidden component
+      await new Promise(resolve => setTimeout(resolve, 300)); 
+
+      if (!invoiceRef.current) throw new Error("Invoice component not found");
+
+      const canvas = await html2canvas(invoiceRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`Invoice_${mappedData.id.substring(0, 8).toUpperCase()}.pdf`);
+
+    } catch (err) {
+      console.error(err);
+      alert("Failed to generate invoice.");
+    } finally {
+      setGeneratingInvoiceFor(null);
+      setInvoiceData(null);
+    }
   };
 
   const handlePayment = async (appt) => {
@@ -376,13 +450,23 @@ export default function ClientDashboard() {
                       {appt.paymentStatus === 'Paid' && (
                         <div className={styles.paidContainer}>
                           <div className={styles.paidBadge}>✓ Payment Complete</div>
-                          {appt.meetingLink ? (
-                            <a href={appt.meetingLink} target="_blank" rel="noopener noreferrer" className={`btn-primary ${styles.zoomBtn}`}>
-                              📹 Join Zoom Meeting
-                            </a>
-                          ) : (
-                            <div className={styles.pendingLink}>Meeting link pending...</div>
-                          )}
+                          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            {appt.meetingLink ? (
+                              <a href={appt.meetingLink} target="_blank" rel="noopener noreferrer" className={`btn-primary ${styles.zoomBtn}`}>
+                                📹 Join Zoom Meeting
+                              </a>
+                            ) : (
+                              <div className={styles.pendingLink}>Meeting link pending...</div>
+                            )}
+                            <button 
+                              className="btn-accent" 
+                              style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                              onClick={() => handleDownloadInvoice(appt, 'Consultation')}
+                              disabled={generatingInvoiceFor === appt._id}
+                            >
+                              {generatingInvoiceFor === appt._id ? '⏳ Generating...' : '⬇ Download Invoice'}
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -408,16 +492,28 @@ export default function ClientDashboard() {
               <div className={styles.grid}>
                 {orders.map(order => (
                   <div key={order._id} className={styles.card}>
-                    <div className={styles.cardHeader} style={{borderBottom: '1px solid #E5E7EB', paddingBottom: '1rem', marginBottom: '1rem'}}>
+                    <div className={styles.cardHeader} style={{borderBottom: '1px solid #E5E7EB', paddingBottom: '1rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem'}}>
                       <div>
                         <h3 style={{fontSize: '1.1rem', margin: '0'}}>Order #{order._id.substring(0, 8).toUpperCase()}</h3>
                         <div style={{fontSize: '0.85rem', color: '#6B7280', marginTop: '0.2rem'}}>
                           Placed on {new Date(order.createdAt).toLocaleDateString()}
                         </div>
                       </div>
-                      <span className={`${styles.statusBadge} ${styles[order.status.toLowerCase()] || styles.pending}`}>
-                        {order.status}
-                      </span>
+                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        <span className={`${styles.statusBadge} ${styles[order.status.toLowerCase()] || styles.pending}`}>
+                          {order.status}
+                        </span>
+                        {order.status !== 'Pending' && (
+                          <button 
+                            className="btn-accent" 
+                            style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
+                            onClick={() => handleDownloadInvoice(order, 'Store Order')}
+                            disabled={generatingInvoiceFor === order._id}
+                          >
+                            {generatingInvoiceFor === order._id ? '⏳...' : '⬇ Invoice'}
+                          </button>
+                        )}
+                      </div>
                     </div>
                     
                     <div className={styles.cardBody}>
@@ -514,13 +610,23 @@ export default function ClientDashboard() {
                       
                       <div className={styles.paidContainer}>
                         <div className={styles.paidBadge}>✓ Registration Confirmed</div>
-                        {reg.webinarId?.meetingLink ? (
-                          <a href={reg.webinarId.meetingLink} target="_blank" rel="noopener noreferrer" className={`btn-primary ${styles.zoomBtn}`}>
-                            📹 Join Meeting
-                          </a>
-                        ) : (
-                          <div className={styles.pendingLink}>Meeting link will be updated soon.</div>
-                        )}
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                          {reg.webinarId?.meetingLink ? (
+                            <a href={reg.webinarId.meetingLink} target="_blank" rel="noopener noreferrer" className={`btn-primary ${styles.zoomBtn}`}>
+                              📹 Join Meeting
+                            </a>
+                          ) : (
+                            <div className={styles.pendingLink}>Meeting link will be updated soon.</div>
+                          )}
+                          <button 
+                            className="btn-accent" 
+                            style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                            onClick={() => handleDownloadInvoice(reg, 'Webinar Registration')}
+                            disabled={generatingInvoiceFor === reg._id}
+                          >
+                            {generatingInvoiceFor === reg._id ? '⏳...' : '⬇ Invoice'}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -614,9 +720,10 @@ export default function ClientDashboard() {
             )}
           </div>
         )}
-        {/* Hidden Ticket Component for PDF Rendering */}
+        {/* Hidden Components for PDF Rendering */}
         <div style={{ position: 'fixed', top: 0, left: 0, pointerEvents: 'none', zIndex: -100 }}>
           <TicketPDF ticket={pdfTicketData} ticketRef={ticketRef} />
+          <InvoicePDF invoiceData={invoiceData} invoiceRef={invoiceRef} />
         </div>
       </div>
     </main>

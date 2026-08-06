@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
 
+/**
+ * UserSchema defines the data structure for users of the platform.
+ * Supports role-based access control (client vs admin).
+ */
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },

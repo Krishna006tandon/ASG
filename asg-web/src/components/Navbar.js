@@ -12,7 +12,27 @@ export default function Navbar() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+  const [checkoutDetails, setCheckoutDetails] = useState({
+    name: '', email: '', phone: '', address: ''
+  });
   const { cart, clearCart, removeFromCart, updateQuantity } = useCart();
+  // We use local state in Navbar to track physical requested toggles
+  const [physicalSelections, setPhysicalSelections] = useState({});
+
+  const updateCartItemPhysical = (id, checked) => {
+    setPhysicalSelections(prev => ({ ...prev, [id]: checked }));
+  };
+
+  const calculateFinalTotal = () => {
+    return cart.reduce((sum, item) => {
+      let itemTotal = item.price * item.quantity;
+      if (physicalSelections[item._id]) {
+        itemTotal += ((item.physicalPrice || 0) + (item.shippingCost || 0)) * item.quantity;
+      }
+      return sum + itemTotal;
+    }, 0);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('asg_token');
@@ -54,6 +74,11 @@ export default function Navbar() {
         return;
       }
 
+      const cartWithSelections = cart.map(item => ({
+        ...item,
+        isPhysicalRequested: physicalSelections[item._id] || false
+      }));
+
       // Create Order on Backend
       const orderRes = await fetch('/api/razorpay/create-store-order', {
         method: 'POST',
@@ -61,7 +86,7 @@ export default function Navbar() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ cart })
+        body: JSON.stringify({ cart: cartWithSelections, customerDetails: checkoutDetails })
       });
       
       const orderData = await orderRes.json();
@@ -84,7 +109,7 @@ export default function Navbar() {
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_signature: response.razorpay_signature,
-                cart: cart,
+                cart: cartWithSelections,
                 totalAmount: orderData.totalAmount,
                 customerDetails: orderData.customerDetails
               })
@@ -166,12 +191,67 @@ export default function Navbar() {
                 {isCartOpen && (
                   <div className={styles.cartDropdown}>
                     <div className={styles.cartHeader}>
-                      <h3>Your Cart</h3>
-                      <button onClick={() => setIsCartOpen(false)} className={styles.closeBtn}>&times;</button>
+                      <h3>{showCheckoutForm ? 'Checkout Details' : 'Your Cart'}</h3>
+                      <button onClick={() => { setIsCartOpen(false); setShowCheckoutForm(false); }} className={styles.closeBtn}>&times;</button>
                     </div>
                     
                     {cart.length === 0 ? (
                       <p className={styles.emptyCart}>Your cart is empty.</p>
+                    ) : showCheckoutForm ? (
+                      <div className={styles.cartBody}>
+                        <form onSubmit={(e) => { e.preventDefault(); handleStoreCheckout(); }} style={{display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
+                          <div>
+                            <label style={{fontSize: '0.85rem', fontWeight: '500'}}>Full Name *</label>
+                            <input required type="text" value={checkoutDetails.name} onChange={e => setCheckoutDetails({...checkoutDetails, name: e.target.value})} style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #D1D5DB'}} />
+                          </div>
+                          <div>
+                            <label style={{fontSize: '0.85rem', fontWeight: '500'}}>Email *</label>
+                            <input required type="email" value={checkoutDetails.email} onChange={e => setCheckoutDetails({...checkoutDetails, email: e.target.value})} style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #D1D5DB'}} />
+                          </div>
+                          
+                          <div style={{marginTop: '0.5rem', padding: '0.75rem', background: '#F3F4F6', borderRadius: '8px'}}>
+                            <h4 style={{fontSize: '0.9rem', marginBottom: '0.5rem'}}>Select Format</h4>
+                            {cart.map(item => (
+                              <div key={item._id} style={{marginBottom: '0.5rem', fontSize: '0.85rem'}}>
+                                <div style={{fontWeight: '500'}}>{item.title}</div>
+                                <label style={{display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.25rem'}}>
+                                  <input 
+                                    type="checkbox" 
+                                    checked={physicalSelections[item._id] || false}
+                                    onChange={(e) => updateCartItemPhysical(item._id, e.target.checked)}
+                                  />
+                                  <span>Add Physical Copy (+₹{(item.physicalPrice || 0) + (item.shippingCost || 0)})</span>
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+
+                          {cart.some(item => physicalSelections[item._id]) && (
+                            <>
+                              <div>
+                                <label style={{fontSize: '0.85rem', fontWeight: '500'}}>Phone Number *</label>
+                                <input required type="tel" value={checkoutDetails.phone} onChange={e => setCheckoutDetails({...checkoutDetails, phone: e.target.value})} style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #D1D5DB'}} placeholder="For delivery updates" />
+                              </div>
+                              <div>
+                                <label style={{fontSize: '0.85rem', fontWeight: '500'}}>Shipping Address *</label>
+                                <textarea required value={checkoutDetails.address} onChange={e => setCheckoutDetails({...checkoutDetails, address: e.target.value})} style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #D1D5DB', minHeight: '60px'}} placeholder="Full Street Address, City, State, Pincode" />
+                              </div>
+                            </>
+                          )}
+                          
+                          <div className={styles.cartTotal} style={{marginTop: '0.5rem', borderTop: '1px solid #E5E7EB', paddingTop: '0.5rem'}}>
+                            <span>Final Total:</span>
+                            <span>₹{calculateFinalTotal()}</span>
+                          </div>
+                          
+                          <div style={{display: 'flex', gap: '0.5rem', marginTop: '0.5rem'}}>
+                            <button type="button" onClick={() => setShowCheckoutForm(false)} className="btn-secondary" style={{flex: 1, padding: '0.5rem', background: '#E5E7EB', border: 'none', borderRadius: '6px', cursor: 'pointer'}}>Back</button>
+                            <button type="submit" className="btn-primary" style={{flex: 2, padding: '0.5rem'}} disabled={isCheckingOut}>
+                              {isCheckingOut ? 'Processing...' : 'Proceed to Payment'}
+                            </button>
+                          </div>
+                        </form>
+                      </div>
                     ) : (
                       <div className={styles.cartBody}>
                         {cart.map(item => (
@@ -198,12 +278,19 @@ export default function Navbar() {
                           <span>₹{cartTotal}</span>
                         </div>
                         <button 
-                          onClick={handleStoreCheckout} 
+                          onClick={() => {
+                            const token = localStorage.getItem('asg_token');
+                            if (!token) {
+                              alert("Please login to checkout.");
+                              window.location.href = '/login';
+                              return;
+                            }
+                            setShowCheckoutForm(true);
+                          }} 
                           className="btn-primary" 
                           style={{width: '100%', marginTop: '1rem'}}
-                          disabled={isCheckingOut}
                         >
-                          {isCheckingOut ? 'Processing...' : 'Checkout Now'}
+                          Checkout Now
                         </button>
                       </div>
                     )}
@@ -284,7 +371,7 @@ export default function Navbar() {
                 )}
               </div>
               <Link href="/login">
-                <button className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>Client Login</button>
+                <button className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>Login</button>
               </Link>
             </div>
           )}

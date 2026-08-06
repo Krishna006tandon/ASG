@@ -10,7 +10,7 @@ export async function POST(req) {
       return NextResponse.json({ error: 'You must be logged in to checkout.' }, { status: 401 });
     }
 
-    const { cart } = await req.json();
+    const { cart, customerDetails = {} } = await req.json();
 
     if (!cart || cart.length === 0) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
@@ -19,7 +19,13 @@ export async function POST(req) {
     await connectToDatabase();
     
     // Calculate total securely (in a real app, you'd fetch the DB prices for each ID to prevent tampering)
-    const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const totalAmount = cart.reduce((sum, item) => {
+      let itemTotal = item.price * item.quantity;
+      if (item.isPhysicalRequested) {
+        itemTotal += ((item.physicalPrice || 0) + (item.shippingCost || 0)) * item.quantity;
+      }
+      return sum + itemTotal;
+    }, 0);
 
     // Initialize Razorpay
     const razorpay = new Razorpay({
@@ -42,8 +48,10 @@ export async function POST(req) {
       key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_YourTestKeyHere',
       totalAmount,
       customerDetails: {
-        name: user.name || 'User',
-        email: user.email
+        name: customerDetails.name || user.name || 'User',
+        email: customerDetails.email || user.email,
+        phone: customerDetails.phone || '',
+        address: customerDetails.address || ''
       }
     }, { status: 200 });
 

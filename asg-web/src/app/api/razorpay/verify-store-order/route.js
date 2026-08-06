@@ -37,7 +37,10 @@ export async function POST(req) {
         bookId: item._id,
         title: item.title,
         price: item.price,
-        quantity: item.quantity
+        quantity: item.quantity,
+        isPhysicalRequested: item.isPhysicalRequested || false,
+        shippingAddress: item.isPhysicalRequested ? (customerDetails.address || '') : '',
+        physicalStatus: item.isPhysicalRequested ? 'Pending Dispatch' : 'Not Requested'
       })),
       totalAmount,
       customerDetails,
