@@ -88,9 +88,16 @@ export default function Navbar() {
         },
         body: JSON.stringify({ cart: cartWithSelections, customerDetails: checkoutDetails })
       });
-      
       const orderData = await orderRes.json();
-      if (!orderRes.ok) throw new Error(orderData.error);
+      if (!orderRes.ok) {
+        if (orderRes.status === 401) {
+          localStorage.removeItem('asg_token');
+          alert("Session expired. Please login again to checkout.");
+          window.location.href = '/login';
+          return;
+        }
+        throw new Error(orderData.error);
+      }
 
       // Initialize Razorpay
       const options = {

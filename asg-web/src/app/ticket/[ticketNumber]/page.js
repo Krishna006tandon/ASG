@@ -109,7 +109,7 @@ export default function TicketVerification({ params }) {
         <div className={styles.ticketDetails}>
           <div className={styles.row}>
             <span className={styles.label}>Ticket Number</span>
-            <span className={styles.value} style={{ fontFamily: 'monospace', fontSize: '1.2rem', letterSpacing: '2px', color: '#059669' }}>
+            <span className={styles.value} style={{ fontFamily: 'monospace', fontSize: '1.2rem', letterSpacing: '2px', color: 'var(--primary-color)' }}>
               {ticket.ticketNumber}
             </span>
           </div>
@@ -141,7 +141,7 @@ export default function TicketVerification({ params }) {
               style={{
                 width: '100%',
                 padding: '1rem',
-                background: '#059669',
+                background: 'var(--primary-color)',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',

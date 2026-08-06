@@ -7,6 +7,7 @@ import WebinarRegistration from '@/models/WebinarRegistration';
 import Webinar from '@/models/Webinar';
 import SeminarRegistration from '@/models/SeminarRegistration';
 import Seminar from '@/models/Seminar';
+import Book from '@/models/Book';
 import { authenticateApi } from '@/lib/auth';
 
 export async function GET(req) {

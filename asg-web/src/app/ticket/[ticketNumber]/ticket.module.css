@@ -3,28 +3,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #F3F4F6;
+  background: var(--bg-color);
   padding: 2rem;
   font-family: system-ui, -apple-system, sans-serif;
 }
 
 .validCard {
-  background: white;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
   width: 100%;
   max-width: 450px;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  border-top: 8px solid #059669;
+  box-shadow: var(--glass-shadow);
+  border-top: 8px solid var(--primary-color);
 }
 
 .invalidCard {
-  background: white;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
   width: 100%;
   max-width: 450px;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--glass-shadow);
   border-top: 8px solid #DC2626;
   text-align: center;
   padding: 3rem 2rem;
@@ -41,10 +43,10 @@
 }
 
 .header {
-  background: #ECFDF5;
+  background: var(--primary-light);
   padding: 2rem;
   text-align: center;
-  border-bottom: 1px dashed #D1D5DB;
+  border-bottom: 1px dashed var(--border-color);
 }
 
 .header .icon {
@@ -53,7 +55,7 @@
 }
 
 .header h2 {
-  color: #059669;
+  color: var(--primary-color);
   margin: 0;
   font-size: 1.5rem;
   letter-spacing: 1px;
@@ -74,7 +76,7 @@
 
 .label {
   font-size: 0.85rem;
-  color: #6B7280;
+  color: var(--text-secondary);
   text-transform: uppercase;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -82,14 +84,14 @@
 
 .value {
   font-size: 1.1rem;
-  color: #111827;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
 .badge {
   display: inline-block;
-  background: #D1FAE5;
-  color: #065F46;
+  background: var(--primary-medium-light);
+  color: var(--primary-color);
   padding: 0.25rem 0.75rem;
   border-radius: 99px;
   font-size: 0.85rem;
@@ -98,10 +100,10 @@
 }
 
 .footer {
-  background: #F9FAFB;
+  background: var(--bg-color);
   padding: 1rem;
   text-align: center;
   font-size: 0.8rem;
-  color: #9CA3AF;
-  border-top: 1px solid #E5E7EB;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-color);
 }

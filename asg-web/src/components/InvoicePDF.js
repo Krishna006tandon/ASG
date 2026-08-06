@@ -22,9 +22,9 @@ export default function InvoicePDF({ invoiceData, invoiceRef }) {
       <div style={{ padding: '60px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box', background: '#ffffff', border: '1px solid #E5E7EB' }}>
         
         {/* Header Section */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #1E3A8A', paddingBottom: '30px', marginBottom: '40px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #7942b5', paddingBottom: '30px', marginBottom: '40px' }}>
           <div>
-            <h1 style={{ margin: '0 0 10px 0', fontSize: '32px', fontWeight: '700', color: '#1E3A8A', letterSpacing: '2px', textTransform: 'uppercase' }}>
+            <h1 style={{ margin: '0 0 10px 0', fontSize: '32px', fontWeight: '700', color: '#7942b5', letterSpacing: '2px', textTransform: 'uppercase' }}>
               ASG Consulting
             </h1>
             <p style={{ margin: '0 0 4px 0', color: '#4B5563', fontSize: '13px' }}>123 Business Avenue, Suite 400</p>
@@ -53,7 +53,7 @@ export default function InvoicePDF({ invoiceData, invoiceRef }) {
         {/* Billing Info */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '40px' }}>
           <div style={{ width: '45%' }}>
-            <div style={{ background: '#F3F4F6', padding: '6px 12px', borderLeft: '4px solid #1E3A8A', marginBottom: '10px' }}>
+            <div style={{ background: '#F3F4F6', padding: '6px 12px', borderLeft: '4px solid #7942b5', marginBottom: '10px' }}>
               <p style={{ margin: '0', fontSize: '12px', color: '#374151', textTransform: 'uppercase', fontWeight: '700' }}>Bill To:</p>
             </div>
             <div style={{ paddingLeft: '12px' }}>
@@ -66,7 +66,7 @@ export default function InvoicePDF({ invoiceData, invoiceRef }) {
             </div>
           </div>
           <div style={{ width: '45%' }}>
-            <div style={{ background: '#F3F4F6', padding: '6px 12px', borderLeft: '4px solid #1E3A8A', marginBottom: '10px' }}>
+            <div style={{ background: '#F3F4F6', padding: '6px 12px', borderLeft: '4px solid #7942b5', marginBottom: '10px' }}>
               <p style={{ margin: '0', fontSize: '12px', color: '#374151', textTransform: 'uppercase', fontWeight: '700' }}>Invoice Details:</p>
             </div>
             <div style={{ paddingLeft: '12px' }}>
@@ -90,11 +90,11 @@ export default function InvoicePDF({ invoiceData, invoiceRef }) {
         <div style={{ flex: 1, marginBottom: '40px' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #D1D5DB' }}>
             <thead>
-              <tr style={{ background: '#1E3A8A', color: 'white' }}>
-                <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: '600', border: '1px solid #1E3A8A' }}>Description</th>
-                <th style={{ textAlign: 'center', padding: '12px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: '600', width: '15%', border: '1px solid #1E3A8A' }}>Qty</th>
-                <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: '600', width: '20%', border: '1px solid #1E3A8A' }}>Unit Price</th>
-                <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: '600', width: '20%', border: '1px solid #1E3A8A' }}>Amount</th>
+              <tr style={{ background: '#7942b5', color: 'white' }}>
+                <th style={{ textAlign: 'left', padding: '12px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: '600', border: '1px solid #7942b5' }}>Description</th>
+                <th style={{ textAlign: 'center', padding: '12px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: '600', width: '15%', border: '1px solid #7942b5' }}>Qty</th>
+                <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: '600', width: '20%', border: '1px solid #7942b5' }}>Unit Price</th>
+                <th style={{ textAlign: 'right', padding: '12px 16px', fontSize: '12px', textTransform: 'uppercase', fontWeight: '600', width: '20%', border: '1px solid #7942b5' }}>Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -127,12 +127,12 @@ export default function InvoicePDF({ invoiceData, invoiceRef }) {
                 <td style={{ padding: '10px 16px', fontSize: '14px', color: '#111827', textAlign: 'right', borderBottom: '1px solid #E5E7EB' }}>₹{invoiceData.totalAmount.toLocaleString('en-IN')}</td>
               </tr>
               <tr>
-                <td style={{ padding: '10px 16px', fontSize: '13px', color: '#4B5563', borderBottom: '2px solid #1E3A8A' }}>Tax</td>
-                <td style={{ padding: '10px 16px', fontSize: '14px', color: '#111827', textAlign: 'right', borderBottom: '2px solid #1E3A8A' }}>₹0</td>
+                <td style={{ padding: '10px 16px', fontSize: '13px', color: '#4B5563', borderBottom: '2px solid #7942b5' }}>Tax</td>
+                <td style={{ padding: '10px 16px', fontSize: '14px', color: '#111827', textAlign: 'right', borderBottom: '2px solid #7942b5' }}>₹0</td>
               </tr>
               <tr style={{ background: '#F3F4F6' }}>
                 <td style={{ padding: '16px', fontSize: '16px', fontWeight: '700', color: '#111827' }}>Total Amount</td>
-                <td style={{ padding: '16px', fontSize: '18px', fontWeight: '700', color: '#1E3A8A', textAlign: 'right' }}>
+                <td style={{ padding: '16px', fontSize: '18px', fontWeight: '700', color: '#7942b5', textAlign: 'right' }}>
                   ₹{invoiceData.totalAmount.toLocaleString('en-IN')}
                 </td>
               </tr>

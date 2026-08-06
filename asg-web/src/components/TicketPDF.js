@@ -19,17 +19,17 @@ export default function TicketPDF({ ticket, ticketRef }) {
         color: '#0F172A', // Dark text for contrast
         fontFamily: 'system-ui, -apple-system, sans-serif',
         overflow: 'hidden',
-        boxShadow: '0 0 0 4px #059669', // Emerald border effect
+        boxShadow: '0 0 0 4px var(--primary-color)', // Purple border effect
       }}
     >
       {/* Left Main Section */}
       <div style={{ flex: '1', padding: '40px', position: 'relative', background: 'linear-gradient(to right, #ffffff, #F8FAFC)' }}>
         {/* VIP Watermark */}
-        <div style={{ position: 'absolute', top: '40px', right: '40px', fontSize: '130px', fontWeight: '900', color: 'rgba(5, 150, 105, 0.05)', pointerEvents: 'none', letterSpacing: '-5px' }}>
+        <div style={{ position: 'absolute', top: '40px', right: '40px', fontSize: '130px', fontWeight: '900', color: 'rgba(121, 66, 181, 0.05)', pointerEvents: 'none', letterSpacing: '-5px' }}>
           VIP
         </div>
         
-        <h3 style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#059669', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: '700' }}>
+        <h3 style={{ margin: '0 0 8px 0', fontSize: '14px', color: 'var(--primary-color)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: '700' }}>
           Official Webinar Pass
         </h3>
         <h1 style={{ margin: '0 0 30px 0', fontSize: '32px', fontWeight: '800', lineHeight: '1.2', maxWidth: '450px', color: '#111827' }}>
@@ -66,7 +66,7 @@ export default function TicketPDF({ ticket, ticketRef }) {
       }}></div>
 
       {/* Right Stub Section */}
-      <div style={{ width: '250px', background: '#F1F5F9', padding: '40px 30px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: '250px', background: 'var(--primary-light)', padding: '40px 30px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         
         <div style={{ background: 'white', padding: '12px', borderRadius: '12px', marginBottom: '20px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
           <QRCodeCanvas 
@@ -84,7 +84,7 @@ export default function TicketPDF({ ticket, ticketRef }) {
           {ticket.ticketNumber}
         </p>
         
-        <div style={{ marginTop: '20px', padding: '6px 16px', background: '#059669', borderRadius: '99px', fontSize: '13px', fontWeight: '700', color: 'white', letterSpacing: '1px' }}>
+        <div style={{ marginTop: '20px', padding: '6px 16px', background: 'var(--primary-color)', borderRadius: '99px', fontSize: '13px', fontWeight: '700', color: 'white', letterSpacing: '1px' }}>
           VERIFIED
         </div>
       </div>
