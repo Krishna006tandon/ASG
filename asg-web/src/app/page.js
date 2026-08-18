@@ -4,7 +4,7 @@ import connectToDatabase from '@/lib/mongodb';
 import Book from '@/models/Book';
 import Webinar from '@/models/Webinar';
 import Blog from '@/models/Blog';
-
+import AchievementsGallery from '@/components/AchievementsGallery';
 // Disable caching to always show fresh data
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +20,7 @@ export default async function Home() {
     <main className={styles.main}>
       {/* Hero Section */}
       <header className={`${styles.hero} animate-fade-in`}>
-        <div className={styles.heroBadge}>Avinash Professional</div>
+        <div className={styles.heroBadge}>EXECUTIVE ADVISORY & CONSULTING</div>
         <h1><span className={styles.gradientText}>Elevate Your</span> <span>Business & Finances</span></h1>
         <p>Expert Guidance in Startups, E-Commerce, and Financial Literacy tailored for the modern professional.</p>
         
@@ -46,8 +46,8 @@ export default async function Home() {
             
             {/* Journey 1: Professional */}
             <div style={{ position: 'relative', display: 'flex', gap: '2.5rem', alignItems: 'flex-start' }}>
-              <div style={{ position: 'relative', zIndex: 1, background: 'linear-gradient(135deg, var(--primary-color), var(--primary-dark))', color: 'white', padding: '1.2rem', borderRadius: '50%', flexShrink: 0, boxShadow: '0 10px 20px rgba(79,70,229,0.3)' }}>
-                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+              <div style={{ position: 'relative', zIndex: 1, flexShrink: 0, width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden', border: '4px solid white', boxShadow: '0 10px 20px rgba(121,66,181,0.3)' }}>
+                <img src="/images/image5.jpg" alt="Avinash Gore" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               <div className="glass-card" style={{ flexGrow: 1, padding: '2.5rem', border: 'none', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(10px)', borderLeft: '6px solid var(--primary-color)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
                 <h3 style={{ fontSize: '1.8rem', marginBottom: '1rem', color: '#111827', fontWeight: '800' }}>25+ Years of Global Engineering</h3>
@@ -86,6 +86,8 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      <AchievementsGallery />
 
       {/* Dynamic E-Commerce Store Highlights */}
       {books.length > 0 && (

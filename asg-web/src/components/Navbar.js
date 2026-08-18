@@ -157,8 +157,9 @@ export default function Navbar() {
   return (
     <nav className={styles.navbar}>
       <div className={styles.container}>
-        <Link href="/" className={styles.logo}>
-          Avinash<span>.</span>
+        <Link href="/" className={styles.logo} style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', textDecoration: 'none' }}>
+          <img src="/images/image5.jpg" alt="Avinash Gore" style={{ width: '52px', height: '52px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary-color)' }} />
+          <span style={{ fontSize: '1.6rem', fontWeight: '800' }}>Avinash Gore</span>
         </Link>
         <div className={styles.links}>
           <Link href="/" className={pathname === '/' ? styles.active : ''}>Home</Link>

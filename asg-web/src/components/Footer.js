@@ -30,7 +30,7 @@ export default function Footer() {
         </div>
       </div>
       <div className={styles.bottom}>
-        <p>&copy; {new Date().getFullYear()} Avinash Professional Platform. All rights reserved. | Design and developed by Nexbyte_Core</p>
+        <p>&copy; {new Date().getFullYear()} Avinash Professional Platform. All rights reserved. | Developed by Nexbyte_Core and Krishna Tandon</p>
       </div>
     </footer>
   );
