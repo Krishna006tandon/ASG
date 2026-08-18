@@ -37,10 +37,27 @@ export default function Navbar() {
 
   useEffect(() => {
     const token = localStorage.getItem('asg_token');
-    const role = localStorage.getItem('asg_role');
+    
     if (token) {
       setIsLoggedIn(true);
-      if (role === 'admin') setIsAdmin(true);
+      
+      // Attempt to decode the JWT payload to get the role reliably
+      try {
+        const payloadStr = atob(token.split('.')[1]);
+        const payload = JSON.parse(payloadStr);
+        if (payload.role === 'admin') {
+          setIsAdmin(true);
+          return;
+        }
+      } catch (e) {
+        console.error("Failed to decode token", e);
+      }
+      
+      // Fallback
+      const role = localStorage.getItem('asg_role');
+      if (role === 'admin') {
+        setIsAdmin(true);
+      }
     }
   }, []);
 
