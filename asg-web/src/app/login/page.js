@@ -25,6 +25,7 @@ export default function Login() {
       if (res.ok) {
         setStatus('Success! Redirecting to dashboard...');
         localStorage.setItem('asg_token', data.token);
+        localStorage.setItem('asg_role', data.user.role);
         // Simulate redirect
         setTimeout(() => {
           window.location.href = data.user.role === 'admin' ? '/admin' : '/';

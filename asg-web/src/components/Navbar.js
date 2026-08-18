@@ -9,6 +9,7 @@ import styles from './Navbar.module.css';
 export default function Navbar() {
   const pathname = usePathname();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -36,14 +37,18 @@ export default function Navbar() {
 
   useEffect(() => {
     const token = localStorage.getItem('asg_token');
+    const role = localStorage.getItem('asg_role');
     if (token) {
       setIsLoggedIn(true);
+      if (role === 'admin') setIsAdmin(true);
     }
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('asg_token');
+    localStorage.removeItem('asg_role');
     setIsLoggedIn(false);
+    setIsAdmin(false);
     window.location.href = '/';
   };
 
@@ -307,7 +312,7 @@ export default function Navbar() {
               </div>
 
               <div className={styles.profileMenuContainer}>
-                <Link href="/dashboard" className={styles.avatarBtn} title="My Dashboard">
+                <Link href={isAdmin ? "/admin" : "/dashboard"} className={styles.avatarBtn} title={isAdmin ? "Admin Dashboard" : "My Dashboard"}>
                   <span className={styles.avatar}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width: '18px', height: '18px'}}>
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -315,7 +320,11 @@ export default function Navbar() {
                     </svg>
                   </span>
                 </Link>
-                <Link href="/dashboard" className={styles.navTextLink}>Dashboard</Link>
+                {isAdmin ? (
+                  <Link href="/admin" className={styles.navTextLink} style={{ color: '#0284c7', fontWeight: 'bold' }}>Admin Dashboard</Link>
+                ) : (
+                  <Link href="/dashboard" className={styles.navTextLink}>Dashboard</Link>
+                )}
                 <button onClick={handleLogout} className={styles.logoutBtn}>Logout</button>
               </div>
             </div>
