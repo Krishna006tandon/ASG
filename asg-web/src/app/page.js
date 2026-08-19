@@ -20,14 +20,18 @@ export default async function Home() {
     <main className={styles.main}>
       {/* Hero Section */}
       <header className={`${styles.hero} animate-fade-in`}>
-        <div className={styles.heroBadge}>EXECUTIVE ADVISORY & CONSULTING</div>
-        <h1><span className={styles.gradientText}>Elevate Your</span> <span>Business & Finances</span></h1>
-        <p>Expert Guidance in Startups, E-Commerce, and Financial Literacy tailored for the modern professional.</p>
+        <div className={styles.heroBadge}>YOUTH EMPOWERMENT</div>
+        <h1><span className={styles.gradientText}>Choose the Right Career,</span> <span>Shape Your Future</span></h1>
+        <p>Empowering students and young professionals to choose the right career path, build confidence, and achieve their goals through practical workshops and my book "Come on... You can do it!".</p>
         
         <div className={styles.ctaGroup}>
-          <Link href="/consulting" className="btn-accent">Explore Consulting</Link>
-          <Link href="/webinars" className="btn-primary">View Webinars</Link>
+          <Link href="/ecommerce" className="btn-accent">Get The Book</Link>
+          <Link href="/webinars" className="btn-primary">Join Workshops</Link>
         </div>
+        
+        <p style={{ marginTop: '1.5rem', fontSize: '0.9rem' }}>
+          <Link href="/consulting" style={{ color: 'var(--primary-dark)', textDecoration: 'underline' }}>Looking for Business & Startup Consulting?</Link>
+        </p>
       </header>
 
       {/* Premium Detailed Biography Section */}

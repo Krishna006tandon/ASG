@@ -17,7 +17,7 @@ export default function Webinars() {
   useEffect(() => {
     const fetchWebinars = async () => {
       try {
-        const res = await fetch('/api/admin/webinars');
+        const res = await fetch('/api/webinars');
         if (res.ok) {
           const data = await res.json();
           setWebinars(data);
