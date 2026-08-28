@@ -40,8 +40,8 @@ export default function AchievementsGallery() {
             <img src="/images/image4.png" alt="Sadara Recognition" style={{ width: '100%', height: '100%', objectFit: 'contain', transition: 'transform 0.5s ease' }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'} />
           </div>
           <div style={{ padding: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', color: '#111827', fontWeight: '800' }}>Sadara Recognition</h3>
-            <p style={{ color: '#4B5563', fontSize: '0.95rem' }}>Acknowledged for dedicated service, leadership, and driving process safety in partnership with Sadara.</p>
+            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', color: '#111827', fontWeight: '800' }}>Recognition at Sadara</h3>
+            <p style={{ color: '#4B5563', fontSize: '0.95rem' }}>Acknowledged for dedicated service, leadership, and driving process safety in Sadara Chemical Company (JV of Saudi Aramco & Dow Chemical).</p>
           </div>
         </div>
 
@@ -50,7 +50,7 @@ export default function AchievementsGallery() {
       {/* Feature section for HAZOP */}
       <div className="glass-card" style={{ maxWidth: '1000px', margin: '4rem auto 0', display: 'flex', gap: '3rem', alignItems: 'center', padding: '2rem', flexWrap: 'wrap', border: 'none', background: 'rgba(255,255,255,0.8)' }}>
         <div style={{ flex: '1 1 400px', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
-          <img src="/images/image1.jpg" alt="HAZOP Training" style={{ width: '100%', height: 'auto', display: 'block', transition: 'transform 0.5s ease' }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.03)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}/>
+          <img src="/images/image1.png" alt="HAZOP Training" style={{ width: '100%', height: 'auto', display: 'block', transition: 'transform 0.5s ease' }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.03)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}/>
         </div>
         <div style={{ flex: '1 1 300px' }}>
           <span style={{ display: 'inline-block', padding: '0.25rem 0.75rem', background: 'rgba(121, 66, 181, 0.1)', color: 'var(--primary-color)', borderRadius: '50px', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '1rem' }}>Knowledge Sharing</span>

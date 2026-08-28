@@ -21,8 +21,8 @@ export default async function Home() {
       {/* Hero Section */}
       <header className={`${styles.hero} animate-fade-in`}>
         <div className={styles.heroBadge}>YOUTH EMPOWERMENT</div>
-        <h1><span className={styles.gradientText}>Choose the Right Career,</span> <span>Shape Your Future</span></h1>
-        <p>Empowering students and young professionals to choose the right career path, build confidence, and achieve their goals through practical workshops and my book "Come on... You can do it!".</p>
+        <h1><span className={styles.gradientText}>The headline will be provided</span></h1>
+        <p>Empowering students and young professionals to choose the right career path, build confidence, and achieve their goals through practical workshops and the book "Come on... You can do it!".</p>
         
         <div className={styles.ctaGroup}>
           <Link href="/ecommerce" className="btn-accent">Get The Book</Link>
@@ -56,7 +56,7 @@ export default async function Home() {
               <div className="glass-card" style={{ flexGrow: 1, padding: '2.5rem', border: 'none', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(10px)', borderLeft: '6px solid var(--primary-color)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
                 <h3 style={{ fontSize: '1.8rem', marginBottom: '1rem', color: '#111827', fontWeight: '800' }}>25+ Years of Global Engineering</h3>
                 <p style={{ color: '#4B5563', lineHeight: '1.8', fontSize: '1.1rem' }}>
-                  As a B.Tech Chemical Engineer, Avinash spent over two and a half decades mastering his craft on a global scale. His career spans top-tier organizations like <strong style={{color: 'var(--primary-dark)'}}>Reliance</strong> and <strong style={{color: 'var(--primary-dark)'}}>Saudi Aramco</strong>. Today, as the Managing Director at <strong style={{color: 'var(--primary-dark)'}}>Perpetual Solutions</strong>, he drives sustainable evolution, consulting for giants like HPCL, KNPC, BVQI, Indorama, and Solar Industries.
+                  As a B.Tech Chemical Engineer, Avinash spent over two and a half decades mastering his craft on a global scale. His career spans top-tier organizations like <strong style={{color: 'var(--primary-dark)'}}>Reliance</strong>, <strong style={{color: 'var(--primary-dark)'}}>Sadara (JV of Saudi Aramco & Dow Chemical)</strong>, <strong style={{color: 'var(--primary-dark)'}}>Jubilant Life Science</strong>, and <strong style={{color: 'var(--primary-dark)'}}>Supreme Petrochem</strong>. Today, as the Managing Director at <strong style={{color: 'var(--primary-dark)'}}>Perpetual Solutions</strong>, he drives sustainable evolution, consulting for giants like HPCL, KNPC, BVQI, Indorama, and Solar Industries.
                 </p>
               </div>
             </div>
@@ -69,7 +69,7 @@ export default async function Home() {
               <div className="glass-card" style={{ flexGrow: 1, padding: '2.5rem', border: 'none', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(10px)', borderLeft: '6px solid #10B981', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
                 <h3 style={{ fontSize: '1.8rem', marginBottom: '1rem', color: '#111827', fontWeight: '800' }}>Inspiring Through the Written Word</h3>
                 <p style={{ color: '#4B5563', lineHeight: '1.8', fontSize: '1.1rem' }}>
-                  Recognizing the struggles students face with exam phobia, he authored the highly acclaimed book <strong style={{color: '#059669'}}>"Come on... You can do it!"</strong>. Praised by academic leaders like Dr. Sarita Deshpande for his "spark of a good writer," the book distills complex psychological challenges into actionable scientific study techniques and life-changing success principles.
+                  Recognizing the struggles students face with exam phobia, Avinash authored the highly acclaimed book <strong style={{color: '#059669'}}>"Come on... You can do it!"</strong>. Praised by academic leaders like Dr. Sarita Deshpande for his "spark of a good writer," the book distills complex psychological challenges into actionable scientific study techniques and life-changing success principles.
                 </p>
               </div>
             </div>
@@ -90,6 +90,7 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
 
       <AchievementsGallery />
 

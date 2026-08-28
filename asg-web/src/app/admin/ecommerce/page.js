@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import styles from './ecommerce.module.css';
 
+import { upload } from '@vercel/blob/client';
+
 export default function EcommerceSettings() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,24 +69,37 @@ export default function EcommerceSettings() {
     setIsSubmitting(true);
     
     try {
-      const formData = new FormData();
-      formData.append('title', title);
-      formData.append('description', description);
-      formData.append('originalPrice', originalPrice);
-      formData.append('price', price);
-      formData.append('physicalPrice', physicalPrice);
-      formData.append('shippingCost', shippingCost);
-      formData.append('stock', stock);
+      let ebookUrl = '';
+
+      // If a file is selected, upload it to Vercel Blob first
       if (file) {
-        formData.append('file', file);
+        const newBlob = await upload(file.name, file, {
+          access: 'public',
+          handleUploadUrl: '/api/upload',
+        });
+        ebookUrl = newBlob.url;
       }
+
+      const payload = {
+        title,
+        description,
+        originalPrice,
+        price,
+        physicalPrice,
+        shippingCost,
+        stock,
+        ebookUrl
+      };
 
       const url = editingId ? `/api/admin/books/${editingId}` : '/api/admin/books';
       const method = editingId ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
         method,
-        body: formData // No Content-Type header so browser sets multipart boundary
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
       });
       
       if (!res.ok) throw new Error(editingId ? 'Failed to update book' : 'Failed to add book');
