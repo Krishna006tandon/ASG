@@ -73,8 +73,9 @@ export default function EcommerceSettings() {
 
       // If a file is selected, upload it to Vercel Blob first
       if (file) {
-        // Sanitize filename to prevent Vercel Blob 400 errors from special characters
-        const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+        // Extremely strict sanitization: keep only alphanumeric characters, remove all dots/spaces/symbols, and append .pdf
+        const cleanName = file.name.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_');
+        const safeName = `${cleanName}-${Date.now()}.pdf`;
         
         const newBlob = await upload(safeName, file, {
           access: 'public',

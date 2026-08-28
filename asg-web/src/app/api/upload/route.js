@@ -11,7 +11,8 @@ export async function POST(request) {
       onBeforeGenerateToken: async (pathname) => {
         // You can add authentication checks here if needed (e.g. verify admin session)
         return {
-          // Allowing all content types for now to avoid MIME type mismatch 400 errors
+          allowedContentTypes: ['application/pdf', 'application/x-pdf', 'application/octet-stream'],
+          // Allowing multiple PDF MIME types to prevent token mismatch errors
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
