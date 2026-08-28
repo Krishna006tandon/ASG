@@ -299,7 +299,7 @@ export default function EcommerceSettings() {
             </button>
           </div>
           <iframe 
-            src={previewUrl} 
+            src={`/api/admin/books/preview?url=${encodeURIComponent(previewUrl)}`} 
             style={{width: '100%', flex: 1, border: 'none', backgroundColor: 'white', borderRadius: '8px'}}
             title="PDF Preview"
           />
