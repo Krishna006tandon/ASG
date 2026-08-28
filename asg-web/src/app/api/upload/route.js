@@ -11,10 +11,7 @@ export async function POST(request) {
       onBeforeGenerateToken: async (pathname) => {
         // You can add authentication checks here if needed (e.g. verify admin session)
         return {
-          allowedContentTypes: ['application/pdf'],
-          tokenPayload: JSON.stringify({
-            // optional metadata
-          }),
+          // Allowing all content types for now to avoid MIME type mismatch 400 errors
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {

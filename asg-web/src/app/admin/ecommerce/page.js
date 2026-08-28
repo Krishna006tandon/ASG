@@ -73,7 +73,10 @@ export default function EcommerceSettings() {
 
       // If a file is selected, upload it to Vercel Blob first
       if (file) {
-        const newBlob = await upload(file.name, file, {
+        // Sanitize filename to prevent Vercel Blob 400 errors from special characters
+        const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+        
+        const newBlob = await upload(safeName, file, {
           access: 'public',
           handleUploadUrl: '/api/upload',
         });
