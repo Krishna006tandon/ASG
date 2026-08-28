@@ -1,27 +1,58 @@
 const https = require('https');
 
-const req = https.request('https://avinashsgore.vercel.app/api/upload', {
+// Step 1: Generate client token
+const tokenReq = https.request('https://avinashsgore.vercel.app/api/upload', {
   method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  }
-}, (res) => {
-  let data = '';
-  res.on('data', chunk => data += chunk);
-  res.on('end', () => {
-    console.log(`STATUS: ${res.statusCode}`);
-    console.log(`BODY: ${data}`);
+  headers: { 'Content-Type': 'application/json' }
+}, (tokenRes) => {
+  let tokenData = '';
+  tokenRes.on('data', d => tokenData += d);
+  tokenRes.on('end', () => {
+    console.log('Token response:', tokenData);
+    try {
+      const payload = JSON.parse(tokenData);
+      
+      if (!payload.clientToken) {
+        console.log('No clientToken in response. Aborting.');
+        return;
+      }
+
+      // Step 2: Simulate file PUT request
+      const fileContent = 'dummy pdf content'; // tiny payload
+      const uploadUrl = payload.url || 'https://vercel.com/api/blob/?pathname=test_book.pdf';
+      const putReq = https.request(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'authorization': `Bearer ${payload.clientToken}`,
+          'Content-Type': 'application/pdf',
+          'Content-Length': fileContent.length
+        }
+      }, (putRes) => {
+        let putData = '';
+        putRes.on('data', d => putData += d);
+        putRes.on('end', () => {
+          console.log(`PUT STATUS: ${putRes.statusCode}`);
+          console.log(`PUT BODY: ${putData}`);
+        });
+      });
+
+      putReq.on('error', (e) => console.error('PUT Error:', e.message));
+      putReq.write(fileContent);
+      putReq.end();
+      
+    } catch (e) {
+      console.log('Error parsing token:', e.message);
+    }
   });
 });
 
-req.on('error', (e) => {
-  console.error(`problem with request: ${e.message}`);
-});
-
-req.write(JSON.stringify({
+tokenReq.on('error', (e) => console.error('Token Error:', e.message));
+tokenReq.write(JSON.stringify({
   type: 'blob.generate-client-token',
-  pathname: 'test.pdf',
-  callbackUrl: 'https://avinashsgore.vercel.app/api/upload',
-  clientPayload: 'null'
+  payload: {
+    pathname: 'test_book.pdf',
+    callbackUrl: 'https://avinashsgore.vercel.app/api/upload',
+    clientPayload: null
+  }
 }));
-req.end();
+tokenReq.end();

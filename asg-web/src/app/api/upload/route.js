@@ -9,10 +9,10 @@ export async function POST(request) {
       body,
       request,
       onBeforeGenerateToken: async (pathname) => {
-        // You can add authentication checks here if needed (e.g. verify admin session)
         return {
           allowedContentTypes: ['application/pdf', 'application/x-pdf', 'application/octet-stream'],
-          // Allowing multiple PDF MIME types to prevent token mismatch errors
+          maximumSizeInBytes: 100 * 1024 * 1024, // 100 MB limit
+          tokenPayload: JSON.stringify({ filename: pathname }), // explicitly provide a token payload
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
@@ -23,6 +23,7 @@ export async function POST(request) {
 
     return NextResponse.json(jsonResponse);
   } catch (error) {
+    console.error('Vercel Blob Upload Error:', error);
     return NextResponse.json(
       { error: error.message },
       { status: 400 },

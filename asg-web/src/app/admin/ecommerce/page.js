@@ -78,7 +78,7 @@ export default function EcommerceSettings() {
         const safeName = `${cleanName}-${Date.now()}.pdf`;
         
         const newBlob = await upload(safeName, file, {
-          access: 'public',
+          access: 'private',
           handleUploadUrl: '/api/upload',
         });
         ebookUrl = newBlob.url;
