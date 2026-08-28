@@ -18,5 +18,10 @@ req.on('error', (e) => {
   console.error(`problem with request: ${e.message}`);
 });
 
-req.write('{}');
+req.write(JSON.stringify({
+  type: 'blob.generate-client-token',
+  pathname: 'test.pdf',
+  callbackUrl: 'https://avinashsgore.vercel.app/api/upload',
+  clientPayload: 'null'
+}));
 req.end();
