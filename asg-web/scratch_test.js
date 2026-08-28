@@ -18,14 +18,15 @@ const tokenReq = https.request('https://avinashsgore.vercel.app/api/upload', {
       }
 
       // Step 2: Simulate file PUT request
-      const fileContent = 'dummy pdf content'; // tiny payload
+      const fileContent = 'dummy pdf content';
       const uploadUrl = payload.url || 'https://vercel.com/api/blob/?pathname=test_book.pdf';
       const putReq = https.request(uploadUrl, {
         method: 'PUT',
         headers: {
           'authorization': `Bearer ${payload.clientToken}`,
           'Content-Type': 'application/pdf',
-          'Content-Length': fileContent.length
+          'Content-Length': fileContent.length,
+          'x-vercel-blob-access': 'private' // Maybe needed? We will just send standard headers
         }
       }, (putRes) => {
         let putData = '';
@@ -52,7 +53,9 @@ tokenReq.write(JSON.stringify({
   payload: {
     pathname: 'test_book.pdf',
     callbackUrl: 'https://avinashsgore.vercel.app/api/upload',
-    clientPayload: null
+    clientPayload: null,
+    multipart: false,
+    options: { access: 'private' } // Passing access private to token generator
   }
 }));
 tokenReq.end();
