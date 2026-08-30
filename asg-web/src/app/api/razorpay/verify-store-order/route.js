@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import connectToDatabase from '@/lib/mongodb';
 import Order from '@/models/Order';
+import { sendEmail } from '@/lib/mailer';
+import { orderConfirmationTemplate, adminNotificationTemplate } from '@/lib/emailTemplates';
 
 export async function POST(req) {
   try {
@@ -46,6 +48,32 @@ export async function POST(req) {
       customerDetails,
       status: 'Paid'
     });
+
+    // 1. Send Order Confirmation Email to User
+    if (customerDetails && customerDetails.email) {
+      await sendEmail({
+        to: customerDetails.email,
+        subject: 'Order Confirmed - ASG Store',
+        html: orderConfirmationTemplate(customerDetails.name || 'Customer', totalAmount, newOrder._id)
+      });
+    }
+
+    // 2. Alert Admin
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.FROM_EMAIL;
+    if (adminEmail) {
+      const detailsHtml = \`
+        <p><strong>Order ID:</strong> \${newOrder._id}</p>
+        <p><strong>Customer Name:</strong> \${customerDetails.name || 'N/A'}</p>
+        <p><strong>Customer Email:</strong> \${customerDetails.email || 'N/A'}</p>
+        <p><strong>Total Amount:</strong> ₹\${totalAmount}</p>
+        <p><strong>Items:</strong> \${cart.map(i => i.title + ' (x' + i.quantity + ')').join(', ')}</p>
+      \`;
+      await sendEmail({
+        to: adminEmail,
+        subject: 'New Store Order Received',
+        html: adminNotificationTemplate('New Store Order', detailsHtml)
+      });
+    }
 
     return NextResponse.json({ message: 'Store Payment verified and order created', orderId: newOrder._id }, { status: 200 });
 

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import connectToDatabase from '@/lib/mongodb';
 import Order from '@/models/Order';
+import { sendEmail } from '@/lib/mailer';
+import { physicalUpgradeTemplate, adminNotificationTemplate } from '@/lib/emailTemplates';
 
 export async function POST(req) {
   try {
@@ -45,6 +47,36 @@ export async function POST(req) {
     order.items[itemIndex].physicalStatus = 'Pending Dispatch';
     
     await order.save();
+
+    const bookTitle = order.items[itemIndex].title || 'Book';
+    const customerEmail = order.customerDetails?.email;
+    const customerName = order.customerDetails?.name || 'Customer';
+
+    // 1. Send Confirmation Email to User
+    if (customerEmail) {
+      await sendEmail({
+        to: customerEmail,
+        subject: \`Physical Upgrade Confirmed for \${bookTitle}\`,
+        html: physicalUpgradeTemplate(customerName, bookTitle)
+      });
+    }
+
+    // 2. Alert Admin
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.FROM_EMAIL;
+    if (adminEmail) {
+      const detailsHtml = \`
+        <p><strong>Order ID:</strong> \${orderId}</p>
+        <p><strong>Book Upgraded:</strong> \${bookTitle}</p>
+        <p><strong>Customer Name:</strong> \${customerName}</p>
+        <p><strong>Customer Email:</strong> \${customerEmail || 'N/A'}</p>
+        <p><strong>Shipping Address:</strong> \${shippingAddress}</p>
+      \`;
+      await sendEmail({
+        to: adminEmail,
+        subject: 'New Physical Upgrade Request',
+        html: adminNotificationTemplate('New Physical Upgrade Request', detailsHtml)
+      });
+    }
 
     return NextResponse.json({ message: 'Physical upgrade confirmed successfully' }, { status: 200 });
 

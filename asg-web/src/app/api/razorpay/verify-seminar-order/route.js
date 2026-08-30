@@ -3,6 +3,8 @@ import crypto from 'crypto';
 import connectToDatabase from '@/lib/mongodb';
 import SeminarRegistration from '@/models/SeminarRegistration';
 import Seminar from '@/models/Seminar';
+import { sendEmail } from '@/lib/mailer';
+import { seminarTicketTemplate, adminNotificationTemplate } from '@/lib/emailTemplates';
 
 export async function POST(req) {
   try {
@@ -56,11 +58,35 @@ export async function POST(req) {
       
       await reg.save();
       registrations.push(reg);
+
+      // Send Ticket Email
+      if (attendee.email) {
+        await sendEmail({
+          to: attendee.email,
+          subject: \`Your Ticket for \${seminar.title || 'Seminar'}\`,
+          html: seminarTicketTemplate(attendee.name, ticketNumber)
+        });
+      }
     }
 
     // Increase total seats booked
     seminar.seatsBooked += quantity;
     await seminar.save();
+
+    // Alert Admin
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.FROM_EMAIL;
+    if (adminEmail) {
+      const detailsHtml = \`
+        <p><strong>Seminar:</strong> \${seminar.title || 'Seminar'}</p>
+        <p><strong>Tickets Sold:</strong> \${quantity}</p>
+        <p><strong>Attendees:</strong> \${attendees.map(a => a.name + ' (' + a.email + ')').join(', ')}</p>
+      \`;
+      await sendEmail({
+        to: adminEmail,
+        subject: 'New Seminar Registration',
+        html: adminNotificationTemplate('New Seminar Registration', detailsHtml)
+      });
+    }
 
     return NextResponse.json({ success: true, ticketsCreated: registrations.length }, { status: 200 });
 
