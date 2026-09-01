@@ -63,7 +63,7 @@ export async function POST(req) {
       if (attendee.email) {
         await sendEmail({
           to: attendee.email,
-          subject: \`Your Ticket for \${seminar.title || 'Seminar'}\`,
+          subject: `Your Ticket for ${seminar.title || 'Seminar'}`,
           html: seminarTicketTemplate(attendee.name, ticketNumber)
         });
       }
@@ -76,11 +76,11 @@ export async function POST(req) {
     // Alert Admin
     const adminEmail = process.env.ADMIN_EMAIL || process.env.FROM_EMAIL;
     if (adminEmail) {
-      const detailsHtml = \`
-        <p><strong>Seminar:</strong> \${seminar.title || 'Seminar'}</p>
-        <p><strong>Tickets Sold:</strong> \${quantity}</p>
-        <p><strong>Attendees:</strong> \${attendees.map(a => a.name + ' (' + a.email + ')').join(', ')}</p>
-      \`;
+      const detailsHtml = `
+        <p><strong>Seminar:</strong> ${seminar.title || 'Seminar'}</p>
+        <p><strong>Tickets Sold:</strong> ${quantity}</p>
+        <p><strong>Attendees:</strong> ${attendees.map(a => a.name + ' (' + a.email + ')').join(', ')}</p>
+      `;
       await sendEmail({
         to: adminEmail,
         subject: 'New Seminar Registration',

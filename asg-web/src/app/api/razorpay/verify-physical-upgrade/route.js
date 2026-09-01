@@ -56,7 +56,7 @@ export async function POST(req) {
     if (customerEmail) {
       await sendEmail({
         to: customerEmail,
-        subject: \`Physical Upgrade Confirmed for \${bookTitle}\`,
+        subject: `Physical Upgrade Confirmed for ${bookTitle}`,
         html: physicalUpgradeTemplate(customerName, bookTitle)
       });
     }
@@ -64,13 +64,13 @@ export async function POST(req) {
     // 2. Alert Admin
     const adminEmail = process.env.ADMIN_EMAIL || process.env.FROM_EMAIL;
     if (adminEmail) {
-      const detailsHtml = \`
-        <p><strong>Order ID:</strong> \${orderId}</p>
-        <p><strong>Book Upgraded:</strong> \${bookTitle}</p>
-        <p><strong>Customer Name:</strong> \${customerName}</p>
-        <p><strong>Customer Email:</strong> \${customerEmail || 'N/A'}</p>
-        <p><strong>Shipping Address:</strong> \${shippingAddress}</p>
-      \`;
+      const detailsHtml = `
+        <p><strong>Order ID:</strong> ${orderId}</p>
+        <p><strong>Book Upgraded:</strong> ${bookTitle}</p>
+        <p><strong>Customer Name:</strong> ${customerName}</p>
+        <p><strong>Customer Email:</strong> ${customerEmail || 'N/A'}</p>
+        <p><strong>Shipping Address:</strong> ${shippingAddress}</p>
+      `;
       await sendEmail({
         to: adminEmail,
         subject: 'New Physical Upgrade Request',

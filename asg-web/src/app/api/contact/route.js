@@ -29,7 +29,7 @@ export async function POST(req) {
       `;
       await sendEmail({
         to: adminEmail,
-        subject: \`New Contact Form Submission: \${subject || 'General Inquiry'}\`,
+        subject: `New Contact Form Submission: ${subject || 'General Inquiry'}`,
         html: adminNotificationTemplate('New Contact Inquiry', detailsHtml)
       });
     }

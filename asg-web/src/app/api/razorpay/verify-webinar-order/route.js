@@ -57,12 +57,12 @@ export async function POST(req) {
     // 2. Alert Admin
     const adminEmail = process.env.ADMIN_EMAIL || process.env.FROM_EMAIL;
     if (adminEmail) {
-      const detailsHtml = \`
-        <p><strong>Webinar ID:</strong> \${webinarId}</p>
-        <p><strong>Attendee Name:</strong> \${registrationData.name}</p>
-        <p><strong>Attendee Email:</strong> \${registrationData.email}</p>
-        <p><strong>Amount Paid:</strong> ₹\${amount / 100}</p>
-      \`;
+      const detailsHtml = `
+        <p><strong>Webinar ID:</strong> ${webinarId}</p>
+        <p><strong>Attendee Name:</strong> ${registrationData.name}</p>
+        <p><strong>Attendee Email:</strong> ${registrationData.email}</p>
+        <p><strong>Amount Paid:</strong> ₹${amount / 100}</p>
+      `;
       await sendEmail({
         to: adminEmail,
         subject: 'New Webinar Registration',

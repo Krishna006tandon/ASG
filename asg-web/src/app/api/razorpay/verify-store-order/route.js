@@ -61,13 +61,13 @@ export async function POST(req) {
     // 2. Alert Admin
     const adminEmail = process.env.ADMIN_EMAIL || process.env.FROM_EMAIL;
     if (adminEmail) {
-      const detailsHtml = \`
-        <p><strong>Order ID:</strong> \${newOrder._id}</p>
-        <p><strong>Customer Name:</strong> \${customerDetails.name || 'N/A'}</p>
-        <p><strong>Customer Email:</strong> \${customerDetails.email || 'N/A'}</p>
-        <p><strong>Total Amount:</strong> ₹\${totalAmount}</p>
-        <p><strong>Items:</strong> \${cart.map(i => i.title + ' (x' + i.quantity + ')').join(', ')}</p>
-      \`;
+      const detailsHtml = `
+        <p><strong>Order ID:</strong> ${newOrder._id}</p>
+        <p><strong>Customer Name:</strong> ${customerDetails.name || 'N/A'}</p>
+        <p><strong>Customer Email:</strong> ${customerDetails.email || 'N/A'}</p>
+        <p><strong>Total Amount:</strong> ₹${totalAmount}</p>
+        <p><strong>Items:</strong> ${cart.map(i => i.title + ' (x' + i.quantity + ')').join(', ')}</p>
+      `;
       await sendEmail({
         to: adminEmail,
         subject: 'New Store Order Received',
