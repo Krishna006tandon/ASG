@@ -63,24 +63,35 @@
 }
 
 .bookCoverPlaceholder {
-  height: 200px;
-  background: linear-gradient(135deg, var(--primary-light), var(--primary-medium-light));
-  border-radius: 8px;
+  height: 280px;
+  background: linear-gradient(180deg, rgba(243, 244, 246, 0.8) 0%, rgba(229, 231, 235, 0.8) 100%);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 1.5rem;
+  padding: 0.85rem;
   font-size: 4rem;
   font-weight: 800;
   color: rgba(208, 162, 247, 0.3);
   overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .bookCoverImage {
-  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
+  border-radius: 6px;
+  box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.25), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+  transition: transform 0.25s ease;
+}
+
+.bookCoverImage:hover {
+  transform: scale(1.03);
 }
 
 .bookInfo {

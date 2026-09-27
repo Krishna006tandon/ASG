@@ -54,6 +54,18 @@ export default function EcommerceStore() {
                 )}
               </div>
               <div className={styles.bookInfo}>
+                {/* Format Badges */}
+                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.65rem' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: '600', padding: '0.2rem 0.55rem', borderRadius: '4px', background: '#EEF2FF', color: '#4F46E5', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                    📄 Digital E-Book (PDF)
+                  </span>
+                  {book.physicalPrice > 0 && (
+                    <span style={{ fontSize: '0.75rem', fontWeight: '600', padding: '0.2rem 0.55rem', borderRadius: '4px', background: '#F0FDF4', color: '#166534', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                      📦 Physical Copy Available (+₹{book.physicalPrice + (book.shippingCost || 0)})
+                    </span>
+                  )}
+                </div>
+
                 <h3>{book.title}</h3>
                 <p className={styles.desc}>{book.description}</p>
                 <div className={styles.priceRow}>

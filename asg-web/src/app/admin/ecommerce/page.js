@@ -227,7 +227,7 @@ export default function EcommerceSettings() {
                     <img 
                       src={getBookCoverUrl(coverImagePreview)} 
                       alt="Thumbnail preview" 
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                      style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#F9FAFB' }} 
                     />
                     <button 
                       type="button" 
@@ -320,7 +320,7 @@ export default function EcommerceSettings() {
                             <img 
                               src={getBookCoverUrl(book.coverImage)} 
                               alt={book.title} 
-                              style={{ width: '42px', height: '56px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #E5E7EB', flexShrink: 0 }} 
+                              style={{ width: '42px', height: '56px', objectFit: 'contain', background: '#F9FAFB', borderRadius: '4px', border: '1px solid #E5E7EB', flexShrink: 0 }} 
                             />
                           ) : (
                             <div style={{ width: '42px', height: '56px', background: '#F3F4F6', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF', fontSize: '0.65rem', fontWeight: 'bold', flexShrink: 0, textAlign: 'center', lineHeight: '1.2', padding: '2px' }}>

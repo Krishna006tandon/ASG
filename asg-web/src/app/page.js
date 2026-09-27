@@ -105,14 +105,53 @@ export default async function Home() {
           <div className={styles.dynamicGrid}>
             {books.map(book => (
               <div key={book._id.toString()} className="glass-card" style={{ display: 'flex', flexDirection: 'column' }}>
-                {book.coverImage && (
-                  <div style={{ height: '170px', borderRadius: '8px', overflow: 'hidden', marginBottom: '1rem', background: '#F3F4F6' }}>
-                    <img src={getBookCoverUrl(book.coverImage)} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div className={styles.bookCoverContainer}>
+                  {book.coverImage ? (
+                    <img 
+                      src={getBookCoverUrl(book.coverImage)} 
+                      alt={book.title} 
+                      className={styles.bookCoverImg} 
+                    />
+                  ) : (
+                    <span style={{ fontSize: '3.5rem', fontWeight: 800, color: '#D1D5DB' }}>
+                      {book.title[0]}
+                    </span>
+                  )}
+                </div>
+
+                {/* Format Badges */}
+                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: '600', padding: '0.2rem 0.55rem', borderRadius: '4px', background: '#EEF2FF', color: '#4F46E5' }}>
+                    📄 Digital E-Book
+                  </span>
+                  {book.physicalPrice > 0 && (
+                    <span style={{ fontSize: '0.75rem', fontWeight: '600', padding: '0.2rem 0.55rem', borderRadius: '4px', background: '#F0FDF4', color: '#166534' }}>
+                      📦 Physical Copy Available
+                    </span>
+                  )}
+                </div>
+
+                <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{book.title}</h3>
+                <p style={{fontSize: '0.9rem', color: '#4B5563', lineHeight: '1.5', margin: '0 0 1.25rem 0', flexGrow: 1}}>
+                  {book.description}
+                </p>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '0.85rem', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+                  <div>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                      <span style={{fontWeight: 'bold', fontSize: '1.25rem', color: 'var(--primary-dark)'}}>₹{book.price}</span>
+                      {book.originalPrice > book.price && (
+                        <span style={{textDecoration: 'line-through', color: '#9CA3AF', fontSize: '0.9rem'}}>
+                          ₹{book.originalPrice}
+                        </span>
+                      )}
+                    </div>
+                    <span style={{fontSize: '0.75rem', color: '#6B7280'}}>Instant Access</span>
                   </div>
-                )}
-                <h3>{book.title}</h3>
-                <p style={{fontSize: '0.9rem', color: '#6B7280', margin: '0.5rem 0'}}>{book.description}</p>
-                <div style={{fontWeight: 'bold', color: 'var(--primary-dark)', marginTop: 'auto'}}>₹{book.price}</div>
+                  <Link href="/ecommerce" className="btn-primary" style={{ padding: '0.45rem 1rem', fontSize: '0.85rem', textDecoration: 'none' }}>
+                    Get Book
+                  </Link>
+                </div>
               </div>
             ))}
           </div>
