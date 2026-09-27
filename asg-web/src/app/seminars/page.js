@@ -181,7 +181,7 @@ export default function Seminars() {
     <main className={styles.main}>
       <header className={`${styles.header} animate-fade-in`}>
         <h1>In-Person Seminars</h1>
-        <p>Book your seat for upcoming live events and network with industry experts.</p>
+        <p>Book your seat for upcoming live workshops & courses and network with industry experts.</p>
       </header>
 
       {loading ? (
@@ -342,12 +342,12 @@ export default function Seminars() {
 
               {/* Consent Form Block */}
               <div className={styles.consentBlock}>
-                <label>Event Rules & Consent</label>
+                <label>Workshop Rules & Consent</label>
                 <div className={styles.consentScroll}>
                   <p>1. Tickets are non-refundable and non-transferable.</p>
-                  <p>2. Please arrive at the venue 30 minutes before the event begins.</p>
+                  <p>2. Please arrive at the venue 30 minutes before the workshop begins.</p>
                   <p>3. The organizers reserve the right to admission.</p>
-                  <p>4. Recording of the event is strictly prohibited.</p>
+                  <p>4. Recording of the workshop is strictly prohibited.</p>
                   <p>5. By attending, you consent to being photographed and recorded for promotional purposes.</p>
                 </div>
                 <div className={styles.checkboxWrapper}>
@@ -358,7 +358,7 @@ export default function Seminars() {
                     onChange={(e) => setConsentAccepted(e.target.checked)}
                     required
                   />
-                  <label htmlFor="consentCheck">I have read and agree to the event rules & consent.</label>
+                  <label htmlFor="consentCheck">I have read and agree to the workshop rules & consent.</label>
                 </div>
               </div>
               

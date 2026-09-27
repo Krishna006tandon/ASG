@@ -118,7 +118,7 @@ export default function TicketVerification({ params }) {
             <span className={styles.value}>{ticket.registrationData?.name}</span>
           </div>
           <div className={styles.row}>
-            <span className={styles.label}>Event Title</span>
+            <span className={styles.label}>Course / Workshop</span>
             <span className={styles.value}>{ticket.seminarId?.title}</span>
           </div>
           <div className={styles.row}>

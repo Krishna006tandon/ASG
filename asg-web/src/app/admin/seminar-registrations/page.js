@@ -42,7 +42,7 @@ export default function AdminSeminarRegistrations() {
               <tr>
                 <th>Attendee Details</th>
                 <th>Ticket Number</th>
-                <th>Seminar Event</th>
+                <th>Workshop / Course</th>
                 <th>Payment</th>
                 <th>Purchase Date</th>
               </tr>

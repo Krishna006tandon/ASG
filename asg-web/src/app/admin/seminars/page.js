@@ -112,7 +112,7 @@ export default function AdminSeminars() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>In-Person Seminars Manager</h1>
-        <p>Schedule physical events and manage venue capacity.</p>
+        <p>Schedule physical workshops & courses and manage venue capacity.</p>
       </div>
 
       <div className={styles.grid}>
@@ -181,7 +181,7 @@ export default function AdminSeminars() {
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Event details</th>
+                  <th>Course / Workshop details</th>
                   <th>Pricing</th>
                   <th>Availability</th>
                   <th>Actions</th>
