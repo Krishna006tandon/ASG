@@ -22,7 +22,7 @@ const https = require('https');
 const http = require('http');
 
 // Configurable target URL
-const inputUrl = process.argv[2] || process.env.APP_URL || process.env.SITE_URL || 'https://your-vercel-domain.vercel.app';
+const inputUrl = process.argv[2] || process.env.APP_URL || process.env.SITE_URL || 'https://avinashsgore.vercel.app';
 const TARGET_URL = inputUrl.endsWith('/api/keep-alive')
   ? inputUrl
   : `${inputUrl.replace(/\/$/, '')}/api/keep-alive`;
