@@ -5,6 +5,7 @@ import Book from '@/models/Book';
 import Webinar from '@/models/Webinar';
 import Blog from '@/models/Blog';
 import AchievementsGallery from '@/components/AchievementsGallery';
+import { getBookCoverUrl } from '@/lib/imageHelper';
 // Disable caching to always show fresh data
 export const dynamic = 'force-dynamic';
 
@@ -106,7 +107,7 @@ export default async function Home() {
               <div key={book._id.toString()} className="glass-card" style={{ display: 'flex', flexDirection: 'column' }}>
                 {book.coverImage && (
                   <div style={{ height: '170px', borderRadius: '8px', overflow: 'hidden', marginBottom: '1rem', background: '#F3F4F6' }}>
-                    <img src={book.coverImage} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={getBookCoverUrl(book.coverImage)} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                 )}
                 <h3>{book.title}</h3>
@@ -122,8 +123,8 @@ export default async function Home() {
       {webinars.length > 0 && (
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2>Upcoming Webinars</h2>
-            <Link href="/webinars" className={styles.viewAll}>View Schedule &rarr;</Link>
+            <h2>Upcoming Training Workshops</h2>
+            <Link href="/webinars" className={styles.viewAll}>View Workshops &rarr;</Link>
           </div>
           <div className={styles.dynamicGrid}>
             {webinars.map(webinar => (

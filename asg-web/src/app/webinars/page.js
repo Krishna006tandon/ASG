@@ -92,8 +92,8 @@ export default function Webinars() {
         key: orderData.key_id, 
         amount: orderData.amount,
         currency: orderData.currency,
-        name: "ASG Webinars",
-        description: `Registration for ${selectedWebinar.title}`,
+        name: "ASG Training Workshops",
+        description: `Training Workshop Registration for ${selectedWebinar.title}`,
         order_id: orderData.orderId,
         handler: async function (response) {
           try {
@@ -114,7 +114,7 @@ export default function Webinars() {
 
             if (!verifyRes.ok) throw new Error("Verification failed");
             
-            alert("Registration Successful! See you in the webinar.");
+            alert("Registration Successful! See you in the workshop.");
             setSelectedWebinar(null);
             setFormData({ name: '', email: '', whatsapp: '', profession: '' });
             window.location.href = '/dashboard';
@@ -145,16 +145,16 @@ export default function Webinars() {
   return (
     <main className={styles.main}>
       <header className={`${styles.header} animate-fade-in`}>
-        <h1>Live Webinars</h1>
-        <p>Book your seat for upcoming interactive sessions and transform your strategy.</p>
+        <h1>Training Workshops</h1>
+        <p>Book your seat for upcoming interactive training workshops and educational programs to enhance your skills.</p>
       </header>
 
       {loading ? (
-        <div className={styles.loader}>Loading scheduled webinars...</div>
+        <div className={styles.loader}>Loading scheduled training workshops...</div>
       ) : (
         <section className={styles.list}>
           {webinars.length === 0 ? (
-            <p style={{textAlign: 'center', color: 'var(--text-secondary)'}}>No webinars are currently scheduled. Check back soon!</p>
+            <p style={{textAlign: 'center', color: 'var(--text-secondary)'}}>No training workshops are currently scheduled. Check back soon!</p>
           ) : (
             webinars.map((webinar) => {
               const remaining = webinar.seatsTotal - webinar.seatsBooked;
@@ -215,7 +215,7 @@ export default function Webinars() {
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <div className={styles.modalHeader}>
-              <h3>Register for Webinar</h3>
+              <h3>Register for Training Workshop</h3>
               <button onClick={() => setSelectedWebinar(null)} className={styles.closeBtn}>&times;</button>
             </div>
             

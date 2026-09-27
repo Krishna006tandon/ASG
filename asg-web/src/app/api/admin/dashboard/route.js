@@ -40,13 +40,13 @@ export async function GET(req) {
 
     return NextResponse.json({
       kpis: [
-        { label: "Total Revenue", value: `₹${totalRevenue.toLocaleString()}`, trend: "Live" },
-        { label: "Active Orders", value: activeOrdersCount.toString(), trend: "Live" },
-        { label: "Pending Consults", value: pendingConsultationsCount.toString(), trend: "Live" },
-        { label: "Registered Users", value: userCount.toString(), trend: "Live" },
-        { label: "Webinars Hosted", value: webinarCount.toString(), trend: "Live" },
-        { label: "Published Blogs", value: blogCount.toString(), trend: "Live" },
-        { label: "Store Items", value: bookCount.toString(), trend: "Live" }
+        { label: "Total Revenue", value: `₹${totalRevenue.toLocaleString()}`, trend: "Active" },
+        { label: "Active Orders", value: activeOrdersCount.toString(), trend: "Active" },
+        { label: "Pending Consults", value: pendingConsultationsCount.toString(), trend: "Active" },
+        { label: "Registered Users", value: userCount.toString(), trend: "Active" },
+        { label: "Webinars Hosted", value: webinarCount.toString(), trend: "Active" },
+        { label: "Published Blogs", value: blogCount.toString(), trend: "Active" },
+        { label: "Store Items", value: bookCount.toString(), trend: "Active" }
       ],
       recentOrders: recentOrders.map(order => ({
         id: order._id.toString().substring(0, 8).toUpperCase(), // Short ID for display

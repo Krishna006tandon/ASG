@@ -111,8 +111,8 @@ export default function AdminWebinars() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>Webinar Manager</h1>
-        <p>Schedule live sessions and manage available seats.</p>
+        <h1>Training Workshop &amp; Webinar Manager</h1>
+        <p>Schedule training workshops &amp; educational sessions and manage available seats.</p>
       </div>
 
       <div className={styles.grid}>

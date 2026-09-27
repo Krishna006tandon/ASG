@@ -180,8 +180,8 @@ export default function Seminars() {
   return (
     <main className={styles.main}>
       <header className={`${styles.header} animate-fade-in`}>
-        <h1>In-Person Seminars</h1>
-        <p>Book your seat for upcoming live workshops & courses and network with industry experts.</p>
+        <h1>In-Person Seminars &amp; Workshops</h1>
+        <p>Book your seat for upcoming educational training workshops &amp; courses and network with industry experts.</p>
       </header>
 
       {loading ? (

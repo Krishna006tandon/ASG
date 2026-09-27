@@ -37,13 +37,13 @@ export default function TermsOfService() {
         <ul>
           <li><strong>Entry &amp; Tickets:</strong> Access to physical workshops/seminars requires a valid, scanned QR ticket issued via the platform.</li>
           <li><strong>Non-Transferable:</strong> Tickets and registration passes are issued to named attendees and are non-transferable.</li>
-          <li><strong>Conduct &amp; Recording:</strong> Unauthorized audio or video recording during live workshops or closed sessions is strictly prohibited.</li>
+          <li><strong>Conduct &amp; Recording:</strong> Unauthorized audio or video recording during training workshops, educational courses, or closed sessions is strictly prohibited.</li>
         </ul>
 
         <h2>5. Cancellations &amp; Refund Policy</h2>
         <ul>
           <li><strong>Digital Goods:</strong> Digital E-Books and downloadable resources are non-refundable once access or download links have been generated.</li>
-          <li><strong>Event/Workshop Registrations:</strong> Workshop seats and seminar passes are generally non-refundable due to limited venue capacities. In the event an organizer cancels or reschedules a session, registered participants will be offered a full refund or an alternative date.</li>
+          <li><strong>Workshop &amp; Course Registrations:</strong> Workshop seats and seminar passes are generally non-refundable due to limited venue capacities. In case an organizer cancels or reschedules an educational session, registered participants will be offered a full refund or an alternative date.</li>
           <li><strong>Consultations:</strong> Sessions can be rescheduled with at least 24 hours prior notice.</li>
         </ul>
 

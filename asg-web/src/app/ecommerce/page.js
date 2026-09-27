@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import styles from './ecommerce.module.css';
 import { useCart } from '@/context/CartContext';
+import { getBookCoverUrl } from '@/lib/imageHelper';
 
 export default function EcommerceStore() {
   const [books, setBooks] = useState([]);
@@ -47,7 +48,7 @@ export default function EcommerceStore() {
             <div key={book._id} className={`glass-card ${styles.bookCard}`}>
               <div className={styles.bookCoverPlaceholder}>
                 {book.coverImage ? (
-                  <img src={book.coverImage} alt={book.title} className={styles.bookCoverImage} />
+                  <img src={getBookCoverUrl(book.coverImage)} alt={book.title} className={styles.bookCoverImage} />
                 ) : (
                   <span>{book.title[0]}</span>
                 )}

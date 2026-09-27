@@ -188,7 +188,7 @@ export default function Navbar() {
           <Link href="/about" className={pathname === '/about' ? styles.active : ''}>About</Link>
           <Link href="/ecommerce" className={pathname === '/ecommerce' ? styles.active : ''}>Store</Link>
           <Link href="/recommends" className={pathname === '/recommends' ? styles.active : ''}>Blog</Link>
-          <Link href="/webinars" className={pathname === '/webinars' ? styles.active : ''}>Webinars</Link>
+          <Link href="/webinars" className={pathname === '/webinars' ? styles.active : ''}>Workshops</Link>
           <Link href="/seminars" className={pathname === '/seminars' ? styles.active : ''}>Seminars</Link>
           <Link href="/contact" className={pathname === '/contact' ? styles.active : ''}>Contact</Link>
         </div>

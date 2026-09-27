@@ -116,8 +116,8 @@ export default function ScannerPage() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>Live QR Ticket Scanner</h1>
-        <p>Point camera at the attendee's ticket to admit them instantly.</p>
+        <h1>QR Ticket Verification Scanner</h1>
+        <p>Point camera at the attendee's ticket to verify check-in for the training workshop or seminar.</p>
       </div>
 
       <div className={styles.scannerWrapper}>

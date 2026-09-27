@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import styles from './ecommerce.module.css';
 
 import { upload } from '@vercel/blob/client';
+import { getBookCoverUrl } from '@/lib/imageHelper';
 
 export default function EcommerceSettings() {
   const [books, setBooks] = useState([]);
@@ -109,7 +110,7 @@ export default function EcommerceSettings() {
         const safeThumbName = `thumb-${cleanThumbName}-${Date.now()}.${ext}`;
 
         const thumbBlob = await upload(safeThumbName, coverImageFile, {
-          access: 'public',
+          access: 'private',
           handleUploadUrl: '/api/upload',
         });
         finalCoverImage = thumbBlob.url;
@@ -224,7 +225,7 @@ export default function EcommerceSettings() {
                 {coverImagePreview ? (
                   <div style={{ position: 'relative', width: '65px', height: '88px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #D1D5DB', flexShrink: 0 }}>
                     <img 
-                      src={coverImagePreview} 
+                      src={getBookCoverUrl(coverImagePreview)} 
                       alt="Thumbnail preview" 
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                     />
@@ -317,7 +318,7 @@ export default function EcommerceSettings() {
                         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                           {book.coverImage ? (
                             <img 
-                              src={book.coverImage} 
+                              src={getBookCoverUrl(book.coverImage)} 
                               alt={book.title} 
                               style={{ width: '42px', height: '56px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #E5E7EB', flexShrink: 0 }} 
                             />
