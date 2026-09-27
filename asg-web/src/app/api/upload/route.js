@@ -10,7 +10,16 @@ export async function POST(request) {
       request,
       onBeforeGenerateToken: async (pathname) => {
         return {
-          allowedContentTypes: ['application/pdf', 'application/x-pdf', 'application/octet-stream'],
+          allowedContentTypes: [
+            'application/pdf', 
+            'application/x-pdf', 
+            'application/octet-stream',
+            'image/jpeg',
+            'image/png',
+            'image/webp',
+            'image/jpg',
+            'image/gif'
+          ],
           maximumSizeInBytes: 100 * 1024 * 1024, // 100 MB limit
           tokenPayload: JSON.stringify({ filename: pathname }), // explicitly provide a token payload
         };

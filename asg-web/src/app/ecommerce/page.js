@@ -46,7 +46,11 @@ export default function EcommerceStore() {
           {books.map((book) => (
             <div key={book._id} className={`glass-card ${styles.bookCard}`}>
               <div className={styles.bookCoverPlaceholder}>
-                <span>{book.title[0]}</span>
+                {book.coverImage ? (
+                  <img src={book.coverImage} alt={book.title} className={styles.bookCoverImage} />
+                ) : (
+                  <span>{book.title[0]}</span>
+                )}
               </div>
               <div className={styles.bookInfo}>
                 <h3>{book.title}</h3>

@@ -28,7 +28,8 @@ export async function POST(req) {
       stock,
       physicalPrice,
       shippingCost,
-      ebookUrl
+      ebookUrl,
+      coverImage
     } = data;
 
     if (!title || !description || !price) {
@@ -43,7 +44,8 @@ export async function POST(req) {
       physicalPrice: Number(physicalPrice || 0),
       shippingCost: Number(shippingCost || 0),
       stock: Number(stock) || 0,
-      ebookUrl: ebookUrl || ''
+      ebookUrl: ebookUrl || '',
+      coverImage: coverImage || ''
     });
 
     return NextResponse.json(newBook, { status: 201 });

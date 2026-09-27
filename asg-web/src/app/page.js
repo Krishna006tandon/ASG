@@ -103,7 +103,12 @@ export default async function Home() {
           </div>
           <div className={styles.dynamicGrid}>
             {books.map(book => (
-              <div key={book._id.toString()} className="glass-card">
+              <div key={book._id.toString()} className="glass-card" style={{ display: 'flex', flexDirection: 'column' }}>
+                {book.coverImage && (
+                  <div style={{ height: '170px', borderRadius: '8px', overflow: 'hidden', marginBottom: '1rem', background: '#F3F4F6' }}>
+                    <img src={book.coverImage} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                )}
                 <h3>{book.title}</h3>
                 <p style={{fontSize: '0.9rem', color: '#6B7280', margin: '0.5rem 0'}}>{book.description}</p>
                 <div style={{fontWeight: 'bold', color: 'var(--primary-dark)', marginTop: 'auto'}}>₹{book.price}</div>

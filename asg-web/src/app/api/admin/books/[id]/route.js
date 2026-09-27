@@ -36,7 +36,8 @@ export async function PUT(req, { params }) {
       stock,
       physicalPrice,
       shippingCost,
-      ebookUrl
+      ebookUrl,
+      coverImage
     } = data;
 
     if (!title || !description || !price) {
@@ -55,6 +56,10 @@ export async function PUT(req, { params }) {
     
     if (ebookUrl) {
       updateData.ebookUrl = ebookUrl;
+    }
+
+    if (coverImage !== undefined) {
+      updateData.coverImage = coverImage;
     }
 
     const updatedBook = await Book.findByIdAndUpdate(id, updateData, { new: true });
