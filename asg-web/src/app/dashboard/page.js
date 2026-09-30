@@ -929,7 +929,7 @@ export default function ClientDashboard() {
 
                     <div className={styles.cardBody}>
                       <p style={{ margin: '0 0 1.25rem 0', color: '#374151', fontSize: '0.95rem', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
-                        "{rev.comment}"
+                        {rev.comment}
                       </p>
 
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #F3F4F6', paddingTop: '0.75rem' }}>

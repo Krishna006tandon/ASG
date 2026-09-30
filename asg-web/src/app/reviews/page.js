@@ -309,7 +309,7 @@ export default function ReviewsPage() {
                   marginBottom: '1.25rem',
                   whiteSpace: 'pre-line'
                 }}>
-                  "{rev.comment}"
+                  {rev.comment}
                 </p>
               </div>
 

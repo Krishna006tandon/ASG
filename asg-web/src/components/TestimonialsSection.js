@@ -134,10 +134,9 @@ export default function TestimonialsSection() {
                 fontSize: '0.95rem',
                 lineHeight: '1.7',
                 marginBottom: '1.25rem',
-                fontStyle: 'italic',
                 whiteSpace: 'pre-line'
               }}>
-                "{rev.comment}"
+                {rev.comment}
               </p>
             </div>
 

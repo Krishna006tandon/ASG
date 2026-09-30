@@ -302,7 +302,7 @@ export default function AdminReviewsPage() {
                     </td>
 
                     <td style={{ padding: '1rem 1.25rem', verticalAlign: 'top', color: '#4B5563', lineHeight: '1.5' }}>
-                      "{rev.comment}"
+                      {rev.comment}
                     </td>
 
                     <td style={{ padding: '1rem 1.25rem', verticalAlign: 'top', fontSize: '0.8rem', color: '#6B7280', whiteSpace: 'nowrap' }}>
