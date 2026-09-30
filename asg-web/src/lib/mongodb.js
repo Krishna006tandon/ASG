@@ -1,4 +1,14 @@
 import mongoose from 'mongoose';
+import dns from 'dns';
+
+// Fix for Node.js SRV record resolution issues (querySrv ECONNREFUSED) with MongoDB Atlas on Windows/ISPs
+if (typeof dns.setServers === 'function') {
+  try {
+    dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+  } catch (err) {
+    // Graceful fallback if runtime restricts dns.setServers
+  }
+}
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -24,6 +34,8 @@ async function connectToDatabase() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      dbName: 'ASG-Web',
+      serverSelectionTimeoutMS: 10000,
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {

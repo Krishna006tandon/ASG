@@ -7,6 +7,8 @@ import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import TicketPDF from '@/components/TicketPDF';
 import InvoicePDF from '@/components/InvoicePDF';
+import ReviewModal from '@/components/ReviewModal';
+import StarRating from '@/components/StarRating';
 import { useRef } from 'react';
 import styles from './dashboard.module.css';
 
@@ -15,10 +17,15 @@ export default function ClientDashboard() {
   const [orders, setOrders] = useState([]);
   const [webinars, setWebinars] = useState([]);
   const [seminars, setSeminars] = useState([]);
+  const [myReviews, setMyReviews] = useState([]);
+  const [verifiedItems, setVerifiedItems] = useState({ books: [], webinars: [], seminars: [], canReviewPlatform: false });
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewModalItem, setReviewModalItem] = useState({});
+  const [reviewModalInitial, setReviewModalInitial] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(null);
-  const [activeTab, setActiveTab] = useState('consultations'); // 'consultations', 'orders', 'webinars'
+  const [activeTab, setActiveTab] = useState('consultations'); // 'consultations', 'orders', 'webinars', 'seminars', 'reviews'
   const [generatingPdfFor, setGeneratingPdfFor] = useState(null);
   const [sharingFor, setSharingFor] = useState(null);
   
@@ -67,9 +74,63 @@ export default function ClientDashboard() {
     }
   };
 
+  const fetchMyReviews = async () => {
+    try {
+      const token = localStorage.getItem('asg_token');
+      if (!token) return;
+      const res = await fetch('/api/user/reviews', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMyReviews(data.reviews || []);
+        if (data.verifiedItems) {
+          setVerifiedItems(data.verifiedItems);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load user reviews:', err);
+    }
+  };
+
   useEffect(() => {
     fetchMyConsultations();
+    fetchMyReviews();
   }, []);
+
+  const getExistingReview = (itemType, itemId) => {
+    if (itemType === 'platform') {
+      return myReviews.find(r => r.itemType === 'platform');
+    }
+    const targetId = itemId ? itemId.toString() : '';
+    return myReviews.find(r => r.itemType === itemType && r.itemId?.toString() === targetId);
+  };
+
+  const handleOpenReviewModal = (itemType, itemId, itemTitle) => {
+    const existing = getExistingReview(itemType, itemId);
+    setReviewModalItem({ itemType, itemId, itemTitle });
+    setReviewModalInitial(existing ? { rating: existing.rating, comment: existing.comment } : null);
+    setReviewModalOpen(true);
+  };
+
+  const handleReviewSuccess = (savedReview) => {
+    fetchMyReviews();
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    if (!window.confirm("Are you sure you want to delete this review?")) return;
+    try {
+      const token = localStorage.getItem('asg_token');
+      const res = await fetch(`/api/user/reviews?id=${reviewId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Failed to delete review');
+      setMyReviews(prev => prev.filter(r => r._id !== reviewId));
+    } catch (err) {
+      alert(err.message);
+    }
+  };
 
   const handleDownloadPDF = async (ticket) => {
     setGeneratingPdfFor(ticket._id);
@@ -398,7 +459,59 @@ export default function ClientDashboard() {
           >
             My Seminars
           </button>
+          <button 
+            className={`${styles.tabBtn} ${activeTab === 'reviews' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('reviews')}
+          >
+            ⭐ My Reviews ({myReviews.length})
+          </button>
         </div>
+
+        {/* Platform Experience / Review Prompt Banner */}
+        {verifiedItems.canReviewPlatform && (
+          <div style={{
+            background: 'linear-gradient(135deg, #FAF5FF 0%, #F3E8FF 100%)',
+            border: '1px solid #E9D5FF',
+            borderRadius: '14px',
+            padding: '1.25rem 1.75rem',
+            marginBottom: '2rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '1rem',
+            boxShadow: '0 4px 15px rgba(121, 66, 181, 0.06)'
+          }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '800', color: '#6B21A8', fontSize: '1.05rem' }}>
+                <span>🌟</span> Share Your Mentorship & Platform Experience
+              </div>
+              <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.9rem', color: '#4B5563' }}>
+                Your verified testimonial helps inspire fellow students, startup founders, and book readers.
+              </p>
+            </div>
+            <button
+              onClick={() => handleOpenReviewModal('platform', null, 'Avinash Gore Platform & Mentorship')}
+              className="btn-accent"
+              style={{
+                padding: '0.55rem 1.4rem',
+                fontSize: '0.85rem',
+                background: '#7942B5',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                boxShadow: '0 2px 8px rgba(121, 66, 181, 0.25)'
+              }}
+            >
+              <span>⭐</span> {getExistingReview('platform', null) ? 'Edit Platform Review' : 'Write Platform Review'}
+            </button>
+          </div>
+        )}
 
         {activeTab === 'consultations' && (
           <div className={styles.section}>
@@ -465,6 +578,13 @@ export default function ClientDashboard() {
                               disabled={generatingInvoiceFor === appt._id}
                             >
                               {generatingInvoiceFor === appt._id ? '⏳ Generating...' : '⬇ Download Invoice'}
+                            </button>
+                            <button
+                              onClick={() => handleOpenReviewModal('platform', null, 'Strategy Consultation & Mentorship')}
+                              className="btn-accent"
+                              style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', background: '#F3E8FF', color: '#6B21A8', border: '1px solid #D8B4FE', display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer' }}
+                            >
+                              <span>⭐</span> {getExistingReview('platform', null) ? 'Edit Review' : 'Review Mentorship'}
                             </button>
                           </div>
                         </div>
@@ -554,6 +674,16 @@ export default function ClientDashboard() {
                                   ✓ Physical Copy Requested ({item.physicalStatus})
                                 </span>
                               )}
+
+                              {order.status !== 'Pending' && order.status !== 'Cancelled' && (
+                                <button
+                                  onClick={() => handleOpenReviewModal('book', item.bookId?._id || item.bookId, item.title)}
+                                  className="btn-accent"
+                                  style={{ padding: '0.4rem 0.85rem', fontSize: '0.85rem', background: '#F3E8FF', color: '#6B21A8', border: '1px solid #D8B4FE', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer' }}
+                                >
+                                  <span>⭐</span> {getExistingReview('book', item.bookId?._id || item.bookId) ? 'Edit Review' : 'Add Review'}
+                                </button>
+                              )}
                             </div>
                             
                             {item.isPhysicalRequested && item.shippingAddress && (
@@ -626,6 +756,15 @@ export default function ClientDashboard() {
                           >
                             {generatingInvoiceFor === reg._id ? '⏳...' : '⬇ Invoice'}
                           </button>
+                          {reg.paymentStatus === 'Paid' && (
+                            <button
+                              onClick={() => handleOpenReviewModal('webinar', reg.webinarId?._id, reg.webinarId?.title)}
+                              className="btn-accent"
+                              style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem', background: '#F3E8FF', color: '#6B21A8', border: '1px solid #D8B4FE', cursor: 'pointer' }}
+                            >
+                              <span>⭐</span> {getExistingReview('webinar', reg.webinarId?._id) ? 'Edit Review' : 'Add Review'}
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -694,7 +833,7 @@ export default function ClientDashboard() {
 
                       <div className={styles.paidContainer} style={{ background: '#ECFDF5', border: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div className={styles.paidBadge} style={{ color: '#059669' }}>✓ Ticket Confirmed for {reg.registrationData?.name}</div>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                           <button 
                             className="btn-accent" 
                             style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#25D366', color: 'white' }}
@@ -711,6 +850,15 @@ export default function ClientDashboard() {
                           >
                             {generatingPdfFor === reg._id ? '⏳ Generating...' : '⬇ Download PDF'}
                           </button>
+                          {reg.paymentStatus === 'Paid' && (
+                            <button
+                              onClick={() => handleOpenReviewModal('seminar', reg.seminarId?._id, reg.seminarId?.title)}
+                              className="btn-accent"
+                              style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem', background: '#F3E8FF', color: '#6B21A8', border: '1px solid #D8B4FE', cursor: 'pointer' }}
+                            >
+                              <span>⭐</span> {getExistingReview('seminar', reg.seminarId?._id) ? 'Edit Review' : 'Add Review'}
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -720,6 +868,116 @@ export default function ClientDashboard() {
             )}
           </div>
         )}
+
+        {/* My Reviews Tab */}
+        {activeTab === 'reviews' && (
+          <div className={styles.section}>
+            <div className={styles.headerRow}>
+              <div>
+                <h2>My Reviews & Testimonials</h2>
+                <p style={{ margin: '0.25rem 0 0 0', color: '#6B7280', fontSize: '0.9rem' }}>
+                  Manage and edit all the ratings and feedback you have submitted across books, workshops, seminars, and mentorship.
+                </p>
+              </div>
+              {verifiedItems.canReviewPlatform && (
+                <button
+                  onClick={() => handleOpenReviewModal('platform', null, 'Avinash Gore Platform & Mentorship')}
+                  className="btn-primary"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }}
+                >
+                  <span>★</span> {getExistingReview('platform', null) ? 'Edit Platform Review' : 'Write Platform Review'}
+                </button>
+              )}
+            </div>
+
+            {myReviews.length === 0 ? (
+              <div className={styles.emptyState}>
+                <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>✍️</div>
+                <h3 style={{ margin: '0 0 0.5rem 0', color: '#111827' }}>No reviews submitted yet</h3>
+                <p style={{ maxWidth: '500px', margin: '0 auto', color: '#6B7280' }}>
+                  Once you purchase a book, register for a workshop, attend a seminar, or complete a consultation, you can share your verified review here!
+                </p>
+              </div>
+            ) : (
+              <div className={styles.grid}>
+                {myReviews.map(rev => (
+                  <div key={rev._id} className={styles.card} style={{ borderLeft: '4px solid #7942B5' }}>
+                    <div className={styles.cardHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem', borderBottom: '1px solid #E5E7EB', paddingBottom: '0.75rem' }}>
+                      <div>
+                        <span style={{
+                          fontSize: '0.75rem',
+                          fontWeight: '700',
+                          textTransform: 'uppercase',
+                          padding: '0.2rem 0.55rem',
+                          borderRadius: '4px',
+                          background: rev.itemType === 'book' ? '#EEF2FF' : rev.itemType === 'webinar' ? '#ECFDF5' : rev.itemType === 'seminar' ? '#FEF3C7' : '#F3E8FF',
+                          color: rev.itemType === 'book' ? '#4F46E5' : rev.itemType === 'webinar' ? '#059669' : rev.itemType === 'seminar' ? '#D97706' : '#7942B5',
+                          display: 'inline-block',
+                          marginBottom: '0.35rem'
+                        }}>
+                          {rev.itemType === 'book' ? 'Book Review' : rev.itemType === 'webinar' ? 'Workshop Review' : rev.itemType === 'seminar' ? 'Seminar Review' : 'Mentorship Review'}
+                        </span>
+                        <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#111827' }}>{rev.itemTitle}</h3>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <StarRating rating={rev.rating} readOnly={true} size={16} />
+                        <div style={{ fontSize: '0.75rem', color: '#9CA3AF', marginTop: '0.2rem' }}>
+                          {new Date(rev.updatedAt || rev.createdAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.cardBody}>
+                      <p style={{ margin: '0 0 1.25rem 0', color: '#374151', fontSize: '0.95rem', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
+                        "{rev.comment}"
+                      </p>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #F3F4F6', paddingTop: '0.75rem' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#059669', background: '#ECFDF5', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: '600' }}>
+                          ✓ Published & Verified
+                        </span>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button
+                            onClick={() => handleOpenReviewModal(rev.itemType, rev.itemId, rev.itemTitle)}
+                            className="btn-accent"
+                            style={{ padding: '0.35rem 0.85rem', fontSize: '0.8rem', cursor: 'pointer' }}
+                          >
+                            ✏️ Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteReview(rev._id)}
+                            style={{
+                              padding: '0.35rem 0.85rem',
+                              fontSize: '0.8rem',
+                              background: '#FEF2F2',
+                              color: '#DC2626',
+                              border: '1px solid #FCA5A5',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontWeight: '600'
+                            }}
+                          >
+                            🗑️ Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Review Modal Dialog */}
+        <ReviewModal
+          isOpen={reviewModalOpen}
+          onClose={() => setReviewModalOpen(false)}
+          item={reviewModalItem}
+          initialReview={reviewModalInitial}
+          onSuccess={handleReviewSuccess}
+        />
+
         {/* Hidden Components for PDF Rendering */}
         <div style={{ position: 'fixed', top: 0, left: 0, pointerEvents: 'none', zIndex: -100 }}>
           <TicketPDF ticket={pdfTicketData} ticketRef={ticketRef} />

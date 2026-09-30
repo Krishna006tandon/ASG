@@ -4,7 +4,9 @@ import connectToDatabase from '@/lib/mongodb';
 import Book from '@/models/Book';
 import Webinar from '@/models/Webinar';
 import Blog from '@/models/Blog';
+import Review from '@/models/Review';
 import AchievementsGallery from '@/components/AchievementsGallery';
+import TestimonialsSection from '@/components/TestimonialsSection';
 import { getBookCoverUrl } from '@/lib/imageHelper';
 // Disable caching to always show fresh data
 export const dynamic = 'force-dynamic';
@@ -16,6 +18,8 @@ export default async function Home() {
   const books = await Book.find({}).sort({ createdAt: -1 }).limit(3).lean();
   const webinars = await Webinar.find({ date: { $gte: new Date() } }).sort({ date: 1 }).limit(2).lean();
   const blogs = await Blog.find({ isPublished: true }).sort({ createdAt: -1 }).limit(3).lean();
+  const rawReviews = await Review.find({ status: 'approved' }).sort({ createdAt: -1 }).limit(8).lean();
+  const reviews = JSON.parse(JSON.stringify(rawReviews));
 
   return (
     <main className={styles.main}>
@@ -200,6 +204,9 @@ export default async function Home() {
           </div>
         </section>
       )}
+
+      {/* Verified Reviews & Testimonials Section */}
+      <TestimonialsSection />
     </main>
   );
 }

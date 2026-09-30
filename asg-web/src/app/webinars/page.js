@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import styles from './webinar.module.css';
+import StarRating from '@/components/StarRating';
+import ReviewModal from '@/components/ReviewModal';
+import ReviewsListModal from '@/components/ReviewsListModal';
 
 export default function Webinars() {
   const [webinars, setWebinars] = useState([]);
@@ -14,22 +17,67 @@ export default function Webinars() {
     name: '', email: '', whatsapp: '', profession: ''
   });
 
-  useEffect(() => {
-    const fetchWebinars = async () => {
-      try {
-        const res = await fetch('/api/webinars');
-        if (res.ok) {
-          const data = await res.json();
-          setWebinars(data);
-        }
-      } catch (error) {
-        console.error("Failed to load webinars", error);
-      } finally {
-        setLoading(false);
+  // Reviews State
+  const [reviewsData, setReviewsData] = useState({});
+  const [selectedWebinarForReviews, setSelectedWebinarForReviews] = useState(null);
+  const [reviewsModalOpen, setReviewsModalOpen] = useState(false);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [verifiedWebinarIds, setVerifiedWebinarIds] = useState([]);
+
+  const fetchWebinars = async () => {
+    try {
+      const res = await fetch('/api/webinars');
+      if (res.ok) {
+        const data = await res.json();
+        setWebinars(data);
       }
-    };
-    
+    } catch (error) {
+      console.error("Failed to load webinars", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchReviews = async () => {
+    try {
+      const res = await fetch('/api/reviews?itemType=webinar');
+      if (res.ok) {
+        const data = await res.json();
+        const map = {};
+        (data.reviews || []).forEach(r => {
+          const wId = r.itemId?.toString();
+          if (!wId) return;
+          if (!map[wId]) map[wId] = { total: 0, sum: 0 };
+          map[wId].total += 1;
+          map[wId].sum += r.rating;
+        });
+        setReviewsData(map);
+      }
+    } catch (e) {
+      console.error("Failed to load reviews summary", e);
+    }
+  };
+
+  const checkUserVerification = async () => {
+    const token = localStorage.getItem('asg_token');
+    if (!token) return;
+    try {
+      const res = await fetch('/api/user/reviews', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setVerifiedWebinarIds(data.verifiedItems?.webinars || []);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
     fetchWebinars();
+    fetchReviews();
+    checkUserVerification();
   }, []);
 
   const loadRazorpayScript = () => {
@@ -173,6 +221,63 @@ export default function Webinars() {
                   
                   <div className={styles.content}>
                     <h2>{webinar.title}</h2>
+
+                    {/* Ratings & Reviews */}
+                    {(() => {
+                      const stats = reviewsData[webinar._id] || { total: 0, sum: 0 };
+                      const avgRating = stats.total > 0 ? (stats.sum / stats.total).toFixed(1) : '5.0';
+                      const totalCount = stats.total;
+                      const isVerified = verifiedWebinarIds.includes(webinar._id.toString());
+
+                      return (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', margin: '0.35rem 0', flexWrap: 'wrap' }}>
+                          <div 
+                            onClick={() => {
+                              setSelectedWebinarForReviews(webinar);
+                              setReviewsModalOpen(true);
+                            }}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer' }}
+                            title="Click to view reviews"
+                          >
+                            <StarRating rating={Number(avgRating)} readOnly={true} size={15} />
+                            <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#111827' }}>{avgRating}</span>
+                            <span style={{ fontSize: '0.8rem', color: '#6B7280', textDecoration: 'underline' }}>
+                              ({totalCount} {totalCount === 1 ? 'review' : 'reviews'})
+                            </span>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              const token = localStorage.getItem('asg_token');
+                              if (!token) {
+                                alert("Please login first to write a review.");
+                                window.location.href = '/login';
+                                return;
+                              }
+                              if (!isVerified) {
+                                alert("Only verified attendees who have registered for this workshop can submit a review.");
+                                return;
+                              }
+                              setSelectedWebinarForReviews(webinar);
+                              setReviewModalOpen(true);
+                            }}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: isVerified ? '#7942B5' : '#9CA3AF',
+                              fontSize: '0.8rem',
+                              fontWeight: '600',
+                              cursor: 'pointer',
+                              padding: '0.1rem 0.4rem',
+                              textDecoration: 'underline'
+                            }}
+                          >
+                            {isVerified ? '✍️ Add Review' : '★ Review'}
+                          </button>
+                        </div>
+                      );
+                    })()}
+
                     <div className={styles.metaRow}>
                       <span className={styles.time}>🕒 {webinar.time}</span>
                       <span className={styles.seats}>🪑 {remaining} seats left</span>
@@ -279,6 +384,50 @@ export default function Webinars() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Reviews List Modal */}
+      {selectedWebinarForReviews && (
+        <ReviewsListModal
+          isOpen={reviewsModalOpen}
+          onClose={() => setReviewsModalOpen(false)}
+          item={{
+            itemType: 'webinar',
+            itemId: selectedWebinarForReviews._id,
+            itemTitle: selectedWebinarForReviews.title
+          }}
+          onOpenWriteReview={() => {
+            const token = localStorage.getItem('asg_token');
+            if (!token) {
+              alert("Please login first to write a review.");
+              window.location.href = '/login';
+              return;
+            }
+            if (!verifiedWebinarIds.includes(selectedWebinarForReviews._id.toString())) {
+              alert("Only verified attendees who registered for this workshop can submit a review.");
+              return;
+            }
+            setReviewsModalOpen(false);
+            setReviewModalOpen(true);
+          }}
+          isVerifiedUser={verifiedWebinarIds.includes(selectedWebinarForReviews._id.toString())}
+        />
+      )}
+
+      {/* Write Review Modal */}
+      {selectedWebinarForReviews && (
+        <ReviewModal
+          isOpen={reviewModalOpen}
+          onClose={() => setReviewModalOpen(false)}
+          item={{
+            itemType: 'webinar',
+            itemId: selectedWebinarForReviews._id,
+            itemTitle: selectedWebinarForReviews.title
+          }}
+          onSuccess={() => {
+            fetchReviews();
+          }}
+        />
       )}
     </main>
   );
