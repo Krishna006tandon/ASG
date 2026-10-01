@@ -32,7 +32,10 @@ export default function AdminReviewsPage() {
         }
       });
 
-      if (!res.ok) throw new Error('Failed to load reviews');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Failed to load reviews');
+      }
       const data = await res.json();
       setReviews(data.reviews || []);
       setStats(data.stats || {});

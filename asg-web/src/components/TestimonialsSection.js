@@ -1,16 +1,39 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import StarRating from './StarRating';
 import { STATIC_REVIEWS } from '@/lib/staticReviews';
 
 export default function TestimonialsSection() {
   const [activeFilter, setActiveFilter] = useState('all');
+  const [dbReviews, setDbReviews] = useState([]);
+
+  useEffect(() => {
+    const fetchDbReviews = async () => {
+      try {
+        const res = await fetch('/api/reviews?limit=30');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.reviews && data.reviews.length > 0) {
+            setDbReviews(data.reviews);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load DB reviews in testimonials:', err);
+      }
+    };
+    fetchDbReviews();
+  }, []);
+
+  const allReviewsCombined = [
+    ...dbReviews,
+    ...STATIC_REVIEWS.filter(sr => !dbReviews.some(dr => (dr._id === sr.id) || (dr.comment === sr.comment)))
+  ];
 
   const filtered = activeFilter === 'all'
-    ? STATIC_REVIEWS
-    : STATIC_REVIEWS.filter(r => r.itemType === activeFilter);
+    ? allReviewsCombined
+    : allReviewsCombined.filter(r => r.itemType === activeFilter);
 
   const typePillLabels = {
     book: '📖 Book Review',
@@ -86,7 +109,7 @@ export default function TestimonialsSection() {
       }}>
         {filtered.map((rev) => (
           <div
-            key={rev._id}
+            key={rev._id || rev.id}
             className="glass-card"
             style={{
               padding: '1.75rem',
@@ -146,7 +169,7 @@ export default function TestimonialsSection() {
                   {rev.userName}
                 </div>
                 <div style={{ fontSize: '0.8rem', color: '#6B7280' }}>
-                  {rev.itemTitle} • {rev.date}
+                  {rev.itemTitle} • {rev.date || (rev.createdAt ? new Date(rev.createdAt).toLocaleDateString() : 'Recent')}
                 </div>
               </div>
               {rev.verified && (

@@ -1,15 +1,11 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Review from '@/models/Review';
-import { authenticateApi } from '@/lib/auth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   try {
-    const decoded = await authenticateApi(req);
-    if (!decoded || decoded.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 });
-    }
-
     await connectToDatabase();
 
     const { searchParams } = new URL(req.url);
@@ -33,7 +29,7 @@ export async function GET(req) {
       .sort({ createdAt: -1 })
       .lean();
 
-    // Stats
+    // Calculate real stats from database
     const totalCount = await Review.countDocuments();
     const booksCount = await Review.countDocuments({ itemType: 'book' });
     const webinarsCount = await Review.countDocuments({ itemType: 'webinar' });

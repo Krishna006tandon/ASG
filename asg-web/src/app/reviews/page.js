@@ -13,8 +13,7 @@ export default function ReviewsPage() {
   const [canReviewPlatform, setCanReviewPlatform] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const stats = getStaticReviewStats(activeCategory);
+  const [dbReviews, setDbReviews] = useState([]);
 
   const checkUserStatus = async () => {
     const token = localStorage.getItem('asg_token');
@@ -36,13 +35,52 @@ export default function ReviewsPage() {
     }
   };
 
+  const fetchDbReviews = async () => {
+    try {
+      const res = await fetch('/api/reviews?limit=100');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.reviews && data.reviews.length > 0) {
+          setDbReviews(data.reviews);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load DB reviews:', err);
+    }
+  };
+
   useEffect(() => {
     checkUserStatus();
+    fetchDbReviews();
   }, []);
 
+  // Merge real verified reviews from database with curated static reviews
+  const allCombinedReviews = [
+    ...dbReviews,
+    ...STATIC_REVIEWS.filter(sr => !dbReviews.some(dr => (dr._id === sr.id) || (dr.comment === sr.comment)))
+  ];
+
   const categoryReviews = activeCategory === 'all'
-    ? STATIC_REVIEWS
-    : STATIC_REVIEWS.filter(r => r.itemType === activeCategory);
+    ? allCombinedReviews
+    : allCombinedReviews.filter(r => r.itemType === activeCategory);
+
+  // Dynamic statistics calculated from combined reviews
+  const categoryTotalReviews = categoryReviews.length;
+  const categoryAvgRating = categoryTotalReviews > 0
+    ? Number((categoryReviews.reduce((sum, r) => sum + (r.rating || 5), 0) / categoryTotalReviews).toFixed(1))
+    : 5.0;
+
+  const categoryRatingBreakdown = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  categoryReviews.forEach(r => {
+    const stars = Math.min(5, Math.max(1, Math.round(r.rating || 5)));
+    categoryRatingBreakdown[stars] = (categoryRatingBreakdown[stars] || 0) + 1;
+  });
+
+  const stats = {
+    totalReviews: categoryTotalReviews,
+    averageRating: categoryAvgRating,
+    ratingBreakdown: categoryRatingBreakdown
+  };
 
   const filteredReviews = categoryReviews.filter(r => {
     if (!searchQuery.trim()) return true;
@@ -260,7 +298,7 @@ export default function ReviewsPage() {
         }}>
           {filteredReviews.map((rev) => (
             <div
-              key={rev._id}
+              key={rev._id || rev.id}
               className="glass-card"
               style={{
                 padding: '1.75rem',
@@ -319,7 +357,7 @@ export default function ReviewsPage() {
                     {rev.userName}
                   </div>
                   <div style={{ fontSize: '0.8rem', color: '#6B7280' }}>
-                    {rev.itemTitle} • {rev.date}
+                    {rev.itemTitle} • {rev.date || (rev.createdAt ? new Date(rev.createdAt).toLocaleDateString() : 'Recent')}
                   </div>
                 </div>
                 {rev.verified && (
@@ -349,7 +387,10 @@ export default function ReviewsPage() {
           itemId: null,
           itemTitle: 'Avinash Gore Platform & Mentorship'
         }}
-        onSuccess={() => {}}
+        onSuccess={() => {
+          fetchDbReviews();
+          checkUserStatus();
+        }}
       />
     </main>
   );

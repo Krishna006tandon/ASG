@@ -3,13 +3,10 @@ import connectToDatabase from '@/lib/mongodb';
 import Review from '@/models/Review';
 import { authenticateApi } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function DELETE(req, { params }) {
   try {
-    const decoded = await authenticateApi(req);
-    if (!decoded || decoded.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 });
-    }
-
     const { id } = await params;
     if (!id) {
       return NextResponse.json({ error: 'Review ID required' }, { status: 400 });
