@@ -21,6 +21,7 @@ export default function AdminLayout({ children }) {
           <Link href="/admin/webinar-registrations">Webinar Attendees</Link>
           <Link href="/admin/seminars">Seminars</Link>
           <Link href="/admin/seminar-registrations">Seminar Attendees</Link>
+          <Link href="/admin/past-workshops">Past Workshops &amp; Gallery</Link>
           <Link href="/admin/scanner">QR Check-In Scanner</Link>
           <Link href="/admin/appointments">Consulting Queue</Link>
           <Link href="/admin/content">Content & Blogs</Link>

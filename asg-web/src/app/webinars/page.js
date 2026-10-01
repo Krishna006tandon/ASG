@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import styles from './webinar.module.css';
 import StarRating from '@/components/StarRating';
 import ReviewModal from '@/components/ReviewModal';
@@ -195,6 +196,11 @@ export default function Webinars() {
       <header className={`${styles.header} animate-fade-in`}>
         <h1>Training Workshops</h1>
         <p>Book your seat for upcoming interactive training workshops and educational programs to enhance your skills.</p>
+        <div style={{ marginTop: '1rem' }}>
+          <Link href="/gallery" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(121, 66, 181, 0.08)', padding: '0.4rem 1rem', borderRadius: '999px', fontSize: '0.88rem', color: 'var(--primary-color)', textDecoration: 'none', fontWeight: '600' }}>
+            📷 Looking for past workshops &amp; event photos? Explore Gallery &rarr;
+          </Link>
+        </div>
       </header>
 
       {loading ? (

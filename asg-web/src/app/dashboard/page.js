@@ -10,6 +10,7 @@ import InvoicePDF from '@/components/InvoicePDF';
 import ReviewModal from '@/components/ReviewModal';
 import StarRating from '@/components/StarRating';
 import { useRef } from 'react';
+import { getEbookUrl } from '@/lib/imageHelper';
 import styles from './dashboard.module.css';
 
 export default function ClientDashboard() {
@@ -22,6 +23,7 @@ export default function ClientDashboard() {
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [reviewModalItem, setReviewModalItem] = useState({});
   const [reviewModalInitial, setReviewModalInitial] = useState(null);
+  const [readerModal, setReaderModal] = useState({ isOpen: false, url: '', title: '' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(null);
@@ -96,6 +98,14 @@ export default function ClientDashboard() {
   useEffect(() => {
     fetchMyConsultations();
     fetchMyReviews();
+
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      if (tab && ['consultations', 'orders', 'webinars', 'seminars', 'reviews'].includes(tab)) {
+        setActiveTab(tab);
+      }
+    }
   }, []);
 
   const getExistingReview = (itemType, itemId) => {
@@ -647,10 +657,30 @@ export default function ClientDashboard() {
                             
                             <div style={{display: 'flex', gap: '0.75rem', marginTop: '1rem', flexWrap: 'wrap'}}>
                               {/* Read E-Book Button */}
-                              {item.bookId?.ebookUrl ? (
-                                <a href={item.bookId.ebookUrl} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{padding: '0.4rem 0.8rem', fontSize: '0.85rem', textDecoration: 'none'}}>
-                                  📖 Read E-Book
-                                </a>
+                              {(item.bookId?.ebookUrl || item.bookId) ? (
+                                <div style={{ display: 'inline-flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                                  <button 
+                                    type="button"
+                                    onClick={() => setReaderModal({
+                                      isOpen: true,
+                                      url: getEbookUrl(item.bookId?.ebookUrl, false, item.bookId?._id || item.bookId),
+                                      title: item.title
+                                    })}
+                                    className="btn-primary" 
+                                    style={{padding: '0.4rem 0.8rem', fontSize: '0.85rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', border: 'none'}}
+                                  >
+                                    📖 Read E-Book
+                                  </button>
+                                  <a 
+                                    href={getEbookUrl(item.bookId?.ebookUrl, true, item.bookId?._id || item.bookId)} 
+                                    download 
+                                    className="btn-accent" 
+                                    style={{padding: '0.4rem 0.8rem', fontSize: '0.85rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.3rem'}}
+                                    title="Download PDF file"
+                                  >
+                                    ⬇ Download PDF
+                                  </a>
+                                </div>
                               ) : (
                                 <span style={{fontSize: '0.8rem', color: '#6B7280', padding: '0.4rem 0'}}>E-Book processing...</span>
                               )}
@@ -977,6 +1007,59 @@ export default function ClientDashboard() {
           initialReview={reviewModalInitial}
           onSuccess={handleReviewSuccess}
         />
+
+        {/* E-Book Reader Modal */}
+        {readerModal.isOpen && (
+          <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.85)', zIndex: 9999,
+            display: 'flex', flexDirection: 'column', padding: '1rem'
+          }}>
+            <div style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              padding: '0.75rem 1.25rem', background: '#1F2937', borderRadius: '8px 8px 0 0',
+              color: '#FFFFFF', flexWrap: 'wrap', gap: '0.75rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+                <span style={{ fontSize: '1.25rem' }}>📖</span>
+                <strong style={{ fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px' }}>
+                  {readerModal.title || 'E-Book Reader'}
+                </strong>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <a 
+                  href={readerModal.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ background: '#374151', color: '#F3F4F6', padding: '0.45rem 0.85rem', borderRadius: '6px', fontSize: '0.85rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+                >
+                  ↗ New Tab
+                </a>
+                <a 
+                  href={`${readerModal.url}${readerModal.url.includes('?') ? '&' : '?'}download=true`} 
+                  download
+                  style={{ background: '#4F46E5', color: '#FFFFFF', padding: '0.45rem 0.85rem', borderRadius: '6px', fontSize: '0.85rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontWeight: '500' }}
+                >
+                  ⬇ Download
+                </a>
+                <button 
+                  type="button"
+                  onClick={() => setReaderModal({ isOpen: false, url: '', title: '' })}
+                  style={{ background: '#DC2626', color: '#FFFFFF', border: 'none', padding: '0.45rem 0.85rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem' }}
+                >
+                  ✕ Close
+                </button>
+              </div>
+            </div>
+            <div style={{ flex: 1, background: '#FFFFFF', borderRadius: '0 0 8px 8px', overflow: 'hidden' }}>
+              <iframe 
+                src={readerModal.url} 
+                style={{ width: '100%', height: '100%', border: 'none' }}
+                title={readerModal.title || "E-Book Reader"}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Hidden Components for PDF Rendering */}
         <div style={{ position: 'fixed', top: 0, left: 0, pointerEvents: 'none', zIndex: -100 }}>

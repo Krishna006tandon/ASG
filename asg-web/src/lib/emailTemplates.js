@@ -51,6 +51,10 @@ export const orderConfirmationTemplate = (name, totalAmount, orderId) => `
       <li><strong>Order ID:</strong> ${orderId}</li>
       <li><strong>Total Amount:</strong> ₹${totalAmount}</li>
     </ul>
+    <p>You can read and download your purchased e-books directly from your Dashboard:</p>
+    <div style="margin: 20px 0;">
+      <a href="https://avinashgore.com/dashboard?tab=orders" style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #4F46E5; text-decoration: none; border-radius: 5px; font-weight: bold;">View Purchased Books</a>
+    </div>
     <br/>
     <p>Best Regards,</p>
     <p><strong>ASG Team</strong></p>
