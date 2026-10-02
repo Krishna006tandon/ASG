@@ -132,6 +132,12 @@ export default function EcommerceStore() {
             const avgRating = stats.total > 0 ? (stats.sum / stats.total).toFixed(1) : '5.0';
             const totalCount = stats.total;
             const isVerified = verifiedBookIds.includes(book._id.toString());
+            const format = getFormat(book);
+            const isPhysicalSelected = format === 'physical';
+            const physicalTotalPrice = book.price + (book.physicalPrice || 0) + (book.shippingCost || 0);
+            const activePrice = isPhysicalSelected ? physicalTotalPrice : book.price;
+            const currentQty = getCartCount(book._id, isPhysicalSelected);
+            const currentItemKey = getItemKey(book._id, isPhysicalSelected);
 
             return (
               <div key={book._id} className={`glass-card ${styles.bookCard}`}>
