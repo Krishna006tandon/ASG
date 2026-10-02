@@ -4,7 +4,18 @@ import connectToDatabase from '@/lib/mongodb';
 import Blog from '@/models/Blog';
 
 export const metadata = {
-  title: "Avinash Blog | Matrix",
+  title: "Recommended Reads & Knowledge Matrix | Avinash Gore",
+  description:
+    "Curated selection of articles, study hacks, leadership principles, and growth playbooks recommended by Avinash Gore.",
+  alternates: {
+    canonical: "/recommends",
+  },
+  openGraph: {
+    title: "Recommended Reads & Knowledge Matrix | Avinash Gore",
+    description:
+      "Curated selection of articles, study hacks, leadership principles, and growth playbooks.",
+    url: "/recommends",
+  },
 };
 
 export const dynamic = 'force-dynamic';

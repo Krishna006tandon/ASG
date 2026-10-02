@@ -2,7 +2,19 @@ import styles from './about.module.css';
 import Link from 'next/link';
 
 export const metadata = {
-  title: "About Avinash | Professional Profile",
+  title: "About Avinash Gore | 25+ Years Global Engineering, Author & Mentor",
+  description:
+    "Learn about Avinash Gore: B.Tech Chemical Engineer from L.I.T., Dual MBA, Certified Functional Safety Engineer (TÜV SÜD), Managing Director at Perpetual Solutions, and author of 'Come on... You can do it!'.",
+  alternates: {
+    canonical: "/about",
+  },
+  openGraph: {
+    title: "About Avinash Gore | Professional Profile & Biography",
+    description:
+      "Global engineering leadership, transformational youth mentorship, and author of 'Come on... You can do it!'. Discover Avinash Gore's journey and achievements.",
+    url: "/about",
+    images: [{ url: "/images/image5.jpg", width: 800, height: 800, alt: "Avinash Gore" }],
+  },
 };
 
 export default function About() {

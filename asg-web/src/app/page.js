@@ -8,6 +8,17 @@ import Review from '@/models/Review';
 import AchievementsGallery from '@/components/AchievementsGallery';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import { getBookCoverUrl } from '@/lib/imageHelper';
+import JsonLd from '@/components/JsonLd';
+import { getBookSchema } from '@/lib/seoSchemas';
+
+export const metadata = {
+  title: "Avinash Gore | Author, Career Mentor & Business Consultant",
+  description: "Official website of Avinash Gore. Author of 'Come on... You can do it!', Career Mentor, Youth Empowerment Specialist, and Industrial Safety Consultant.",
+  alternates: {
+    canonical: "/",
+  },
+};
+
 // Disable caching to always show fresh data
 export const dynamic = 'force-dynamic';
 
@@ -21,12 +32,20 @@ export default async function Home() {
   const rawReviews = await Review.find({ status: 'approved' }).sort({ createdAt: -1 }).limit(8).lean();
   const reviews = JSON.parse(JSON.stringify(rawReviews));
 
+  const primaryBook = books[0] || {
+    title: "Come on... You can do it!",
+    description: "Empowering students and young professionals to choose the right career path, build confidence, and achieve their goals.",
+    ebookPrice: 299,
+  };
+  const bookSchema = getBookSchema(primaryBook);
+
   return (
     <main className={styles.main}>
+      <JsonLd data={bookSchema} />
       {/* Hero Section */}
       <header className={`${styles.hero} animate-fade-in`}>
         <div className={styles.heroBadge}>YOUTH EMPOWERMENT</div>
-        <h1><span className={styles.gradientText}>The headline will be provided</span></h1>
+        <h1><span className={styles.gradientText}>Empowering Youth, Inspiring Careers & Transforming Potential</span></h1>
         <p>Empowering students and young professionals to choose the right career path, build confidence, and achieve their goals through practical workshops and the book "Come on... You can do it!".</p>
         
         <div className={styles.ctaGroup}>

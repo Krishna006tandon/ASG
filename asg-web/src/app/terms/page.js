@@ -3,6 +3,9 @@ import styles from './terms.module.css';
 export const metadata = {
   title: "Terms of Service | Avinash Gore Platform",
   description: "Terms of Service, refund guidelines, and platform rules for Avinash Gore's website and store.",
+  alternates: {
+    canonical: "/terms",
+  },
 };
 
 export default function TermsOfService() {

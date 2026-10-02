@@ -15,14 +15,24 @@ export default function Footer() {
             <Link href="/about">About</Link>
             <Link href="/gallery">Workshops Gallery</Link>
             <Link href="/reviews">Reviews</Link>
-            <Link href="/recommends">Blog</Link>
+            <Link href="/recommends">Curated Reads</Link>
             <Link href="/contact">Contact</Link>
           </div>
           <div className={styles.column}>
             <h4>Resources</h4>
             <Link href="/blog">Blog</Link>
-            <Link href="/startup-support">Startup Support</Link>
-            <Link href="/financial-literacy">Financial Literacy</Link>
+            <Link href="/startup-support" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
+              Startup Support
+              <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(236,72,153,0.18)', color: '#F472B6', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Coming Soon
+              </span>
+            </Link>
+            <Link href="/financial-literacy" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
+              Financial Literacy
+              <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(236,72,153,0.18)', color: '#F472B6', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Coming Soon
+              </span>
+            </Link>
           </div>
           <div className={styles.column}>
             <h4>Legal</h4>

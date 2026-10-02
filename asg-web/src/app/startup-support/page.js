@@ -2,7 +2,18 @@ import styles from './startup.module.css';
 import Link from 'next/link';
 
 export const metadata = {
-  title: "Startup Support | Avinash Professional",
+  title: "Startup Support Repository | MVP Frameworks & Business Strategy",
+  description:
+    "Expert frameworks for aspiring founders: 90-day MVP execution blueprint, business registration processes, pitching, and government startup initiatives.",
+  alternates: {
+    canonical: "/startup-support",
+  },
+  openGraph: {
+    title: "Startup Support Repository | Avinash Gore",
+    description:
+      "A centralized resource node providing strategic guidance and execution blueprints for early-stage entrepreneurs.",
+    url: "/startup-support",
+  },
 };
 
 export default function StartupSupport() {
@@ -17,8 +28,11 @@ export default function StartupSupport() {
   return (
     <main className={styles.main}>
       <header className={`${styles.header} animate-fade-in`}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.35rem 0.9rem', borderRadius: '50px', background: 'rgba(236,72,153,0.12)', color: '#BE185D', fontWeight: '700', fontSize: '0.85rem', marginBottom: '0.75rem', border: '1px solid rgba(236,72,153,0.25)' }}>
+          🚀 Coming Soon
+        </div>
         <h1>Startup Support Repository</h1>
-        <p>A centralized expert guide node providing targeted resources for your next venture.</p>
+        <p>A centralized expert guide node providing targeted resources for your next venture — In Active Development!</p>
       </header>
 
       <section className={styles.hub}>

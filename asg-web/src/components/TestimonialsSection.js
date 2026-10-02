@@ -65,7 +65,7 @@ export default function TestimonialsSection() {
           What Readers & Attendees Say
         </h2>
         <p style={{ color: '#6B7280', fontSize: '1.1rem', maxWidth: '650px', margin: '0 auto' }}>
-          Real feedback from readers of "Come on... You can do it!" on Amazon & BookGanga, and attendees of workshops & seminars.
+          Real feedback from readers of &quot;Come on... You can do it!&quot; on Amazon & BookGanga, and attendees of workshops & seminars.
         </p>
 
         {/* Filter Pills */}

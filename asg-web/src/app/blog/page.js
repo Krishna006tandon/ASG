@@ -1,33 +1,37 @@
-"use client";
-
 import styles from './blog.module.css';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import connectToDatabase from '@/lib/mongodb';
+import Blog from '@/models/Blog';
 
-export default function Blog() {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+export const dynamic = 'force-dynamic';
 
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        const res = await fetch('/api/admin/blogs');
-        if (res.ok) {
-          const data = await res.json();
-          // Filter to show only published posts
-          setPosts(data.filter(post => post.isPublished !== false));
-        }
-      } catch (error) {
-        console.error("Failed to load blogs", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchBlogs();
-  }, []);
+export const metadata = {
+  title: "Insights & Articles | Career, Mindset & Leadership",
+  description:
+    "Explore in-depth articles by Avinash Gore on youth empowerment, student study methodologies, startup validation, engineering excellence, and personal finance.",
+  alternates: {
+    canonical: "/blog",
+  },
+  openGraph: {
+    title: "Insights & Articles | Avinash Gore",
+    description:
+      "Curated expert perspectives on growth, leadership, and student success.",
+    url: "/blog",
+    images: [
+      {
+        url: "/images/image1.png",
+        width: 800,
+        height: 600,
+        alt: "Avinash Gore Blog Insights",
+      },
+    ],
+  },
+};
 
-  if (loading) return <div className={styles.main}><div className={styles.loader}>Loading insights...</div></div>;
+export default async function BlogPage() {
+  await connectToDatabase();
+  const rawPosts = await Blog.find({ isPublished: true }).sort({ createdAt: -1 }).lean();
+  const posts = JSON.parse(JSON.stringify(rawPosts));
 
   return (
     <main className={styles.main}>

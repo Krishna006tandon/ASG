@@ -3,6 +3,9 @@ import styles from './privacy.module.css';
 export const metadata = {
   title: "Privacy Policy | Avinash Gore Platform",
   description: "Privacy Policy and data protection terms for Avinash Gore's knowledge and personal brand platform.",
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 export default function PrivacyPolicy() {

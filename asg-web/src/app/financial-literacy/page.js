@@ -2,7 +2,18 @@ import styles from './financial.module.css';
 import Link from 'next/link';
 
 export const metadata = {
-  title: "Financial Literacy | Avinash Professional",
+  title: "Financial Literacy Portal | Budgeting, Mutual Funds & Investing",
+  description:
+    "Master essential personal finance skills: budgeting techniques, emergency fund planning, insurance principles, mutual funds, and stock market fundamentals.",
+  alternates: {
+    canonical: "/financial-literacy",
+  },
+  openGraph: {
+    title: "Financial Literacy Portal | Avinash Gore",
+    description:
+      "Actionable financial education tailored for students, beginners, and young professionals.",
+    url: "/financial-literacy",
+  },
 };
 
 export default function FinancialLiteracy() {
@@ -17,8 +28,11 @@ export default function FinancialLiteracy() {
   return (
     <main className={styles.main}>
       <header className={`${styles.header} animate-fade-in`}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.35rem 0.9rem', borderRadius: '50px', background: 'rgba(236,72,153,0.12)', color: '#BE185D', fontWeight: '700', fontSize: '0.85rem', marginBottom: '0.75rem', border: '1px solid rgba(236,72,153,0.25)' }}>
+          🚀 Coming Soon
+        </div>
         <h1>Financial Literacy Portal</h1>
-        <p>High-value insights to take control of your financial future.</p>
+        <p>High-value insights and learning modules to take control of your financial future — Coming Soon!</p>
       </header>
 
       <div className={styles.container}>
