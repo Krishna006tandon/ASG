@@ -91,7 +91,7 @@ export const metadata = {
     apple: "/favicon.ico",
   },
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '6IudtXCcmlAhr6QlcI1XGalW-gQhuwb9hgDu2dkaxM4',
+    google: "6IudtXCcmlAhr6QlcI1XGalW-gQhuwb9hgDu2dkaxM4",
   },
 };
 
@@ -101,6 +101,9 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en-IN" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <head>
+        <meta name="google-site-verification" content="6IudtXCcmlAhr6QlcI1XGalW-gQhuwb9hgDu2dkaxM4" />
+      </head>
       <body>
         <JsonLd data={personSchema} />
         <JsonLd data={websiteSchema} />
