@@ -91,7 +91,7 @@ export const metadata = {
     apple: "/favicon.ico",
   },
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '',
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '6IudtXCcmlAhr6QlcI1XGalW-gQhuwb9hgDu2dkaxM4',
   },
 };
 
