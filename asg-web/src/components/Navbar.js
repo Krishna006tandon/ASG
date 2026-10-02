@@ -27,11 +27,13 @@ export default function Navbar() {
 
   const calculateFinalTotal = () => {
     return cart.reduce((sum, item) => {
-      let itemTotal = item.price * item.quantity;
-      if (physicalSelections[item._id]) {
-        itemTotal += ((item.physicalPrice || 0) + (item.shippingCost || 0)) * item.quantity;
+      let itemPrice = item.price;
+      const key = item.cartItemId || item._id;
+      const isPhysical = item.isPhysicalRequested || physicalSelections[key] || physicalSelections[item._id];
+      if (isPhysical) {
+        itemPrice += (item.physicalPrice || 0) + (item.shippingCost || 0);
       }
-      return sum + itemTotal;
+      return sum + (itemPrice * item.quantity);
     }, 0);
   };
 
@@ -96,10 +98,13 @@ export default function Navbar() {
         return;
       }
 
-      const cartWithSelections = cart.map(item => ({
-        ...item,
-        isPhysicalRequested: physicalSelections[item._id] || false
-      }));
+      const cartWithSelections = cart.map(item => {
+        const key = item.cartItemId || item._id;
+        return {
+          ...item,
+          isPhysicalRequested: Boolean(item.isPhysicalRequested || physicalSelections[key] || physicalSelections[item._id])
+        };
+      });
 
       // Create Order on Backend
       const orderRes = await fetch('/api/razorpay/create-store-order', {
@@ -242,23 +247,33 @@ export default function Navbar() {
                           </div>
                           
                           <div style={{marginTop: '0.5rem', padding: '0.75rem', background: '#F3F4F6', borderRadius: '8px'}}>
-                            <h4 style={{fontSize: '0.9rem', marginBottom: '0.5rem'}}>Select Format</h4>
-                            {cart.map(item => (
-                              <div key={item._id} style={{marginBottom: '0.5rem', fontSize: '0.85rem'}}>
-                                <div style={{fontWeight: '500'}}>{item.title}</div>
-                                <label style={{display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.25rem'}}>
-                                  <input 
-                                    type="checkbox" 
-                                    checked={physicalSelections[item._id] || false}
-                                    onChange={(e) => updateCartItemPhysical(item._id, e.target.checked)}
-                                  />
-                                  <span>Add Physical Copy (+₹{(item.physicalPrice || 0) + (item.shippingCost || 0)})</span>
-                                </label>
-                              </div>
-                            ))}
+                            <h4 style={{fontSize: '0.9rem', marginBottom: '0.5rem'}}>Selected Formats</h4>
+                            {cart.map(item => {
+                              const itemKey = item.cartItemId || item._id;
+                              const isPhysical = Boolean(item.isPhysicalRequested || physicalSelections[itemKey] || physicalSelections[item._id]);
+                              return (
+                                <div key={itemKey} style={{marginBottom: '0.5rem', fontSize: '0.85rem'}}>
+                                  <div style={{fontWeight: '500'}}>{item.title}</div>
+                                  <label style={{display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.25rem', cursor: item.isPhysicalRequested ? 'default' : 'pointer'}}>
+                                    <input 
+                                      type="checkbox" 
+                                      checked={isPhysical}
+                                      disabled={item.isPhysicalRequested}
+                                      onChange={(e) => updateCartItemPhysical(itemKey, e.target.checked)}
+                                    />
+                                    <span>
+                                      {item.isPhysicalRequested 
+                                        ? `📦 Physical Copy included (+₹${(item.physicalPrice || 0) + (item.shippingCost || 0)})`
+                                        : `Add Physical Copy (+₹${(item.physicalPrice || 0) + (item.shippingCost || 0)})`
+                                      }
+                                    </span>
+                                  </label>
+                                </div>
+                              );
+                            })}
                           </div>
 
-                          {cart.some(item => physicalSelections[item._id]) && (
+                          {cart.some(item => item.isPhysicalRequested || physicalSelections[item.cartItemId || item._id] || physicalSelections[item._id]) && (
                             <>
                               <div>
                                 <label style={{fontSize: '0.85rem', fontWeight: '500'}}>Phone Number *</label>
@@ -286,28 +301,46 @@ export default function Navbar() {
                       </div>
                     ) : (
                       <div className={styles.cartBody}>
-                        {cart.map(item => (
-                          <div key={item._id} className={styles.cartItem}>
-                            <div className={styles.cartItemInfo}>
-                              <span className={styles.cartItemTitle}>{item.title}</span>
-                              <div className={styles.cartItemControls}>
-                                <button onClick={() => updateQuantity(item._id, item.quantity - 1)} className={styles.qtyBtn}>-</button>
-                                <span className={styles.qtySpan}>{item.quantity}</span>
-                                <button 
-                                  onClick={() => updateQuantity(item._id, item.quantity + 1)} 
-                                  className={styles.qtyBtn}
-                                  disabled={item.quantity >= item.stock}
-                                  style={{ opacity: item.quantity >= item.stock ? 0.5 : 1, cursor: item.quantity >= item.stock ? 'not-allowed' : 'pointer' }}
-                                >+</button>
-                                <span className={styles.itemPrice}>x ₹{item.price}</span>
+                        {cart.map(item => {
+                          const itemKey = item.cartItemId || item._id;
+                          const isPhysical = Boolean(item.isPhysicalRequested || physicalSelections[itemKey] || physicalSelections[item._id]);
+                          const unitPrice = item.price + (isPhysical ? ((item.physicalPrice || 0) + (item.shippingCost || 0)) : 0);
+
+                          return (
+                            <div key={itemKey} className={styles.cartItem}>
+                              <div className={styles.cartItemInfo}>
+                                <span className={styles.cartItemTitle}>{item.title}</span>
+                                <span style={{
+                                  fontSize: '0.72rem',
+                                  fontWeight: 600,
+                                  color: isPhysical ? '#166534' : '#4F46E5',
+                                  background: isPhysical ? '#DCFCE7' : '#EEF2FF',
+                                  padding: '0.15rem 0.45rem',
+                                  borderRadius: '4px',
+                                  width: 'fit-content',
+                                  marginTop: '0.2rem'
+                                }}>
+                                  {isPhysical ? '📦 Physical Copy (+Delivery)' : '📄 Digital E-Book (PDF)'}
+                                </span>
+                                <div className={styles.cartItemControls}>
+                                  <button onClick={() => updateQuantity(itemKey, item.quantity - 1, isPhysical)} className={styles.qtyBtn}>-</button>
+                                  <span className={styles.qtySpan}>{item.quantity}</span>
+                                  <button 
+                                    onClick={() => updateQuantity(itemKey, item.quantity + 1, isPhysical)} 
+                                    className={styles.qtyBtn}
+                                    disabled={item.quantity >= item.stock}
+                                    style={{ opacity: item.quantity >= item.stock ? 0.5 : 1, cursor: item.quantity >= item.stock ? 'not-allowed' : 'pointer' }}
+                                  >+</button>
+                                  <span className={styles.itemPrice}>x ₹{unitPrice}</span>
+                                </div>
                               </div>
+                              <button onClick={() => removeFromCart(itemKey)} className={styles.removeBtn}>&times;</button>
                             </div>
-                            <button onClick={() => removeFromCart(item._id)} className={styles.removeBtn}>&times;</button>
-                          </div>
-                        ))}
+                          );
+                        })}
                         <div className={styles.cartTotal}>
                           <span>Total:</span>
-                          <span>₹{cartTotal}</span>
+                          <span>₹{calculateFinalTotal()}</span>
                         </div>
                         <button 
                           onClick={() => {

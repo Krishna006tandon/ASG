@@ -27,9 +27,9 @@ export default function InvoicePDF({ invoiceData, invoiceRef }) {
             <h1 style={{ margin: '0 0 10px 0', fontSize: '32px', fontWeight: '700', color: '#7942b5', letterSpacing: '2px', textTransform: 'uppercase' }}>
               ASG Consulting
             </h1>
-            <p style={{ margin: '0 0 4px 0', color: '#4B5563', fontSize: '13px' }}>123 Business Avenue, Suite 400</p>
-            <p style={{ margin: '0 0 4px 0', color: '#4B5563', fontSize: '13px' }}>New Delhi, DL 110001, India</p>
-            <p style={{ margin: '0', color: '#4B5563', fontSize: '13px' }}>contact@asg.com | +91-9876543210</p>
+            <p style={{ margin: '0 0 4px 0', color: '#4B5563', fontSize: '13px' }}>Pipla Road, Nagpur</p>
+            <p style={{ margin: '0 0 4px 0', color: '#4B5563', fontSize: '13px' }}>Maharashtra, India – 440034</p>
+            <p style={{ margin: '0', color: '#4B5563', fontSize: '13px' }}>avinashsgore@gmail.com | +91 9998984529</p>
           </div>
           <div style={{ textAlign: 'right' }}>
             <h2 style={{ margin: '0 0 10px 0', fontSize: '40px', fontWeight: '300', color: '#374151', letterSpacing: '4px' }}>
@@ -123,12 +123,8 @@ export default function InvoicePDF({ invoiceData, invoiceRef }) {
           <table style={{ width: '350px', borderCollapse: 'collapse' }}>
             <tbody>
               <tr>
-                <td style={{ padding: '10px 16px', fontSize: '13px', color: '#4B5563', borderBottom: '1px solid #E5E7EB' }}>Subtotal</td>
-                <td style={{ padding: '10px 16px', fontSize: '14px', color: '#111827', textAlign: 'right', borderBottom: '1px solid #E5E7EB' }}>₹{invoiceData.totalAmount.toLocaleString('en-IN')}</td>
-              </tr>
-              <tr>
-                <td style={{ padding: '10px 16px', fontSize: '13px', color: '#4B5563', borderBottom: '2px solid #7942b5' }}>Tax</td>
-                <td style={{ padding: '10px 16px', fontSize: '14px', color: '#111827', textAlign: 'right', borderBottom: '2px solid #7942b5' }}>₹0</td>
+                <td style={{ padding: '10px 16px', fontSize: '13px', color: '#4B5563', borderBottom: '2px solid #7942b5' }}>Subtotal</td>
+                <td style={{ padding: '10px 16px', fontSize: '14px', color: '#111827', textAlign: 'right', borderBottom: '2px solid #7942b5' }}>₹{invoiceData.totalAmount.toLocaleString('en-IN')}</td>
               </tr>
               <tr style={{ background: '#F3F4F6' }}>
                 <td style={{ padding: '16px', fontSize: '16px', fontWeight: '700', color: '#111827' }}>Total Amount</td>

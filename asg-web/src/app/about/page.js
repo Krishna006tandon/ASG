@@ -67,19 +67,46 @@ export default function About() {
 
         <div className={styles.timelineItem}>
           <div className={styles.dot}></div>
-          <div className="glass-card">
-            <h3>Professional Experience - Perpetual Solutions</h3>
-            <p className={styles.date}>2015 - 2019</p>
-            <p>Led growth initiatives and managed cross-functional teams to deliver enterprise e-commerce solutions.</p>
+          <div className="glass-card" style={{ borderTop: '4px solid #0EA5E9' }}>
+            <h3>Managing Director – Perpetual Solutions</h3>
+            <p className={styles.date}>Sept&apos;21 – Till Date</p>
+            <p><strong style={{ color: '#0284C7' }}>Perpetual Solutions</strong> &bull; Nagpur, Maharashtra, India<br/>Currently working as Managing Director, driving business expansion and team development. Providing premier consulting in process safety, energy efficiency, and operational excellence for leading industrial organizations.</p>
           </div>
         </div>
 
         <div className={styles.timelineItem}>
           <div className={styles.dot}></div>
-          <div className="glass-card">
-            <h3>Career Milestones - The Skill Center</h3>
-            <p className={styles.date}>2020 - Present</p>
-            <p>Founded educational hubs to empower young professionals with financial literacy and startup planning methodologies.</p>
+          <div className="glass-card" style={{ borderTop: '4px solid #2563EB' }}>
+            <h3>Project Engineer / Technology Specialist</h3>
+            <p className={styles.date}>Sept&apos;13 – Sept&apos;21</p>
+            <p><strong style={{ color: '#1D4ED8' }}>Sadara Chemical Company (Dow Chemicals &amp; Saudi Aramco JV)</strong> &bull; Jubail, Saudi Arabia<br/>Specialized in Environmental Operations across the Utility &amp; Multi Feed Cracker Unit. Led environmental technology, process safety management, and operational excellence in one of the world&apos;s largest integrated chemical complexes.</p>
+          </div>
+        </div>
+
+        <div className={styles.timelineItem}>
+          <div className={styles.dot}></div>
+          <div className="glass-card" style={{ borderTop: '4px solid #F59E0B' }}>
+            <h3>Manager – Process / Operations</h3>
+            <p className={styles.date}>Feb&apos;07 – Sept&apos;13</p>
+            <p><strong style={{ color: '#D97706' }}>Reliance Industries Limited (Formerly IPCL)</strong> &bull; Dahej, Gujarat<br/>Managed operations and process engineering across EDC, VCM, and Incinerator plants. Spearheaded operational efficiency, plant turnaround activities, and stringent process safety protocols.</p>
+          </div>
+        </div>
+
+        <div className={styles.timelineItem}>
+          <div className={styles.dot}></div>
+          <div className="glass-card" style={{ borderTop: '4px solid #10B981' }}>
+            <h3>Sr. Engineer (Fine Chemical-I)</h3>
+            <p className={styles.date}>Dec&apos;04 – Feb&apos;07</p>
+            <p><strong style={{ color: '#059669' }}>Jubilant Life Science (VAM Organics Limited)</strong> &bull; Gajraula, U.P.<br/>Supervised chemical processing and production operations within the Fine Chemical-I division, ensuring optimum process control, high-yield output, and safety adherence.</p>
+          </div>
+        </div>
+
+        <div className={styles.timelineItem}>
+          <div className={styles.dot}></div>
+          <div className="glass-card" style={{ borderTop: '4px solid #EC4899' }}>
+            <h3>Engineer (Production - PS)</h3>
+            <p className={styles.date}>Aug&apos;01 – Dec&apos;04</p>
+            <p><strong style={{ color: '#BE185D' }}>Supreme Petrochem Ltd.</strong> &bull; Raigad, Maharashtra<br/>Handled polystyrene production operations, process monitoring, and quality control, initiating a 25+ year global engineering career immediately following graduation with distinction from L.I.T.</p>
           </div>
         </div>
 
