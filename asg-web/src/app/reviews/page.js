@@ -94,6 +94,7 @@ export default function ReviewsPage() {
   });
 
   const typePillLabels = {
+    college: '🎓 College Workshop',
     book: '📖 Book Review',
     webinar: '💻 Workshop',
     seminar: '📍 Seminar',
@@ -225,6 +226,7 @@ export default function ReviewsPage() {
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           {[
             { id: 'all', label: 'All Reviews' },
+            { id: 'college', label: '🎓 College Workshops' },
             { id: 'book', label: 'Books (Amazon & BookGanga)' },
             { id: 'webinar', label: 'Workshops' },
             { id: 'seminar', label: 'Seminars' },

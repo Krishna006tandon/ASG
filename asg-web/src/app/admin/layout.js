@@ -27,6 +27,7 @@ export default function AdminLayout({ children }) {
           <Link href="/admin/appointments">Consulting Queue</Link>
           <Link href="/admin/content">Content & Blogs</Link>
           <Link href="/admin/reviews">Reviews & Feedback</Link>
+          <Link href="/admin/college-reviews">College Reviews &amp; QR</Link>
         </nav>
         <div className={styles.bottomNav}>
           <Link href="/" className={styles.backLink}>&larr; Back to Public Site</Link>

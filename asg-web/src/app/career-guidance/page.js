@@ -79,7 +79,6 @@ export default function CareerGuidancePage() {
 
       if (savedAssessmentId) {
         setAssessmentId(savedAssessmentId);
-        // Verify state with backend
         fetch(`/api/career/result/${savedAssessmentId}`)
           .then(res => res.json())
           .then(data => {
@@ -323,7 +322,7 @@ export default function CareerGuidancePage() {
 
       <div className={styles.container}>
         {/* ========================================================
-            VIEW 1: LANDING PAGE (Pitch, Video, Gita, Archetypes, Pricing)
+            VIEW 1: LANDING PAGE (Pitch, Video if set, Gita, Archetypes, Pricing)
             ======================================================== */}
         {currentStep === 'landing' && (
           <>
@@ -341,13 +340,15 @@ export default function CareerGuidancePage() {
                 you are naturally suited to do, enjoy, and master with our 30-Dimension Career Nature Assessment.
               </p>
 
-              {/* DEMO VIDEO COMPONENT */}
-              <div className={styles.videoSection}>
-                <CareerDemoVideo
-                  videoUrl={setting.videoUrl}
-                  onCtaClick={scrollToPricing}
-                />
-              </div>
+              {/* VIDEO SECTION - Only displayed if admin sets a real video URL */}
+              {setting.videoUrl && setting.videoUrl.trim() && (
+                <div className={styles.videoSection}>
+                  <CareerDemoVideo
+                    videoUrl={setting.videoUrl}
+                    onCtaClick={scrollToPricing}
+                  />
+                </div>
+              )}
 
               {/* HERO CTA BUTTONS */}
               <div className={styles.heroCtaRow}>

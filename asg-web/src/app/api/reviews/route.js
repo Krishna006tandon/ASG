@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import Review from '@/models/Review';
+import CollegeReview from '@/models/CollegeReview';
 import User from '@/models/User';
 import Order from '@/models/Order';
 import WebinarRegistration from '@/models/WebinarRegistration';
@@ -16,14 +17,66 @@ export async function GET(req) {
     const itemId = searchParams.get('itemId');
     const limit = parseInt(searchParams.get('limit') || '50', 10);
 
-    const query = { status: 'approved' };
-    if (itemType) query.itemType = itemType;
-    if (itemId) query.itemId = itemId;
+    let combinedReviews = [];
 
-    const reviews = await Review.find(query)
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .lean();
+    if (itemType === 'college') {
+      const collegeReviews = await CollegeReview.find({ status: 'approved' })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean();
+      combinedReviews = collegeReviews.map(cr => ({
+        _id: cr._id,
+        userName: cr.studentName,
+        userEmail: cr.studentEmail || '',
+        itemType: 'college',
+        itemTitle: `${cr.collegeName} — ${cr.workshopTitle}`,
+        rating: cr.rating,
+        comment: cr.comment,
+        verified: true,
+        collegeName: cr.collegeName,
+        department: cr.department,
+        year: cr.year,
+        keyTakeaway: cr.keyTakeaway,
+        createdAt: cr.workshopDate || cr.createdAt
+      }));
+    } else {
+      const query = { status: 'approved' };
+      if (itemType) query.itemType = itemType;
+      if (itemId) query.itemId = itemId;
+
+      const standardReviews = await Review.find(query)
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean();
+
+      combinedReviews = [...standardReviews];
+
+      // If fetching all, also include college reviews
+      if (!itemType || itemType === 'all') {
+        const collegeReviews = await CollegeReview.find({ status: 'approved' })
+          .sort({ createdAt: -1 })
+          .limit(limit)
+          .lean();
+        const formattedCollege = collegeReviews.map(cr => ({
+          _id: cr._id,
+          userName: cr.studentName,
+          userEmail: cr.studentEmail || '',
+          itemType: 'college',
+          itemTitle: `${cr.collegeName} — ${cr.workshopTitle}`,
+          rating: cr.rating,
+          comment: cr.comment,
+          verified: true,
+          collegeName: cr.collegeName,
+          department: cr.department,
+          year: cr.year,
+          keyTakeaway: cr.keyTakeaway,
+          createdAt: cr.workshopDate || cr.createdAt
+        }));
+        combinedReviews = [...combinedReviews, ...formattedCollege];
+      }
+    }
+
+    const reviews = combinedReviews;
 
     // Calculate rating statistics
     const totalReviews = reviews.length;

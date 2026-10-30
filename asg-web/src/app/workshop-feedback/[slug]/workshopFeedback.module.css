@@ -1,0 +1,276 @@
+.pageWrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #F8FAFC 0%, #F1EAFF 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.card {
+  background: #FFFFFF;
+  border-radius: 24px;
+  box-shadow: 0 20px 45px rgba(121, 66, 181, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  max-width: 620px;
+  width: 100%;
+  padding: 2.5rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.topBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #F1EAFF;
+  color: #7942b5;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.35rem 0.85rem;
+  border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #F3F4F6;
+  padding-bottom: 1.5rem;
+}
+
+.speakerRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #7942b5;
+}
+
+.collegeName {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.workshopTitle {
+  font-size: 1rem;
+  color: #7942b5;
+  font-weight: 700;
+}
+
+.dateSpeaker {
+  font-size: 0.82rem;
+  color: #6B7280;
+  margin-top: 0.4rem;
+}
+
+/* Rating Section */
+.ratingContainer {
+  text-align: center;
+  margin-bottom: 2rem;
+  background: #FAF5FF;
+  padding: 1.25rem;
+  border-radius: 16px;
+  border: 1px solid #E5D4FF;
+}
+
+.ratingLabel {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1F2937;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.starsRow {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.starBtn {
+  background: none;
+  border: none;
+  font-size: 2.2rem;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  line-height: 1;
+  padding: 0.1rem;
+}
+
+.starBtn:hover {
+  transform: scale(1.2);
+}
+
+.starActive {
+  color: #F59E0B;
+}
+
+.starInactive {
+  color: #D1D5DB;
+}
+
+.ratingHint {
+  font-size: 0.82rem;
+  color: #7942b5;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+/* Form Styles */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.formGroup label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.input, .textarea, .select {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #D1D5DB;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.input:focus, .textarea:focus, .select:focus {
+  border-color: #7942b5;
+  box-shadow: 0 0 0 3px rgba(121, 66, 181, 0.12);
+}
+
+.textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.submitBtn {
+  background: linear-gradient(135deg, #7942b5 0%, #5b2893 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 10px 25px rgba(121, 66, 181, 0.3);
+  margin-top: 0.5rem;
+}
+
+.submitBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(121, 66, 181, 0.4);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Success View */
+.successCard {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.successIcon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #ECFDF5;
+  color: #059669;
+  font-size: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem auto;
+  border: 3px solid #A7F3D0;
+}
+
+.successTitle {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.successSubtitle {
+  font-size: 1rem;
+  color: #4B5563;
+  line-height: 1.5;
+  max-width: 480px;
+  margin: 0 auto 1.75rem auto;
+}
+
+.quoteBox {
+  background: #FAF5FF;
+  border: 1px solid #DCBFFF;
+  border-radius: 14px;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.quoteText {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #7942b5;
+  margin-bottom: 0.25rem;
+}
+
+.quoteAuthor {
+  font-size: 0.82rem;
+  color: #6B7280;
+}
+
+.actionBtn {
+  background: #7942b5;
+  color: #FFFFFF;
+  text-decoration: none;
+  padding: 0.8rem 1.8rem;
+  border-radius: 99px;
+  font-weight: 700;
+  display: inline-block;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 1.5rem;
+  }
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+  .collegeName {
+    font-size: 1.2rem;
+  }
+}
