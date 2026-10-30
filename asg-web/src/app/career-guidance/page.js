@@ -194,10 +194,9 @@ export default function CareerGuidancePage() {
       const options = {
         key: orderData.key_id,
         amount: orderData.amount,
-        currency: orderData.currency,
-        name: "Avinash Gore & Perpetual Solutions",
+        currency: orderData.currency || "INR",
+        name: "Avinash Gore",
         description: "Career Nature & Swadharma Assessment",
-        image: "/images/image5.jpg",
         order_id: orderData.orderId,
         handler: async function (response) {
           try {
@@ -213,15 +212,19 @@ export default function CareerGuidancePage() {
               })
             });
 
+            const verifyData = await verifyRes.json();
             if (!verifyRes.ok) {
-              throw new Error("Payment signature verification failed.");
+              throw new Error(verifyData.error || "Payment signature verification failed.");
             }
 
             // Payment successful! Unlock 30-Question Assessment
             setCurrentStep('test');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           } catch (verifyErr) {
+            console.error("Verification error:", verifyErr);
             alert("Verification Error: " + verifyErr.message);
+          } finally {
+            setIsProcessingPayment(false);
           }
         },
         prefill: {
@@ -232,9 +235,22 @@ export default function CareerGuidancePage() {
         theme: {
           color: "#7942b5",
         },
+        modal: {
+          ondismiss: function () {
+            setIsProcessingPayment(false);
+          }
+        }
       };
 
       const razorpayInstance = new window.Razorpay(options);
+
+      razorpayInstance.on('payment.failed', function (resp) {
+        console.error("Razorpay Payment Failed:", resp.error);
+        const reason = resp.error?.description || resp.error?.reason || 'Payment could not be processed.';
+        alert(`Payment Failed: ${reason}`);
+        setIsProcessingPayment(false);
+      });
+
       razorpayInstance.open();
 
     } catch (err) {

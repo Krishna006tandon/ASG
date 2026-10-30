@@ -37,8 +37,13 @@ export async function POST(req) {
       testStatus: 'Pending'
     });
 
-    const razorpayKeyId = process.env.RAZORPAY_KEY_ID || 'rzp_test_YourTestKeyHere';
-    const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || 'YourTestSecretHere';
+    const razorpayKeyId = (process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '').trim();
+    const razorpayKeySecret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
+
+    if (!razorpayKeyId || !razorpayKeySecret) {
+      console.error('Razorpay keys not configured in environment variables');
+      return NextResponse.json({ error: 'Payment gateway is temporarily unavailable: missing credentials.' }, { status: 500 });
+    }
 
     const razorpay = new Razorpay({
       key_id: razorpayKeyId,
@@ -48,7 +53,7 @@ export async function POST(req) {
     const options = {
       amount: price * 100, // paise
       currency: 'INR',
-      receipt: `career_${assessment._id}`,
+      receipt: `career_${Date.now()}`,
       notes: {
         assessmentId: assessment._id.toString(),
         candidateName: candidateDetails.name,
@@ -60,6 +65,8 @@ export async function POST(req) {
 
     assessment.razorpayOrderId = order.id;
     await assessment.save();
+
+    console.log(`[Razorpay Career Order] Created order ${order.id} for assessment ${assessment._id} using key ${razorpayKeyId.slice(0, 8)}...`);
 
     return NextResponse.json({
       orderId: order.id,

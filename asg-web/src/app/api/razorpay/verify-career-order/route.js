@@ -11,15 +11,27 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Missing assessment ID' }, { status: 400 });
     }
 
-    const secret = process.env.RAZORPAY_KEY_SECRET || 'YourTestSecretHere';
+    const secret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
+
+    if (!secret) {
+      console.error('[Verify Signature Error] RAZORPAY_KEY_SECRET is not configured');
+      return NextResponse.json({ error: 'Razorpay secret key configuration error.' }, { status: 500 });
+    }
 
     // Verify signature
+    const text = razorpay_order_id + "|" + razorpay_payment_id;
     const generated_signature = crypto
       .createHmac('sha256', secret)
-      .update(razorpay_order_id + "|" + razorpay_payment_id)
+      .update(text)
       .digest('hex');
 
     if (generated_signature !== razorpay_signature) {
+      console.error('[Verify Signature Error] Signature mismatch:', {
+        expected: generated_signature,
+        received: razorpay_signature,
+        orderId: razorpay_order_id,
+        paymentId: razorpay_payment_id
+      });
       return NextResponse.json({ error: 'Payment signature verification failed' }, { status: 400 });
     }
 
