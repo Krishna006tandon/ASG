@@ -117,6 +117,66 @@
   gap: 0.5rem;
 }
 
+/* Question Builder Box */
+.questionBuilderBox {
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.questionBuilderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.questionRowItem {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.questionBadgeRating {
+  background: #FEF3C7;
+  color: #B45309;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.questionBadgeChoice {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.questionBadgeText {
+  background: #F1EAFF;
+  color: #7942b5;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
 /* Forms */
 .formGrid {
   display: grid;
@@ -197,6 +257,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   margin-bottom: 1.5rem;
+  display: block;
 }
 
 .dropzone:hover {

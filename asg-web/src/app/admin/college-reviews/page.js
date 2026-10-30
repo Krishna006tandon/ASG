@@ -5,6 +5,73 @@ import { QRCodeCanvas } from 'qrcode.react';
 import * as XLSX from 'xlsx';
 import styles from './collegeReviews.module.css';
 
+const DEFAULT_QUESTIONS_TEMPLATE = [
+  {
+    id: 'q_content_rating',
+    type: 'rating',
+    question: 'How would you rate the Training Content?',
+    required: true
+  },
+  {
+    id: 'q_delivery_rating',
+    type: 'rating',
+    question: 'How would you rate the Training Presentation & Delivery Style?',
+    required: true
+  },
+  {
+    id: 'q_overall_rating',
+    type: 'rating',
+    question: 'Overall, how would you rate this training program?',
+    required: true
+  },
+  {
+    id: 'q_apply_learning',
+    type: 'choice',
+    question: 'Will you be able to apply the learning in your professional or personal life?',
+    required: true,
+    options: ['Definitely', 'Probably', 'Maybe', 'Not sure']
+  },
+  {
+    id: 'q_liked_most',
+    type: 'text',
+    question: 'What did you like most about the training session?',
+    required: true
+  },
+  {
+    id: 'q_improvement',
+    type: 'text',
+    question: 'What can we improve in future training programs?',
+    required: false
+  },
+  {
+    id: 'q_book_interest',
+    type: 'choice',
+    question: "Would you be interested in purchasing the book 'Come On You Can Do It'?",
+    required: false,
+    options: ['Yes', 'Maybe', 'No']
+  },
+  {
+    id: 'q_career_test_interest',
+    type: 'choice',
+    question: 'Would you be interested in taking career counselling / career assessment test?',
+    required: false,
+    options: ['Yes', 'Maybe', 'No']
+  },
+  {
+    id: 'q_counselling_interest',
+    type: 'choice',
+    question: 'Would you be interested in 1-on-1 Personal Guidance with Avinash Gore?',
+    required: false,
+    options: ['Yes', 'Maybe', 'No']
+  },
+  {
+    id: 'q_other_comments',
+    type: 'text',
+    question: 'Any other comments, suggestions, or words for Avinash Sir?',
+    required: false
+  }
+];
+
 export default function AdminCollegeReviewsPage() {
   const [activeTab, setActiveTab] = useState('campaigns'); // 'campaigns' | 'excel' | 'reviews'
   const [loading, setLoading] = useState(true);
@@ -24,9 +91,11 @@ export default function AdminCollegeReviewsPage() {
     workshopTitle: '',
     customSlug: '',
     date: new Date().toISOString().split('T')[0],
-    description: ''
+    description: '',
+    questions: [...DEFAULT_QUESTIONS_TEMPLATE]
   });
   const [isCreatingCampaign, setIsCreatingCampaign] = useState(false);
+  const [showQuestionBuilder, setShowQuestionBuilder] = useState(false);
   const [activeQrModal, setActiveQrModal] = useState(null); // Campaign for QR view
 
   // Excel Import State
@@ -73,6 +142,41 @@ export default function AdminCollegeReviewsPage() {
     loadData();
   }, [selectedCollege, selectedSource]);
 
+  // Question Management Helpers
+  const handleAddQuestion = () => {
+    const newId = `q_custom_${Date.now()}`;
+    setNewCampaign({
+      ...newCampaign,
+      questions: [
+        ...newCampaign.questions,
+        {
+          id: newId,
+          type: 'text',
+          question: 'New Question Title',
+          required: false,
+          options: ['Yes', 'No']
+        }
+      ]
+    });
+  };
+
+  const handleUpdateQuestion = (index, field, value) => {
+    const updated = [...newCampaign.questions];
+    updated[index] = { ...updated[index], [field]: value };
+    setNewCampaign({ ...newCampaign, questions: updated });
+  };
+
+  const handleDeleteQuestion = (index) => {
+    const updated = newCampaign.questions.filter((_, i) => i !== index);
+    setNewCampaign({ ...newCampaign, questions: updated });
+  };
+
+  const handleResetQuestions = () => {
+    if (window.confirm("Reset questions to standard Google Forms template?")) {
+      setNewCampaign({ ...newCampaign, questions: [...DEFAULT_QUESTIONS_TEMPLATE] });
+    }
+  };
+
   // Create Campaign
   const handleCreateCampaign = async (e) => {
     e.preventDefault();
@@ -100,8 +204,10 @@ export default function AdminCollegeReviewsPage() {
         workshopTitle: '',
         customSlug: '',
         date: new Date().toISOString().split('T')[0],
-        description: ''
+        description: '',
+        questions: [...DEFAULT_QUESTIONS_TEMPLATE]
       });
+      setShowQuestionBuilder(false);
       loadData();
     } catch (err) {
       alert("Error: " + err.message);
@@ -372,6 +478,112 @@ export default function AdminCollegeReviewsPage() {
                 </div>
               </div>
 
+              {/* QUESTION MANAGER / FORM BUILDER TOGGLE */}
+              <div className={styles.questionBuilderBox}>
+                <div className={styles.questionBuilderHeader}>
+                  <div>
+                    <strong style={{ color: '#1F2937', fontSize: '0.98rem' }}>
+                      📝 Form Questions for this Workshop ({newCampaign.questions.length} Questions)
+                    </strong>
+                    <div style={{ fontSize: '0.8rem', color: '#6B7280' }}>
+                      Students will see these questions after registering their name &amp; phone number.
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      className={styles.actionIconBtn}
+                      style={{ background: showQuestionBuilder ? '#7942b5' : '#FFFFFF', color: showQuestionBuilder ? '#FFFFFF' : '#374151' }}
+                      onClick={() => setShowQuestionBuilder(!showQuestionBuilder)}
+                    >
+                      {showQuestionBuilder ? "▲ Hide Questions" : "▼ Customize Questions"}
+                    </button>
+                    {showQuestionBuilder && (
+                      <>
+                        <button
+                          type="button"
+                          className={styles.actionIconBtn}
+                          onClick={handleAddQuestion}
+                          style={{ background: '#ECFDF5', borderColor: '#10B981', color: '#059669' }}
+                        >
+                          + Add Question
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.actionIconBtn}
+                          onClick={handleResetQuestions}
+                        >
+                          Reset Template
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Question List when expanded */}
+                {showQuestionBuilder && (
+                  <div style={{ marginTop: '1rem', borderTop: '1px solid #E5E7EB', paddingTop: '1rem' }}>
+                    {newCampaign.questions.map((q, qIndex) => (
+                      <div key={q.id || qIndex} className={styles.questionRowItem}>
+                        <span style={{ fontWeight: 800, color: '#6B7280', fontSize: '0.85rem', width: '25px' }}>
+                          #{qIndex + 1}
+                        </span>
+
+                        <input
+                          type="text"
+                          className={styles.inputField}
+                          style={{ flex: 1, minWidth: '220px', padding: '0.45rem 0.75rem', fontSize: '0.88rem' }}
+                          value={q.question}
+                          onChange={e => handleUpdateQuestion(qIndex, 'question', e.target.value)}
+                        />
+
+                        <select
+                          className={styles.inputField}
+                          style={{ width: '130px', padding: '0.45rem 0.5rem', fontSize: '0.82rem' }}
+                          value={q.type}
+                          onChange={e => handleUpdateQuestion(qIndex, 'type', e.target.value)}
+                        >
+                          <option value="rating">Rating (1-5★)</option>
+                          <option value="choice">Choice Pills</option>
+                          <option value="text">Text Box</option>
+                        </select>
+
+                        {q.type === 'choice' && (
+                          <input
+                            type="text"
+                            placeholder="Options (comma separated e.g. Yes, Maybe, No)"
+                            className={styles.inputField}
+                            style={{ flex: 1, minWidth: '180px', padding: '0.45rem 0.75rem', fontSize: '0.82rem' }}
+                            value={Array.isArray(q.options) ? q.options.join(', ') : ''}
+                            onChange={e => handleUpdateQuestion(qIndex, 'options', e.target.value.split(',').map(s => s.trim()))}
+                          />
+                        )}
+
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', color: '#4B5563', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                          <input
+                            type="checkbox"
+                            checked={q.required}
+                            onChange={e => handleUpdateQuestion(qIndex, 'required', e.target.checked)}
+                          />
+                          Required
+                        </label>
+
+                        <button
+                          type="button"
+                          className={styles.deleteBtn}
+                          style={{ padding: '0.35rem 0.6rem' }}
+                          onClick={() => handleDeleteQuestion(qIndex)}
+                          title="Remove Question"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <button
                 type="submit"
                 disabled={isCreatingCampaign}
@@ -402,6 +614,7 @@ export default function AdminCollegeReviewsPage() {
                       <th>Date</th>
                       <th>College Name</th>
                       <th>Workshop Topic</th>
+                      <th>Questions</th>
                       <th>Reviews</th>
                       <th>Avg Rating</th>
                       <th>Shareable Link</th>
@@ -419,6 +632,11 @@ export default function AdminCollegeReviewsPage() {
                         </td>
                         <td style={{ color: '#4B5563' }}>
                           {camp.workshopTitle}
+                        </td>
+                        <td>
+                          <span style={{ fontSize: '0.85rem', color: '#6B7280', fontWeight: 600 }}>
+                            {camp.questions?.length || 10} Qs
+                          </span>
                         </td>
                         <td>
                           <span style={{ fontWeight: 700, color: '#7942b5' }}>

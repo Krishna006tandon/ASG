@@ -4,18 +4,47 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem 1rem;
+  padding: 2.5rem 1rem;
 }
 
 .card {
   background: #FFFFFF;
   border-radius: 24px;
   box-shadow: 0 20px 45px rgba(121, 66, 181, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04);
-  max-width: 620px;
+  max-width: 680px;
   width: 100%;
   padding: 2.5rem;
   overflow: hidden;
   position: relative;
+}
+
+/* Step Bar */
+.stepBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.stepPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #7942b5;
+  background: #F1EAFF;
+  padding: 0.3rem 0.8rem;
+  border-radius: 99px;
+  text-transform: uppercase;
+}
+
+.stepTracker {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #6B7280;
 }
 
 .topBadge {
@@ -30,7 +59,7 @@
   border-radius: 99px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .header {
@@ -75,17 +104,22 @@
   margin-top: 0.4rem;
 }
 
-/* Rating Section */
-.ratingContainer {
-  text-align: center;
-  margin-bottom: 2rem;
-  background: #FAF5FF;
-  padding: 1.25rem;
-  border-radius: 16px;
-  border: 1px solid #E5D4FF;
+/* Question Cards */
+.questionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.ratingLabel {
+.questionItem {
+  background: #FAF5FF;
+  border: 1px solid #E5D4FF;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.questionLabel {
   font-size: 0.95rem;
   font-weight: 700;
   color: #1F2937;
@@ -93,10 +127,16 @@
   display: block;
 }
 
+.requiredStar {
+  color: #EF4444;
+  margin-left: 0.25rem;
+}
+
+/* Star Rating */
 .starsRow {
   display: flex;
-  justify-content: center;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .starBtn {
@@ -126,6 +166,38 @@
   color: #7942b5;
   font-weight: 600;
   margin-top: 0.5rem;
+}
+
+/* Choice Buttons */
+.choicesRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.choiceBtn {
+  background: #FFFFFF;
+  border: 1px solid #D1D5DB;
+  border-radius: 99px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.choiceBtn:hover {
+  border-color: #7942b5;
+  color: #7942b5;
+  background: #F1EAFF;
+}
+
+.choiceBtn.choiceSelected {
+  background: #7942b5;
+  border-color: #7942b5;
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(121, 66, 181, 0.25);
 }
 
 /* Form Styles */
@@ -161,6 +233,8 @@
   outline: none;
   transition: all 0.2s ease;
   font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .input:focus, .textarea:focus, .select:focus {
@@ -169,7 +243,7 @@
 }
 
 .textarea {
-  min-height: 100px;
+  min-height: 90px;
   resize: vertical;
 }
 
@@ -184,7 +258,8 @@
   cursor: pointer;
   transition: all 0.25s ease;
   box-shadow: 0 10px 25px rgba(121, 66, 181, 0.3);
-  margin-top: 0.5rem;
+  margin-top: 1rem;
+  width: 100%;
 }
 
 .submitBtn:hover:not(:disabled) {

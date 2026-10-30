@@ -1,5 +1,17 @@
 import mongoose from 'mongoose';
 
+const QuestionSchema = new mongoose.Schema({
+  id: { type: String, required: true },
+  type: { 
+    type: String, 
+    enum: ['rating', 'text', 'choice'], 
+    default: 'rating' 
+  },
+  question: { type: String, required: true, trim: true },
+  required: { type: Boolean, default: true },
+  options: [{ type: String, trim: true }]
+}, { _id: false });
+
 const WorkshopReviewCampaignSchema = new mongoose.Schema({
   collegeName: { 
     type: String, 
@@ -34,6 +46,7 @@ const WorkshopReviewCampaignSchema = new mongoose.Schema({
     type: Boolean, 
     default: true 
   },
+  questions: [QuestionSchema],
   totalReviews: { 
     type: Number, 
     default: 0 

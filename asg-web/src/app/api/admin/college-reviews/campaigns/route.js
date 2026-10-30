@@ -5,6 +5,73 @@ import CollegeReview from '@/models/CollegeReview';
 
 export const dynamic = 'force-dynamic';
 
+const DEFAULT_QUESTIONS = [
+  {
+    id: 'q_content_rating',
+    type: 'rating',
+    question: 'How would you rate the Training Content?',
+    required: true
+  },
+  {
+    id: 'q_delivery_rating',
+    type: 'rating',
+    question: 'How would you rate the Training Presentation & Delivery Style?',
+    required: true
+  },
+  {
+    id: 'q_overall_rating',
+    type: 'rating',
+    question: 'Overall, how would you rate this training program?',
+    required: true
+  },
+  {
+    id: 'q_apply_learning',
+    type: 'choice',
+    question: 'Will you be able to apply the learning in your professional or personal life?',
+    required: true,
+    options: ['Definitely', 'Probably', 'Maybe', 'Not sure']
+  },
+  {
+    id: 'q_liked_most',
+    type: 'text',
+    question: 'What did you like most about the training session?',
+    required: true
+  },
+  {
+    id: 'q_improvement',
+    type: 'text',
+    question: 'What can we improve in future training programs?',
+    required: false
+  },
+  {
+    id: 'q_book_interest',
+    type: 'choice',
+    question: "Would you be interested in purchasing the book 'Come On You Can Do It'?",
+    required: false,
+    options: ['Yes', 'Maybe', 'No']
+  },
+  {
+    id: 'q_career_test_interest',
+    type: 'choice',
+    question: 'Would you be interested in taking career counselling / career assessment test?',
+    required: false,
+    options: ['Yes', 'Maybe', 'No']
+  },
+  {
+    id: 'q_counselling_interest',
+    type: 'choice',
+    question: 'Would you be interested in 1-on-1 Personal Guidance with Avinash Gore?',
+    required: false,
+    options: ['Yes', 'Maybe', 'No']
+  },
+  {
+    id: 'q_other_comments',
+    type: 'text',
+    question: 'Any other comments, questions, or words for Avinash Sir?',
+    required: false
+  }
+];
+
 export async function GET() {
   try {
     await connectToDatabase();
@@ -45,7 +112,7 @@ export async function GET() {
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { collegeName, workshopTitle, customSlug, date, speaker, description } = body;
+    const { collegeName, workshopTitle, customSlug, date, speaker, description, questions } = body;
 
     if (!collegeName || !workshopTitle) {
       return NextResponse.json({ error: 'College Name and Workshop Title are required.' }, { status: 400 });
@@ -76,6 +143,7 @@ export async function POST(req) {
       date: date ? new Date(date) : new Date(),
       speaker: speaker || 'Avinash Gore',
       description: description || 'Share your genuine feedback on the workshop with Avinash Gore & Perpetual Solutions.',
+      questions: Array.isArray(questions) && questions.length > 0 ? questions : DEFAULT_QUESTIONS,
       isActive: true
     });
 

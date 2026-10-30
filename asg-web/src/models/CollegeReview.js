@@ -87,6 +87,12 @@ const CollegeReviewSchema = new mongoose.Schema({
     counselling: { type: Boolean, default: false },
     upcomingWorkshops: { type: Boolean, default: false }
   },
+  // Dynamic Answers for customized questions
+  answers: {
+    type: Map,
+    of: mongoose.Schema.Types.Mixed,
+    default: {}
+  },
   source: { 
     type: String, 
     enum: ['live_link', 'excel_import'],
