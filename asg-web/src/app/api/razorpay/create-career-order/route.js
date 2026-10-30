@@ -3,6 +3,7 @@ import Razorpay from 'razorpay';
 import connectToDatabase from '@/lib/mongodb';
 import CareerSetting from '@/models/CareerSetting';
 import CareerAssessment from '@/models/CareerAssessment';
+import { authenticateApi } from '@/lib/auth';
 
 export async function POST(req) {
   try {
@@ -12,6 +13,9 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Name, email, and phone number are required.' }, { status: 400 });
     }
 
+    const decoded = authenticateApi(req);
+    const userId = decoded?.userId || null;
+
     await connectToDatabase();
 
     // Fetch dynamic price
@@ -20,6 +24,7 @@ export async function POST(req) {
 
     // Create a new pending assessment in DB
     const assessment = await CareerAssessment.create({
+      userId,
       candidateDetails: {
         name: candidateDetails.name.trim(),
         email: candidateDetails.email.trim().toLowerCase(),

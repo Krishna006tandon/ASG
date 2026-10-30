@@ -8,6 +8,7 @@ import Webinar from '@/models/Webinar';
 import SeminarRegistration from '@/models/SeminarRegistration';
 import Seminar from '@/models/Seminar';
 import Book from '@/models/Book';
+import CareerAssessment from '@/models/CareerAssessment';
 import { authenticateApi } from '@/lib/auth';
 
 export async function GET(req) {
@@ -48,7 +49,23 @@ export async function GET(req) {
       .sort({ createdAt: -1 })
       .lean();
 
-    return NextResponse.json({ consultations, orders, webinars, seminarRegistrations }, { status: 200 });
+    const escapedEmail = user.email ? user.email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
+    const careerAssessments = await CareerAssessment.find({
+      $or: [
+        { userId: decoded.userId },
+        ...(escapedEmail ? [{ 'candidateDetails.email': { $regex: new RegExp(`^${escapedEmail}$`, 'i') } }] : [])
+      ]
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return NextResponse.json({
+      consultations,
+      orders,
+      webinars,
+      seminarRegistrations,
+      careerAssessments
+    }, { status: 200 });
   } catch (error) {
     console.error('User Dashboard Fetch Error:', error);
     return NextResponse.json({ error: 'Failed to fetch dashboard data' }, { status: 500 });

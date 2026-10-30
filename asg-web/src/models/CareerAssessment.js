@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 
 const CareerAssessmentSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
   candidateDetails: {
     name: { type: String, required: true },
     email: { type: String, required: true },

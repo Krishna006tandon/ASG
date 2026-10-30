@@ -64,11 +64,27 @@ export default function CareerGuidancePage() {
       })
       .catch(err => console.error('Failed to load settings:', err));
 
-    // 2. Production session restoration (if user refreshed after paying)
+    // 2. Production session restoration or direct result view via ?id=
     try {
-      const savedAssessmentId = sessionStorage.getItem('asg_career_assessment_id');
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryId = urlParams.get('id') || urlParams.get('resultId');
+      const savedAssessmentId = queryId || sessionStorage.getItem('asg_career_assessment_id');
       const savedCandidate = sessionStorage.getItem('asg_career_candidate');
       const savedAnswers = sessionStorage.getItem('asg_career_answers');
+
+      // Auto-populate candidate details from logged-in user if available
+      const storedUser = localStorage.getItem('asg_user');
+      if (storedUser) {
+        try {
+          const parsed = JSON.parse(storedUser);
+          setCandidate(prev => ({
+            ...prev,
+            name: prev.name || parsed.name || '',
+            email: prev.email || parsed.email || '',
+            phone: prev.phone || parsed.phone || ''
+          }));
+        } catch (e) {}
+      }
 
       if (savedCandidate) {
         setCandidate(JSON.parse(savedCandidate));
@@ -83,6 +99,9 @@ export default function CareerGuidancePage() {
           .then(res => res.json())
           .then(data => {
             if (data && data.paymentStatus === 'Paid') {
+              if (data.candidate) {
+                setCandidate(data.candidate);
+              }
               if (data.testStatus === 'Completed' && data.results) {
                 setResults(data.results);
                 setCurrentStep('results');
@@ -147,9 +166,13 @@ export default function CareerGuidancePage() {
       }
 
       // Step 1: Create Order on Backend
+      const token = localStorage.getItem('asg_token');
+      const orderHeaders = { 'Content-Type': 'application/json' };
+      if (token) orderHeaders['Authorization'] = `Bearer ${token}`;
+
       const orderRes = await fetch('/api/razorpay/create-career-order', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: orderHeaders,
         body: JSON.stringify({ candidateDetails: candidate })
       });
 
@@ -241,9 +264,13 @@ export default function CareerGuidancePage() {
     setIsSubmittingTest(true);
 
     try {
+      const token = localStorage.getItem('asg_token');
+      const submitHeaders = { 'Content-Type': 'application/json' };
+      if (token) submitHeaders['Authorization'] = `Bearer ${token}`;
+
       const res = await fetch('/api/career/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: submitHeaders,
         body: JSON.stringify({
           assessmentId,
           answers

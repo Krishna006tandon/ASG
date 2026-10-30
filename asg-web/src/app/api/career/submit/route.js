@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import CareerAssessment from '@/models/CareerAssessment';
 import { computeAssessmentResults } from '@/lib/careerData';
+import { authenticateApi } from '@/lib/auth';
 
 export async function POST(req) {
   try {
@@ -15,11 +16,17 @@ export async function POST(req) {
       return NextResponse.json({ error: 'All 30 questions must be answered.' }, { status: 400 });
     }
 
+    const decoded = authenticateApi(req);
+
     await connectToDatabase();
 
     const assessment = await CareerAssessment.findById(assessmentId);
     if (!assessment) {
       return NextResponse.json({ error: 'Assessment not found.' }, { status: 404 });
+    }
+
+    if (!assessment.userId && decoded?.userId) {
+      assessment.userId = decoded.userId;
     }
 
     // Verify payment was completed

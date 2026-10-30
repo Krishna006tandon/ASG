@@ -7,6 +7,7 @@ import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import TicketPDF from '@/components/TicketPDF';
 import InvoicePDF from '@/components/InvoicePDF';
+import CareerReportPDF from '@/components/CareerReportPDF';
 import ReviewModal from '@/components/ReviewModal';
 import StarRating from '@/components/StarRating';
 import { useRef } from 'react';
@@ -18,6 +19,7 @@ export default function ClientDashboard() {
   const [orders, setOrders] = useState([]);
   const [webinars, setWebinars] = useState([]);
   const [seminars, setSeminars] = useState([]);
+  const [careerAssessments, setCareerAssessments] = useState([]);
   const [myReviews, setMyReviews] = useState([]);
   const [verifiedItems, setVerifiedItems] = useState({ books: [], webinars: [], seminars: [], canReviewPlatform: false });
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
@@ -27,7 +29,7 @@ export default function ClientDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(null);
-  const [activeTab, setActiveTab] = useState('consultations'); // 'consultations', 'orders', 'webinars', 'seminars', 'reviews'
+  const [activeTab, setActiveTab] = useState('consultations'); // 'consultations', 'career', 'orders', 'webinars', 'seminars', 'reviews'
   const [generatingPdfFor, setGeneratingPdfFor] = useState(null);
   const [sharingFor, setSharingFor] = useState(null);
   
@@ -38,6 +40,11 @@ export default function ClientDashboard() {
   
   const [pdfTicketData, setPdfTicketData] = useState(null);
   const ticketRef = useRef(null);
+
+  // Career Assessment PDF state
+  const [generatingCareerPdfFor, setGeneratingCareerPdfFor] = useState(null);
+  const [careerPdfData, setCareerPdfData] = useState(null);
+  const careerReportRef = useRef(null);
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -64,11 +71,12 @@ export default function ClientDashboard() {
       if (!res.ok) throw new Error('Failed to fetch your data');
       const data = await res.json();
       
-      // Data contains { consultations, orders, webinars, seminarRegistrations }
+      // Data contains { consultations, orders, webinars, seminarRegistrations, careerAssessments }
       setConsultations(data.consultations || []);
       setOrders(data.orders || []);
       setWebinars(data.webinars || []);
       setSeminars(data.seminarRegistrations || []);
+      setCareerAssessments(data.careerAssessments || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -102,7 +110,7 @@ export default function ClientDashboard() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const tab = params.get('tab');
-      if (tab && ['consultations', 'orders', 'webinars', 'seminars', 'reviews'].includes(tab)) {
+      if (tab && ['consultations', 'career', 'orders', 'webinars', 'seminars', 'reviews'].includes(tab)) {
         setActiveTab(tab);
       }
     }
@@ -289,6 +297,59 @@ export default function ClientDashboard() {
     }
   };
 
+  const handleDownloadCareerPDF = async (assessment) => {
+    setGeneratingCareerPdfFor(assessment._id);
+    setCareerPdfData({
+      assessment: {
+        ...assessment,
+        candidate: assessment.candidateDetails
+      },
+      results: {
+        top3: assessment.topCategories || [],
+        rankedCategories: assessment.topCategories || [],
+        synergyInsight: assessment.synergyInsight || '',
+        scores: assessment.scores || {}
+      }
+    });
+
+    setTimeout(async () => {
+      try {
+        if (!careerReportRef.current) throw new Error("Report element not ready");
+        const canvas = await html2canvas(careerReportRef.current, {
+          scale: 2,
+          useCORS: true,
+          logging: false
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgWidth = 210;
+        const pageHeight = 297;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+
+        const candidateName = (assessment.candidateDetails?.name || 'Report').replace(/[^a-zA-Z0-9]/g, '_');
+        pdf.save(`ASG_Career_Report_${candidateName}.pdf`);
+      } catch (err) {
+        console.error("Career PDF Generation failed:", err);
+        alert("Failed to generate Career Report PDF. Please try again.");
+      } finally {
+        setGeneratingCareerPdfFor(null);
+      }
+    }, 400);
+  };
+
   const handlePayment = async (appt) => {
     setIsProcessing(appt._id);
 
@@ -444,12 +505,18 @@ export default function ClientDashboard() {
   return (
     <main className={styles.main}>
       <div className={styles.container}>
-        <div className={styles.tabsNav}>
+        <div className={styles.tabsNav} style={{ overflowX: 'auto', flexWrap: 'wrap' }}>
           <button 
             className={`${styles.tabBtn} ${activeTab === 'consultations' ? styles.activeTab : ''}`}
             onClick={() => setActiveTab('consultations')}
           >
             My Consultations
+          </button>
+          <button 
+            className={`${styles.tabBtn} ${activeTab === 'career' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('career')}
+          >
+            🎯 Career Guidance {careerAssessments.length > 0 ? `(${careerAssessments.length})` : ''}
           </button>
           <button 
             className={`${styles.tabBtn} ${activeTab === 'webinars' ? styles.activeTab : ''}`}
@@ -602,6 +669,226 @@ export default function ClientDashboard() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Career Guidance & Assessments Tab */}
+        {activeTab === 'career' && (
+          <div className={styles.section}>
+            <div className={styles.headerRow}>
+              <div>
+                <h2>My Career Assessments</h2>
+                <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem', color: '#6B7280' }}>
+                  Swadharma (Bhagavad Gita 3.35) &amp; 30-Dimension Work Archetype Reports
+                </p>
+              </div>
+              <Link 
+                href="/career-guidance" 
+                className="btn-primary" 
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none' }}
+              >
+                <span>🎯</span> Take New Assessment
+              </Link>
+            </div>
+
+            {careerAssessments.length === 0 ? (
+              <div className={styles.emptyState} style={{ padding: '3.5rem 1.5rem', textAlign: 'center' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🧭</div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1F2937', marginBottom: '0.5rem' }}>
+                  No Career Assessments Found
+                </h3>
+                <p style={{ maxWidth: '520px', margin: '0 auto 1.5rem auto', color: '#4B5563', fontSize: '0.95rem', lineHeight: '1.6' }}>
+                  Discover your natural work temperament, top career archetypes (Sage, Ruler, Builder, Merchant), and synergistic career paths with the 30-Dimension Swadharma Assessment.
+                </p>
+                <Link 
+                  href="/career-guidance" 
+                  className="btn-accent" 
+                  style={{ padding: '0.75rem 2rem', fontWeight: '700', textDecoration: 'none', display: 'inline-block' }}
+                >
+                  Start Your Assessment
+                </Link>
+              </div>
+            ) : (
+              <div className={styles.grid}>
+                {careerAssessments.map(item => {
+                  const isPaid = item.paymentStatus === 'Paid';
+                  const isCompleted = item.testStatus === 'Completed';
+                  const dateStr = item.completedAt || item.createdAt;
+                  const dateObj = dateStr ? new Date(dateStr) : new Date();
+
+                  return (
+                    <div 
+                      key={item._id} 
+                      className={styles.card} 
+                      style={{ borderLeft: isCompleted ? '4px solid #7942b5' : '4px solid #F59E0B' }}
+                    >
+                      <div className={styles.cardHeader}>
+                        <div className={styles.dateBadge}>
+                          <span className={styles.month}>{dateObj.toLocaleDateString('en-US', { month: 'short' })}</span>
+                          <span className={styles.day}>{dateObj.getDate()}</span>
+                        </div>
+                        <div className={styles.timeInfo} style={{ flex: 1, marginLeft: '1rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                            <h3 style={{ margin: 0, fontSize: '1.15rem' }}>
+                              {item.candidateDetails?.name || 'Career Assessment'}
+                            </h3>
+                            <span style={{ fontSize: '0.8rem', color: '#6B7280', fontWeight: '500' }}>
+                              ID: {String(item._id).slice(-8).toUpperCase()}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.4rem', flexWrap: 'wrap' }}>
+                            <span className={`${styles.statusBadge} ${isPaid ? styles.completed : styles.pending}`}>
+                              Payment: {item.paymentStatus}
+                            </span>
+                            <span className={`${styles.statusBadge} ${isCompleted ? styles.completed : styles.pending}`}>
+                              Status: {item.testStatus || 'Pending'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className={styles.cardBody}>
+                        {/* Candidate Details Strip */}
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', background: '#F9FAFB', padding: '0.85rem 1rem', borderRadius: '8px', fontSize: '0.85rem', color: '#4B5563', marginBottom: '1rem' }}>
+                          <div><strong>Email:</strong> {item.candidateDetails?.email}</div>
+                          <div><strong>Phone:</strong> {item.candidateDetails?.phone}</div>
+                          {item.candidateDetails?.currentStatus && (
+                            <div><strong>Profile:</strong> {item.candidateDetails.currentStatus}</div>
+                          )}
+                          <div><strong>Fee:</strong> ₹{item.amountPaid || 299}</div>
+                        </div>
+
+                        {/* Top 3 Natural Archetypes */}
+                        {isCompleted && item.topCategories && item.topCategories.length > 0 && (
+                          <div style={{ marginBottom: '1.25rem' }}>
+                            <div style={{ fontSize: '0.8rem', fontWeight: '700', textTransform: 'uppercase', color: '#7942b5', letterSpacing: '0.5px', marginBottom: '0.5rem' }}>
+                              Top Natural Career Archetypes (Swadharma)
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+                              {item.topCategories.map((cat, idx) => (
+                                <div key={cat.code || idx} style={{
+                                  background: idx === 0 ? '#FAF5FF' : '#FFFFFF',
+                                  border: idx === 0 ? '1.5px solid #7942b5' : '1px solid #E5E7EB',
+                                  borderRadius: '8px',
+                                  padding: '0.75rem 0.9rem'
+                                }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontWeight: '700', color: idx === 0 ? '#6B21A8' : '#1F2937', fontSize: '0.9rem' }}>
+                                      {cat.badge || '✨'} {cat.name}
+                                    </span>
+                                    <span style={{ fontSize: '0.8rem', fontWeight: '800', background: '#F3E8FF', color: '#7942b5', padding: '2px 7px', borderRadius: '4px' }}>
+                                      {cat.score} / 15
+                                    </span>
+                                  </div>
+                                  {cat.roles && (
+                                    <div style={{ fontSize: '0.75rem', color: '#6B7280', marginTop: '0.35rem', lineHeight: '1.3' }}>
+                                      {cat.roles}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Synergy Insight snippet */}
+                        {isCompleted && item.synergyInsight && (
+                          <div style={{ background: '#FFFBEB', borderLeft: '3px solid #F59E0B', padding: '0.75rem 1rem', borderRadius: '6px', fontSize: '0.85rem', color: '#92400E', marginBottom: '1.25rem', lineHeight: '1.5' }}>
+                            <strong>💡 Swadharma Synergy:</strong> {item.synergyInsight}
+                          </div>
+                        )}
+
+                        {/* Status message for Incomplete Tests */}
+                        {isPaid && !isCompleted && (
+                          <div style={{ background: '#EFF6FF', borderLeft: '3px solid #3B82F6', padding: '0.75rem 1rem', borderRadius: '6px', fontSize: '0.85rem', color: '#1E40AF', marginBottom: '1.25rem' }}>
+                            ℹ️ <strong>Payment Confirmed!</strong> You have not completed your 30-question assessment yet. Click below to continue answering where you left off.
+                          </div>
+                        )}
+
+                        {/* Action buttons */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #F3F4F6', paddingTop: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+                          <span style={{ fontSize: '0.8rem', color: '#6B7280' }}>
+                            {isCompleted ? '✓ Official Assessment Verified' : 'Action Required'}
+                          </span>
+                          
+                          <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                            {isCompleted && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDownloadCareerPDF(item)}
+                                  disabled={generatingCareerPdfFor === item._id}
+                                  className="btn-accent"
+                                  style={{
+                                    padding: '0.45rem 1.1rem',
+                                    fontSize: '0.85rem',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.4rem',
+                                    background: '#7942b5',
+                                    color: '#ffffff',
+                                    borderRadius: '6px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontWeight: '600'
+                                  }}
+                                >
+                                  {generatingCareerPdfFor === item._id ? 'Generating...' : '📄 Download PDF Report'}
+                                </button>
+                                <Link
+                                  href={`/career-guidance?id=${item._id}`}
+                                  className="btn-primary"
+                                  style={{
+                                    padding: '0.45rem 1.1rem',
+                                    fontSize: '0.85rem',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.4rem',
+                                    textDecoration: 'none'
+                                  }}
+                                >
+                                  🔍 View Full Analysis
+                                </Link>
+                              </>
+                            )}
+
+                            {isPaid && !isCompleted && (
+                              <Link
+                                href={`/career-guidance?id=${item._id}`}
+                                className="btn-accent"
+                                style={{
+                                  padding: '0.5rem 1.3rem',
+                                  fontSize: '0.85rem',
+                                  fontWeight: '700',
+                                  textDecoration: 'none'
+                                }}
+                              >
+                                ✍️ Resume Assessment →
+                              </Link>
+                            )}
+
+                            {!isPaid && (
+                              <Link
+                                href="/career-guidance"
+                                className="btn-accent"
+                                style={{
+                                  padding: '0.5rem 1.3rem',
+                                  fontSize: '0.85rem',
+                                  fontWeight: '700',
+                                  textDecoration: 'none'
+                                }}
+                              >
+                                💳 Complete Payment &amp; Start (₹{item.amountPaid || 299})
+                              </Link>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -1065,6 +1352,13 @@ export default function ClientDashboard() {
         <div style={{ position: 'fixed', top: 0, left: 0, pointerEvents: 'none', zIndex: -100 }}>
           <TicketPDF ticket={pdfTicketData} ticketRef={ticketRef} />
           <InvoicePDF invoiceData={invoiceData} invoiceRef={invoiceRef} />
+          {careerPdfData && (
+            <CareerReportPDF 
+              assessment={careerPdfData.assessment} 
+              results={careerPdfData.results} 
+              reportRef={careerReportRef} 
+            />
+          )}
         </div>
       </div>
     </main>
