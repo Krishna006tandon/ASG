@@ -11,6 +11,7 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
@@ -21,11 +22,18 @@ export default function Navbar() {
   // We use local state in Navbar to track physical requested toggles
   const [physicalSelections, setPhysicalSelections] = useState({});
 
+  // Coupon state
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [showCouponInput, setShowCouponInput] = useState(false);
+  const [couponCodeInput, setCouponCodeInput] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState('');
+
   const updateCartItemPhysical = (id, checked) => {
     setPhysicalSelections(prev => ({ ...prev, [id]: checked }));
   };
 
-  const calculateFinalTotal = () => {
+  const calculateBaseTotal = () => {
     return cart.reduce((sum, item) => {
       let itemPrice = item.price;
       const key = item.cartItemId || item._id;
@@ -35,6 +43,65 @@ export default function Navbar() {
       }
       return sum + (itemPrice * item.quantity);
     }, 0);
+  };
+
+  const calculateDiscountAmount = () => {
+    const baseTotal = calculateBaseTotal();
+    if (!appliedCoupon) return 0;
+    if (appliedCoupon.discountType === 'percentage') {
+      let discount = Math.round((baseTotal * appliedCoupon.discountValue) / 100);
+      if (appliedCoupon.maxDiscountAmount && discount > appliedCoupon.maxDiscountAmount) {
+        discount = appliedCoupon.maxDiscountAmount;
+      }
+      return discount;
+    } else {
+      return Math.min(baseTotal, appliedCoupon.discountValue);
+    }
+  };
+
+  const calculateFinalTotal = () => {
+    const baseTotal = calculateBaseTotal();
+    const discount = calculateDiscountAmount();
+    return Math.max(0, baseTotal - discount);
+  };
+
+  const handleApplyCoupon = async (e) => {
+    if (e) e.preventDefault();
+    if (!couponCodeInput.trim()) return;
+    setCouponLoading(true);
+    setCouponError('');
+    try {
+      const baseTotal = calculateBaseTotal();
+      const allItemIds = cart.map(item => item._id || item.bookId).filter(Boolean);
+      const res = await fetch('/api/coupons/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: couponCodeInput.trim().toUpperCase(),
+          itemType: 'store',
+          itemIds: allItemIds,
+          currentAmount: baseTotal
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setCouponError(data.error || 'Invalid coupon code');
+        setAppliedCoupon(null);
+      } else {
+        setAppliedCoupon(data.coupon);
+        setCouponError('');
+      }
+    } catch (err) {
+      setCouponError('Failed to validate coupon code.');
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCodeInput('');
+    setCouponError('');
   };
 
   useEffect(() => {
@@ -62,6 +129,10 @@ export default function Navbar() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem('asg_token');
@@ -91,13 +162,6 @@ export default function Navbar() {
         return;
       }
 
-      const res = await loadRazorpayScript();
-      if (!res) {
-        alert("Razorpay SDK failed to load. Are you online?");
-        setIsCheckingOut(false);
-        return;
-      }
-
       const cartWithSelections = cart.map(item => {
         const key = item.cartItemId || item._id;
         return {
@@ -106,14 +170,18 @@ export default function Navbar() {
         };
       });
 
-      // Create Order on Backend
+      // Create Order on Backend (pass couponCode if applied)
       const orderRes = await fetch('/api/razorpay/create-store-order', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ cart: cartWithSelections, customerDetails: checkoutDetails })
+        body: JSON.stringify({ 
+          cart: cartWithSelections, 
+          customerDetails: checkoutDetails,
+          couponCode: appliedCoupon?.code || null
+        })
       });
       const orderData = await orderRes.json();
       if (!orderRes.ok) {
@@ -124,6 +192,24 @@ export default function Navbar() {
           return;
         }
         throw new Error(orderData.error);
+      }
+
+      // If 100% discount / free coupon applied, order is already created & paid on backend
+      if (orderData.isFree) {
+        alert("🎉 " + (orderData.message || "Order placed successfully for FREE using your coupon!"));
+        clearCart();
+        setAppliedCoupon(null);
+        setShowCheckoutForm(false);
+        setIsCartOpen(false);
+        window.location.href = '/dashboard?tab=orders';
+        return;
+      }
+
+      const res = await loadRazorpayScript();
+      if (!res) {
+        alert("Razorpay SDK failed to load. Are you online?");
+        setIsCheckingOut(false);
+        return;
       }
 
       // Initialize Razorpay
@@ -145,6 +231,8 @@ export default function Navbar() {
                 razorpay_signature: response.razorpay_signature,
                 cart: cartWithSelections,
                 totalAmount: orderData.totalAmount,
+                couponApplied: orderData.couponApplied,
+                discountAmount: orderData.discountAmount,
                 customerDetails: orderData.customerDetails
               })
             });
@@ -153,6 +241,8 @@ export default function Navbar() {
             
             alert("Payment Successful! Your books are on the way.");
             clearCart();
+            setAppliedCoupon(null);
+            setShowCheckoutForm(false);
             setIsCartOpen(false);
             window.location.href = '/dashboard?tab=orders';
           } catch (err) {
@@ -287,15 +377,132 @@ export default function Navbar() {
                             </>
                           )}
                           
+                          {/* Discreet Coupon Section */}
+                          <div style={{ marginTop: '0.75rem', paddingTop: '0.6rem', borderTop: '1px dashed #E5E7EB' }}>
+                            {!appliedCoupon ? (
+                              <div>
+                                {!showCouponInput ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowCouponInput(true)}
+                                    style={{
+                                      background: 'none',
+                                      border: 'none',
+                                      color: '#4F46E5',
+                                      fontSize: '0.8rem',
+                                      fontWeight: '600',
+                                      cursor: 'pointer',
+                                      padding: '0.2rem 0',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '0.35rem'
+                                    }}
+                                  >
+                                    <span>🏷️</span> Have a coupon code?
+                                  </button>
+                                ) : (
+                                  <div>
+                                    <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.2rem' }}>
+                                      <input
+                                        type="text"
+                                        placeholder="Enter coupon code"
+                                        value={couponCodeInput}
+                                        onChange={(e) => setCouponCodeInput(e.target.value.toUpperCase())}
+                                        style={{
+                                          flex: 1,
+                                          padding: '0.4rem 0.6rem',
+                                          borderRadius: '6px',
+                                          border: '1px solid #D1D5DB',
+                                          fontSize: '0.8rem',
+                                          textTransform: 'uppercase',
+                                          letterSpacing: '0.05em',
+                                          fontWeight: '600'
+                                        }}
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={handleApplyCoupon}
+                                        disabled={couponLoading || !couponCodeInput.trim()}
+                                        style={{
+                                          padding: '0.4rem 0.8rem',
+                                          borderRadius: '6px',
+                                          background: '#4F46E5',
+                                          color: '#fff',
+                                          border: 'none',
+                                          fontSize: '0.8rem',
+                                          fontWeight: '600',
+                                          cursor: couponLoading || !couponCodeInput.trim() ? 'not-allowed' : 'pointer',
+                                          opacity: couponLoading || !couponCodeInput.trim() ? 0.6 : 1
+                                        }}
+                                      >
+                                        {couponLoading ? '...' : 'Apply'}
+                                      </button>
+                                    </div>
+                                    {couponError && (
+                                      <p style={{ color: '#DC2626', fontSize: '0.75rem', marginTop: '0.25rem', marginBottom: 0 }}>
+                                        {couponError}
+                                      </p>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                background: '#ECFDF5',
+                                border: '1px solid #A7F3D0',
+                                borderRadius: '6px',
+                                padding: '0.4rem 0.6rem',
+                                fontSize: '0.8rem'
+                              }}>
+                                <div style={{ color: '#065F46', fontWeight: '600' }}>
+                                  ✓ <strong>{appliedCoupon.code}</strong> applied ({appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}% OFF` : `₹${appliedCoupon.discountValue} OFF`})
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={handleRemoveCoupon}
+                                  style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#DC2626',
+                                    fontSize: '0.75rem',
+                                    cursor: 'pointer',
+                                    fontWeight: '600'
+                                  }}
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Price summary */}
+                          {appliedCoupon && calculateDiscountAmount() > 0 && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#6B7280', marginTop: '0.35rem' }}>
+                              <span>Original Total:</span>
+                              <span style={{ textDecoration: 'line-through' }}>₹{calculateBaseTotal()}</span>
+                            </div>
+                          )}
+                          {appliedCoupon && calculateDiscountAmount() > 0 && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#059669', fontWeight: '600' }}>
+                              <span>Coupon Discount:</span>
+                              <span>-₹{calculateDiscountAmount()}</span>
+                            </div>
+                          )}
+                          
                           <div className={styles.cartTotal} style={{marginTop: '0.5rem', borderTop: '1px solid #E5E7EB', paddingTop: '0.5rem'}}>
                             <span>Final Total:</span>
-                            <span>₹{calculateFinalTotal()}</span>
+                            <span style={{ color: calculateFinalTotal() === 0 ? '#059669' : 'inherit', fontWeight: 'bold' }}>
+                              {calculateFinalTotal() === 0 ? 'FREE (₹0)' : `₹${calculateFinalTotal()}`}
+                            </span>
                           </div>
                           
                           <div style={{display: 'flex', gap: '0.5rem', marginTop: '0.5rem'}}>
                             <button type="button" onClick={() => setShowCheckoutForm(false)} className="btn-secondary" style={{flex: 1, padding: '0.5rem', background: '#E5E7EB', border: 'none', borderRadius: '6px', cursor: 'pointer'}}>Back</button>
                             <button type="submit" className="btn-primary" style={{flex: 2, padding: '0.5rem'}} disabled={isCheckingOut}>
-                              {isCheckingOut ? 'Processing...' : 'Proceed to Payment'}
+                              {isCheckingOut ? 'Processing...' : (calculateFinalTotal() === 0 ? 'Place Order (Free) 🎉' : 'Proceed to Payment')}
                             </button>
                           </div>
                         </form>
@@ -445,8 +652,77 @@ export default function Navbar() {
               </Link>
             </div>
           )}
+
+          {/* Mobile Hamburger Toggle */}
+          <button 
+            className={styles.mobileMenuBtn} 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle navigation menu"
+          >
+            {isMobileMenuOpen ? (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '24px', height: '24px' }}>
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '24px', height: '24px' }}>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            )}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Navigation Drawer */}
+      {isMobileMenuOpen && (
+        <div className={styles.mobileDrawer}>
+          <div className={styles.mobileLinks}>
+            <Link href="/" className={pathname === '/' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
+            <Link href="/about" className={pathname === '/about' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>About</Link>
+            <Link href="/career-guidance" className={pathname.startsWith('/career-guidance') ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Career Guidance</Link>
+            <Link href="/ecommerce" className={pathname === '/ecommerce' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Store</Link>
+            <Link href="/recommends" className={pathname === '/recommends' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Blog</Link>
+            <Link href="/webinars" className={pathname === '/webinars' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Workshops</Link>
+            <Link href="/seminars" className={pathname === '/seminars' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Seminars</Link>
+            <Link href="/gallery" className={pathname === '/gallery' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Gallery</Link>
+            <Link href="/reviews" className={pathname === '/reviews' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Reviews</Link>
+            <Link href="/contact" className={pathname === '/contact' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Contact</Link>
+          </div>
+
+          <div className={styles.mobileDrawerFooter}>
+            {isLoggedIn ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%' }}>
+                <Link 
+                  href={isAdmin ? "/admin" : "/dashboard"} 
+                  className="btn-primary" 
+                  style={{ textAlign: 'center', width: '100%', textDecoration: 'none' }}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {isAdmin ? 'Admin Dashboard' : 'My Dashboard'}
+                </Link>
+                <button 
+                  onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }} 
+                  className={styles.logoutBtn}
+                  style={{ width: '100%', padding: '0.65rem', display: 'block', textAlign: 'center' }}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <Link 
+                href="/login" 
+                className="btn-primary" 
+                style={{ textAlign: 'center', width: '100%', textDecoration: 'none', display: 'block' }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Login / Register
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

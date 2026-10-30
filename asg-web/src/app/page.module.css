@@ -27,8 +27,8 @@
 }
 
 .hero h1 {
-  font-size: 4rem; /* Larger, sleeker font */
-  line-height: 1.1;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  line-height: 1.15;
   color: #111827; /* Solid dark color for professional look */
   margin-bottom: 1.25rem;
 }
@@ -95,7 +95,7 @@
 
 .dynamicGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 2rem;
 }
 
@@ -107,7 +107,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 2.5rem;
   width: 100%;
   max-width: 1200px;
@@ -150,5 +150,54 @@
 
 .bookCoverImg:hover {
   transform: scale(1.03);
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 3rem 1.25rem 2rem;
+  }
+
+  .hero {
+    margin-bottom: 3.5rem;
+  }
+
+  .ctaGroup {
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .grid {
+    gap: 1.5rem;
+    grid-template-columns: 1fr;
+  }
+
+  .dynamicGrid {
+    gap: 1.5rem;
+    grid-template-columns: 1fr;
+  }
+
+  .bookCoverContainer {
+    height: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding: 2rem 1rem;
+  }
+
+  .heroBadge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+  }
 }
 

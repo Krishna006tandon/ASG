@@ -401,3 +401,28 @@
   cursor: pointer;
   color: #6B7280;
 }
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem 0.5rem;
+  }
+
+  .title {
+    font-size: 1.4rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .modalContent {
+    padding: 1.5rem 1rem;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .tableCard {
+    padding: 1rem 0.5rem;
+  }
+}

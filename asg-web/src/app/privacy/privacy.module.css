@@ -64,10 +64,25 @@
 }
 
 @media (max-width: 768px) {
+  .main {
+    padding: 3rem 1.25rem 2rem;
+  }
   .header h1 {
     font-size: 2.25rem;
   }
   .contentCard {
     padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding: 2rem 1rem;
+  }
+  .header h1 {
+    font-size: 1.85rem;
+  }
+  .contentCard {
+    padding: 1.25rem 1rem;
   }
 }

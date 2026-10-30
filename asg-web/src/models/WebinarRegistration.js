@@ -17,7 +17,9 @@ const WebinarRegistrationSchema = new mongoose.Schema({
     whatsapp: { type: String, required: true },
     profession: { type: String, required: true }
   },
-  amountPaid: { type: Number, required: true }
+  amountPaid: { type: Number, required: true },
+  couponApplied: { type: String, default: null },
+  discountAmount: { type: Number, default: 0 }
 }, { timestamps: true });
 
 export default mongoose.models.WebinarRegistration || mongoose.model('WebinarRegistration', WebinarRegistrationSchema);

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import connectToDatabase from '@/lib/mongodb';
 import Order from '@/models/Order';
+import Coupon from '@/models/Coupon';
 import { sendEmail } from '@/lib/mailer';
 import { orderConfirmationTemplate, adminNotificationTemplate } from '@/lib/emailTemplates';
 
@@ -13,7 +14,9 @@ export async function POST(req) {
       razorpay_signature, 
       cart,
       totalAmount,
-      customerDetails
+      customerDetails,
+      couponApplied,
+      discountAmount
     } = await req.json();
 
     const secret = process.env.RAZORPAY_KEY_SECRET || 'YourTestSecretHere';
@@ -45,9 +48,18 @@ export async function POST(req) {
         physicalStatus: item.isPhysicalRequested ? 'Pending Dispatch' : 'Not Requested'
       })),
       totalAmount,
+      couponApplied: couponApplied || null,
+      discountAmount: Number(discountAmount) || 0,
       customerDetails,
       status: 'Paid'
     });
+
+    if (couponApplied) {
+      await Coupon.findOneAndUpdate(
+        { code: String(couponApplied).toUpperCase() },
+        { $inc: { usedCount: 1 } }
+      );
+    }
 
     // 1. Send Order Confirmation Email to User
     if (customerDetails && customerDetails.email) {

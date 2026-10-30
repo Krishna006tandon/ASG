@@ -23,7 +23,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 2rem;
   width: 100%;
   max-width: 1000px;
@@ -44,4 +44,33 @@
 .buyLink:hover {
   color: #FFFFFF;
   opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 3rem 1.25rem 2rem;
+  }
+
+  .header h1 {
+    font-size: 2.25rem;
+  }
+
+  .header {
+    margin-bottom: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding: 2rem 1rem;
+  }
+
+  .header h1 {
+    font-size: 1.85rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
 }

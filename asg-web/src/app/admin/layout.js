@@ -1,5 +1,4 @@
-import styles from './adminLayout.module.css';
-import Link from 'next/link';
+import AdminShell from './AdminShell';
 
 export const metadata = {
   title: "Admin Dashboard | Avinash Platform",
@@ -7,48 +6,5 @@ export const metadata = {
 };
 
 export default function AdminLayout({ children }) {
-  return (
-    <div className={styles.adminWrapper}>
-      <aside className={styles.sidebar}>
-        <div className={styles.logo}>
-          Avinash<span>Admin</span>
-        </div>
-        <nav className={styles.nav}>
-          <Link href="/admin">Dashboard Overview</Link>
-          <Link href="/admin/orders">Order Management</Link>
-          <Link href="/admin/ecommerce">E-Commerce Settings</Link>
-          <Link href="/admin/career-guidance">Career Guidance</Link>
-          <Link href="/admin/coupons">Coupons &amp; Discounts</Link>
-          <Link href="/admin/webinars">Webinars</Link>
-          <Link href="/admin/webinar-registrations">Webinar Attendees</Link>
-          <Link href="/admin/seminars">Seminars</Link>
-          <Link href="/admin/seminar-registrations">Seminar Attendees</Link>
-          <Link href="/admin/past-workshops">Past Workshops &amp; Gallery</Link>
-          <Link href="/admin/scanner">QR Check-In Scanner</Link>
-          <Link href="/admin/appointments">Consulting Queue</Link>
-          <Link href="/admin/content">Content & Blogs</Link>
-          <Link href="/admin/reviews">Reviews & Feedback</Link>
-          <Link href="/admin/college-reviews">College Reviews &amp; QR</Link>
-        </nav>
-        <div className={styles.bottomNav}>
-          <Link href="/" className={styles.backLink}>&larr; Back to Public Site</Link>
-          <button className={styles.logoutBtn}>Logout</button>
-        </div>
-      </aside>
-      <main className={styles.mainContent}>
-        <header className={styles.topbar}>
-          <div className={styles.search}>
-            <input type="text" placeholder="Search orders, clients, or content..." />
-          </div>
-          <div className={styles.profile}>
-            <span>Admin User</span>
-            <div className={styles.avatar}>A</div>
-          </div>
-        </header>
-        <div className={styles.pageContent}>
-          {children}
-        </div>
-      </main>
-    </div>
-  );
+  return <AdminShell>{children}</AdminShell>;
 }

@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import connectToDatabase from '@/lib/mongodb';
 import WebinarRegistration from '@/models/WebinarRegistration';
 import Webinar from '@/models/Webinar';
+import Coupon from '@/models/Coupon';
 import { sendEmail } from '@/lib/mailer';
 import { webinarRegistrationTemplate, adminNotificationTemplate } from '@/lib/emailTemplates';
 
@@ -15,12 +16,15 @@ export async function POST(req) {
       webinarId,
       userId,
       registrationData,
-      amount
+      amount,
+      couponApplied,
+      discountAmount
     } = await req.json();
 
     const text = razorpay_order_id + "|" + razorpay_payment_id;
+    const secret = (process.env.RAZORPAY_KEY_SECRET || 'YourTestSecretHere').trim();
     const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .createHmac("sha256", secret)
       .update(text)
       .digest("hex");
 
@@ -39,11 +43,21 @@ export async function POST(req) {
       razorpaySignature: razorpay_signature,
       paymentStatus: 'Paid',
       registrationData,
-      amountPaid: amount / 100 // Convert back to rupees
+      amountPaid: amount / 100, // Convert back to rupees
+      couponApplied: couponApplied || null,
+      discountAmount: Number(discountAmount) || 0
     });
 
     // Increment seatsBooked in Webinar
     await Webinar.findByIdAndUpdate(webinarId, { $inc: { seatsBooked: 1 } });
+
+    // Increment coupon usedCount if coupon applied
+    if (couponApplied) {
+      await Coupon.findOneAndUpdate(
+        { code: String(couponApplied).toUpperCase() },
+        { $inc: { usedCount: 1 } }
+      );
+    }
 
     // 1. Send Webinar Registration Email
     if (registrationData && registrationData.email) {
@@ -62,6 +76,7 @@ export async function POST(req) {
         <p><strong>Attendee Name:</strong> ${registrationData.name}</p>
         <p><strong>Attendee Email:</strong> ${registrationData.email}</p>
         <p><strong>Amount Paid:</strong> ₹${amount / 100}</p>
+        <p><strong>Coupon:</strong> ${couponApplied || 'None'}</p>
       `;
       await sendEmail({
         to: adminEmail,

@@ -81,3 +81,19 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .tableWrapper {
+    padding: 1rem 0.5rem;
+    border-radius: 8px;
+  }
+
+  .table th, .table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
+  }
+}

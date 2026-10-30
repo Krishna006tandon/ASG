@@ -347,26 +347,127 @@
   border-top: 2px solid #E5E7EB;
 }
 
+/* Mobile Hamburger Menu Button */
+.mobileMenuBtn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem;
+  color: #1F2937;
+  border-radius: 8px;
+  transition: background 0.2s;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobileMenuBtn:hover {
+  background: #F3F4F6;
+}
+
+/* Mobile Navigation Drawer */
+.mobileDrawer {
+  display: flex;
+  flex-direction: column;
+  background: #FFFFFF;
+  border-top: 1px solid var(--border-color);
+  padding: 1.25rem 1.5rem 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  animation: slideDownFade 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.mobileLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1.5rem;
+}
+
+.mobileLink {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #4B5563;
+  transition: all 0.2s;
+}
+
+.mobileLink:hover {
+  background: #F9FAFB;
+  color: #111827;
+}
+
+.mobileActive {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1rem;
+  background: #F3E8FF;
+  color: #7942B5 !important;
+}
+
+.mobileDrawerFooter {
+  padding-top: 1rem;
+  border-top: 1px solid #E5E7EB;
+}
+
 @media (max-width: 1024px) {
   .container {
-    flex-wrap: wrap;
-    gap: 0.75rem;
     padding: 0.85rem 1.25rem;
   }
 
+  /* Hide desktop horizontal links */
   .links {
-    order: 3;
-    width: 100%;
-    justify-content: center;
-    flex-wrap: wrap;
-    border-radius: 16px;
-    gap: 0.25rem;
-    padding: 0.35rem 0.5rem;
+    display: none;
   }
 
-  .links a {
-    padding: 0.35rem 0.65rem;
-    font-size: 0.82rem;
+  /* Show mobile hamburger */
+  .mobileMenuBtn {
+    display: flex;
+  }
+
+  /* In desktop header actions, hide full text links on mobile */
+  .navTextLink, .logoutBtn {
+    display: none;
+  }
+
+  .profileMenuContainer {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  /* Cart Dropdown responsive fix */
+  .cartDropdown {
+    position: fixed;
+    top: 70px;
+    right: 1rem;
+    left: 1rem;
+    width: auto;
+    max-width: 420px;
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.75rem 1rem;
+  }
+
+  .logo img {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .logo span {
+    font-size: 1.25rem !important;
+  }
+
+  .cartDropdown {
+    left: 0.5rem;
+    right: 0.5rem;
+    max-width: 100%;
   }
 }
 

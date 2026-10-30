@@ -4,7 +4,7 @@ import Coupon from '@/models/Coupon';
 
 export async function POST(req) {
   try {
-    const { code, itemType = 'career', itemId = '', currentAmount = 0 } = await req.json();
+    const { code, itemType = 'career', itemId = '', itemIds = [], currentAmount = 0 } = await req.json();
 
     if (!code || typeof code !== 'string') {
       return NextResponse.json({ valid: false, error: 'Please enter a valid coupon code.' }, { status: 400 });
@@ -40,11 +40,15 @@ export async function POST(req) {
     }
 
     // Check specific target item if specified
-    if (coupon.targetItemId && itemId && coupon.targetItemId !== String(itemId)) {
-      return NextResponse.json({
-        valid: false,
-        error: `This coupon is only applicable to ${coupon.targetItemTitle || 'a specific selected item'}.`
-      }, { status: 400 });
+    if (coupon.targetItemId) {
+      const matchInIds = Array.isArray(itemIds) && itemIds.map(String).includes(String(coupon.targetItemId));
+      const matchSingleId = itemId && String(coupon.targetItemId) === String(itemId);
+      if (!matchInIds && !matchSingleId) {
+        return NextResponse.json({
+          valid: false,
+          error: `This coupon is only applicable to ${coupon.targetItemTitle || 'a specific selected item'}.`
+        }, { status: 400 });
+      }
     }
 
     // Check minimum order amount

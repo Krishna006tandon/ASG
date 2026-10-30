@@ -114,3 +114,19 @@
   color: var(--primary-dark);
   font-weight: 600;
 }
+
+@media (max-width: 480px) {
+  .main {
+    padding: 2rem 1rem;
+    min-height: calc(100vh - 70px);
+  }
+
+  .authCard {
+    padding: 2rem 1.25rem;
+    border-radius: 16px;
+  }
+
+  .header h2 {
+    font-size: 1.75rem;
+  }
+}

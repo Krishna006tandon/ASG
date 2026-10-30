@@ -683,7 +683,9 @@
   border-collapse: collapse;
   background: #FFFFFF;
   border-radius: 16px;
-  overflow: hidden;
+  overflow-x: auto;
+  display: block;
+  -webkit-overflow-scrolling: touch;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
   border: 1px solid var(--border-color);
   margin-bottom: 3rem;
@@ -735,8 +737,20 @@
   .heroTitle {
     font-size: 2rem;
   }
+  .heroCtaRow {
+    flex-direction: column;
+    width: 100%;
+  }
+  .primaryCta, .secondaryCta {
+    width: 100%;
+    justify-content: center;
+  }
   .pricingCard {
-    padding: 1.75rem;
+    padding: 1.5rem 1rem;
+  }
+  .comparisonGrid, .gitaLessonsGrid, .archetypesGrid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
   .likertRow {
     grid-template-columns: repeat(5, 1fr);
@@ -744,8 +758,18 @@
   }
   .likertBtn {
     padding: 0.5rem 0.2rem;
+    font-size: 0.85rem;
   }
   .likertLabel {
     display: none; /* Hide small label on mobile for compactness, show num */
+  }
+  .allCategoriesTable th,
+  .allCategoriesTable td {
+    padding: 0.75rem 0.85rem;
+    font-size: 0.85rem;
+  }
+  .downloadPdfBtn {
+    width: 100%;
+    justify-content: center;
   }
 }

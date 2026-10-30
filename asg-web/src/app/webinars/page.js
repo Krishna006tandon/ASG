@@ -25,6 +25,70 @@ export default function Webinars() {
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [verifiedWebinarIds, setVerifiedWebinarIds] = useState([]);
 
+  // Coupon State
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [showCouponInput, setShowCouponInput] = useState(false);
+  const [couponCodeInput, setCouponCodeInput] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState('');
+
+  const getDiscountedPrice = () => {
+    if (!selectedWebinar) return 0;
+    const base = selectedWebinar.price || 0;
+    if (!appliedCoupon) return base;
+    if (appliedCoupon.discountType === 'percentage') {
+      let discount = Math.round((base * appliedCoupon.discountValue) / 100);
+      if (appliedCoupon.maxDiscountAmount && discount > appliedCoupon.maxDiscountAmount) {
+        discount = appliedCoupon.maxDiscountAmount;
+      }
+      return Math.max(0, base - discount);
+    } else {
+      return Math.max(0, base - appliedCoupon.discountValue);
+    }
+  };
+
+  const getDiscountAmount = () => {
+    if (!selectedWebinar || !appliedCoupon) return 0;
+    return Math.max(0, (selectedWebinar.price || 0) - getDiscountedPrice());
+  };
+
+  const handleApplyCoupon = async (e) => {
+    if (e) e.preventDefault();
+    if (!couponCodeInput.trim() || !selectedWebinar) return;
+    setCouponLoading(true);
+    setCouponError('');
+    try {
+      const res = await fetch('/api/coupons/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: couponCodeInput.trim().toUpperCase(),
+          itemType: 'webinar',
+          itemId: selectedWebinar._id,
+          currentAmount: selectedWebinar.price || 0
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setCouponError(data.error || 'Invalid coupon code');
+        setAppliedCoupon(null);
+      } else {
+        setAppliedCoupon(data.coupon);
+        setCouponError('');
+      }
+    } catch (err) {
+      setCouponError('Failed to validate coupon code.');
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCodeInput('');
+    setCouponError('');
+  };
+
   const fetchWebinars = async () => {
     try {
       const res = await fetch('/api/webinars');
@@ -103,10 +167,30 @@ export default function Webinars() {
         return;
       }
 
-      // If it's a free webinar (price === 0), we would skip razorpay, but assuming paid for now
-      if (selectedWebinar.price === 0) {
-        alert("Free registration coming soon! (Integration pending)");
-        setIsProcessing(false);
+      // 1. Create Order on Backend (pass couponCode if applied)
+      const orderRes = await fetch('/api/razorpay/create-webinar-order', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          webinarId: selectedWebinar._id,
+          registrationData: formData,
+          couponCode: appliedCoupon?.code || null
+        })
+      });
+      
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) throw new Error(orderData.error);
+
+      // If 100% Free coupon applied, registration is already confirmed on backend!
+      if (orderData.isFree) {
+        alert("🎉 " + (orderData.message || "Registration Successful for FREE using your coupon!"));
+        setSelectedWebinar(null);
+        setAppliedCoupon(null);
+        setFormData({ name: '', email: '', whatsapp: '', profession: '' });
+        window.location.href = '/dashboard';
         return;
       }
 
@@ -116,22 +200,6 @@ export default function Webinars() {
         setIsProcessing(false);
         return;
       }
-
-      // 1. Create Order on Backend
-      const orderRes = await fetch('/api/razorpay/create-webinar-order', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ 
-          webinarId: selectedWebinar._id,
-          registrationData: formData
-        })
-      });
-      
-      const orderData = await orderRes.json();
-      if (!orderRes.ok) throw new Error(orderData.error);
 
       // Extract userId from token payload on client (fallback)
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -157,7 +225,9 @@ export default function Webinars() {
                 webinarId: selectedWebinar._id,
                 userId: payload.userId,
                 registrationData: formData,
-                amount: orderData.amount
+                amount: orderData.amount,
+                couponApplied: orderData.couponApplied,
+                discountAmount: orderData.discountAmount
               })
             });
 
@@ -165,6 +235,7 @@ export default function Webinars() {
             
             alert("Registration Successful! See you in the workshop.");
             setSelectedWebinar(null);
+            setAppliedCoupon(null);
             setFormData({ name: '', email: '', whatsapp: '', profession: '' });
             window.location.href = '/dashboard';
           } catch (err) {
@@ -379,13 +450,131 @@ export default function Webinars() {
                 />
               </div>
               
+              {/* Discreet Coupon Section */}
+              <div style={{ marginTop: '0.75rem', paddingTop: '0.6rem', borderTop: '1px dashed #E5E7EB' }}>
+                {!appliedCoupon ? (
+                  <div>
+                    {!showCouponInput ? (
+                      <button
+                        type="button"
+                        onClick={() => setShowCouponInput(true)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#4F46E5',
+                          fontSize: '0.82rem',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          padding: '0.2rem 0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.35rem'
+                        }}
+                      >
+                        <span>🏷️</span> Have a coupon or workshop access code?
+                      </button>
+                    ) : (
+                      <div>
+                        <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.2rem' }}>
+                          <input
+                            type="text"
+                            placeholder="Enter coupon code"
+                            value={couponCodeInput}
+                            onChange={(e) => setCouponCodeInput(e.target.value.toUpperCase())}
+                            style={{
+                              flex: 1,
+                              padding: '0.45rem 0.6rem',
+                              borderRadius: '6px',
+                              border: '1px solid #D1D5DB',
+                              fontSize: '0.85rem',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.05em',
+                              fontWeight: '600'
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={handleApplyCoupon}
+                            disabled={couponLoading || !couponCodeInput.trim()}
+                            style={{
+                              padding: '0.45rem 0.85rem',
+                              borderRadius: '6px',
+                              background: '#4F46E5',
+                              color: '#fff',
+                              border: 'none',
+                              fontSize: '0.85rem',
+                              fontWeight: '600',
+                              cursor: couponLoading || !couponCodeInput.trim() ? 'not-allowed' : 'pointer',
+                              opacity: couponLoading || !couponCodeInput.trim() ? 0.6 : 1
+                            }}
+                          >
+                            {couponLoading ? '...' : 'Apply'}
+                          </button>
+                        </div>
+                        {couponError && (
+                          <p style={{ color: '#DC2626', fontSize: '0.75rem', marginTop: '0.25rem', marginBottom: 0 }}>
+                            {couponError}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    background: '#ECFDF5',
+                    border: '1px solid #A7F3D0',
+                    borderRadius: '6px',
+                    padding: '0.45rem 0.75rem',
+                    fontSize: '0.82rem'
+                  }}>
+                    <div style={{ color: '#065F46', fontWeight: '600' }}>
+                      ✓ <strong>{appliedCoupon.code}</strong> applied ({appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}% OFF` : `₹${appliedCoupon.discountValue} OFF`})
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveCoupon}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#DC2626',
+                        fontSize: '0.75rem',
+                        cursor: 'pointer',
+                        fontWeight: '600'
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Price summary */}
+              {appliedCoupon && getDiscountAmount() > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#6B7280', marginTop: '0.35rem' }}>
+                  <span>Original Fee:</span>
+                  <span style={{ textDecoration: 'line-through' }}>₹{selectedWebinar.price}</span>
+                </div>
+              )}
+              {appliedCoupon && getDiscountAmount() > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#059669', fontWeight: '600' }}>
+                  <span>Coupon Discount:</span>
+                  <span>-₹{getDiscountAmount()}</span>
+                </div>
+              )}
+
               <button 
                 type="submit" 
                 className={`btn-primary ${styles.submitBtn}`}
                 disabled={isProcessing}
                 style={{width: '100%', marginTop: '1rem', padding: '0.75rem'}}
               >
-                {isProcessing ? 'Processing...' : `Proceed to Pay ₹${selectedWebinar.price}`}
+                {isProcessing 
+                  ? 'Processing...' 
+                  : (getDiscountedPrice() === 0 ? 'Register for FREE 🎉' : `Proceed to Pay ₹${getDiscountedPrice()}`)
+                }
               </button>
             </form>
           </div>

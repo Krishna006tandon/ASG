@@ -19,6 +19,8 @@ const SeminarRegistrationSchema = new mongoose.Schema({
     profession: { type: String, required: true }
   },
   amountPaid: { type: Number, required: true },
+  couponApplied: { type: String, default: null },
+  discountAmount: { type: Number, default: 0 },
   checkedIn: { type: Boolean, default: false },
   checkedInAt: { type: Date }
 }, { timestamps: true });

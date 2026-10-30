@@ -517,3 +517,17 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem 0.5rem;
+  }
+
+  .headerTitle h1 {
+    font-size: 1.5rem;
+  }
+
+  .card {
+    padding: 1.25rem 1rem;
+  }
+}

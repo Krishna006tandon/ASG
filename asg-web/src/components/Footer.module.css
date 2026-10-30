@@ -68,3 +68,35 @@
   color: #6B7280;
   font-size: 0.85rem;
 }
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 3rem 1.25rem 2rem;
+    margin-top: 3rem;
+  }
+
+  .container {
+    flex-direction: column;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .brand {
+    max-width: 100%;
+  }
+
+  .links {
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .links {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .column {
+    gap: 0.5rem;
+  }
+}

@@ -118,3 +118,28 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 768px) {
+  .main {
+    padding: 3rem 1.25rem 2rem;
+  }
+
+  .header h1 {
+    font-size: 2.25rem;
+  }
+
+  .categories {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding: 2rem 1rem;
+  }
+
+  .header h1 {
+    font-size: 1.85rem;
+  }
+}

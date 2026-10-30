@@ -107,3 +107,23 @@
   color: var(--text-secondary);
   border-top: 1px solid var(--border-color);
 }
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header {
+    padding: 1.5rem 1rem;
+  }
+
+  .ticketDetails {
+    padding: 1.5rem 1.25rem;
+    gap: 1rem;
+  }
+
+  .value {
+    font-size: 1rem;
+    word-break: break-all;
+  }
+}
