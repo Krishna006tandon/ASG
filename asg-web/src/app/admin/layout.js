@@ -17,6 +17,7 @@ export default function AdminLayout({ children }) {
           <Link href="/admin">Dashboard Overview</Link>
           <Link href="/admin/orders">Order Management</Link>
           <Link href="/admin/ecommerce">E-Commerce Settings</Link>
+          <Link href="/admin/career-guidance">Career Guidance</Link>
           <Link href="/admin/webinars">Webinars</Link>
           <Link href="/admin/webinar-registrations">Webinar Attendees</Link>
           <Link href="/admin/seminars">Seminars</Link>
