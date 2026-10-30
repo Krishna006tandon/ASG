@@ -46,7 +46,7 @@ export default async function Home() {
       <header className={`${styles.hero} animate-fade-in`}>
         <div className={styles.heroBadge}>YOUTH EMPOWERMENT</div>
         <h1><span className={styles.gradientText}>Empowering Youth, Inspiring Careers & Transforming Potential</span></h1>
-        <p>Empowering students and young professionals to choose the right career path, build confidence, and achieve their goals through practical workshops and the book "Come on... You can do it!".</p>
+        <p>Empowering students and young professionals to choose the right career path, build confidence, and achieve their goals through practical workshops and the book &quot;Come on... You can do it!&quot;.</p>
         
         <div className={styles.ctaGroup}>
           <Link href="/ecommerce" className="btn-accent">Get The Book</Link>
@@ -59,53 +59,67 @@ export default async function Home() {
       </header>
 
       {/* Premium Detailed Biography Section */}
-      <section className={styles.section} style={{ position: 'relative', padding: '6rem 2rem', margin: '4rem 0', borderRadius: '30px', background: 'linear-gradient(180deg, #ffffff 0%, #f9fafb 100%)', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.05)' }}>
-        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-          <h2 style={{ fontSize: '3rem', color: '#111827', marginBottom: '1rem', fontWeight: '900', letterSpacing: '-0.02em' }}>The Journey</h2>
-          <div style={{ width: '80px', height: '6px', background: 'linear-gradient(90deg, var(--primary-color), var(--accent-color))', margin: '0 auto', borderRadius: '3px' }}></div>
-          <p style={{ marginTop: '1.5rem', fontSize: '1.2rem', color: '#6B7280', maxWidth: '600px', margin: '1.5rem auto 0' }}>A legacy of engineering excellence, inspiring authorship, and transformational leadership.</p>
+      <section className={styles.journeySection}>
+        <div className={styles.journeyHeader}>
+          <h2>The Journey</h2>
+          <div className={styles.journeyDivider}></div>
+          <p className={styles.journeySubtitle}>
+            A legacy of engineering excellence, inspiring authorship, and transformational leadership.
+          </p>
         </div>
         
-        <div style={{ position: 'relative', maxWidth: '900px', margin: '0 auto' }}>
+        <div className={styles.journeyTimeline}>
           {/* Vertical Timeline Line */}
-          <div style={{ position: 'absolute', left: '26px', top: '0', bottom: '0', width: '4px', background: 'linear-gradient(180deg, var(--primary-color), #10B981, #EC4899)', borderRadius: '2px', opacity: '0.2' }}></div>
+          <div className={styles.journeyLine}></div>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4rem' }}>
+          <div className={styles.journeyList}>
             
             {/* Journey 1: Professional */}
-            <div style={{ position: 'relative', display: 'flex', gap: '2.5rem', alignItems: 'flex-start' }}>
-              <div style={{ position: 'relative', zIndex: 1, flexShrink: 0, width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden', border: '4px solid white', boxShadow: '0 10px 20px rgba(121,66,181,0.3)' }}>
-                <img src="/images/image5.jpg" alt="Avinash Gore" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <div className={styles.journeyItem}>
+              <div className={styles.journeyIconWrapper}>
+                <img src="/images/image5.jpg" alt="Avinash Gore" className={styles.journeyIconImg} />
               </div>
-              <div className="glass-card" style={{ flexGrow: 1, padding: '2.5rem', border: 'none', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(10px)', borderLeft: '6px solid var(--primary-color)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
-                <h3 style={{ fontSize: '1.8rem', marginBottom: '1rem', color: '#111827', fontWeight: '800' }}>25+ Years of Global Engineering</h3>
-                <p style={{ color: '#4B5563', lineHeight: '1.8', fontSize: '1.1rem' }}>
+              <div className={`glass-card ${styles.journeyCard} ${styles.journeyCardPrimary}`}>
+                <h3>25+ Years of Global Engineering</h3>
+                <p>
                   As a B.Tech Chemical Engineer, Avinash spent over two and a half decades mastering his craft on a global scale. His career spans top-tier organizations like <strong style={{color: 'var(--primary-dark)'}}>Reliance</strong>, <strong style={{color: 'var(--primary-dark)'}}>Sadara (JV of Saudi Aramco & Dow Chemical)</strong>, <strong style={{color: 'var(--primary-dark)'}}>Jubilant Life Science</strong>, and <strong style={{color: 'var(--primary-dark)'}}>Supreme Petrochem</strong>. Today, as the Managing Director at <strong style={{color: 'var(--primary-dark)'}}>Perpetual Solutions</strong>, he drives sustainable evolution, consulting for giants like HPCL, KNPC, BVQI, Indorama, and Solar Industries.
                 </p>
               </div>
             </div>
 
             {/* Journey 2: Author */}
-            <div style={{ position: 'relative', display: 'flex', gap: '2.5rem', alignItems: 'flex-start' }}>
-              <div style={{ position: 'relative', zIndex: 1, background: 'linear-gradient(135deg, #10B981, #059669)', color: 'white', padding: '1.2rem', borderRadius: '50%', flexShrink: 0, boxShadow: '0 10px 20px rgba(16,185,129,0.3)' }}>
-                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+            <div className={styles.journeyItem}>
+              <div 
+                className={styles.journeyIconWrapper}
+                style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: 'white', border: 'none', boxShadow: '0 10px 20px rgba(16,185,129,0.3)' }}
+              >
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '55%', height: '55%' }}>
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
               </div>
-              <div className="glass-card" style={{ flexGrow: 1, padding: '2.5rem', border: 'none', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(10px)', borderLeft: '6px solid #10B981', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
-                <h3 style={{ fontSize: '1.8rem', marginBottom: '1rem', color: '#111827', fontWeight: '800' }}>Inspiring Through the Written Word</h3>
-                <p style={{ color: '#4B5563', lineHeight: '1.8', fontSize: '1.1rem' }}>
-                  Recognizing the struggles students face with exam phobia, Avinash authored the highly acclaimed book <strong style={{color: '#059669'}}>"Come on... You can do it!"</strong>. Praised by academic leaders like Dr. Sarita Deshpande for his "spark of a good writer," the book distills complex psychological challenges into actionable scientific study techniques and life-changing success principles.
+              <div className={`glass-card ${styles.journeyCard} ${styles.journeyCardGreen}`}>
+                <h3>Inspiring Through the Written Word</h3>
+                <p>
+                  Recognizing the struggles students face with exam phobia, Avinash authored the highly acclaimed book <strong style={{color: '#059669'}}>&quot;Come on... You can do it!&quot;</strong>. Praised by academic leaders like Dr. Sarita Deshpande for his &quot;spark of a good writer,&quot; the book distills complex psychological challenges into actionable scientific study techniques and life-changing success principles.
                 </p>
               </div>
             </div>
 
             {/* Journey 3: Motivator */}
-            <div style={{ position: 'relative', display: 'flex', gap: '2.5rem', alignItems: 'flex-start' }}>
-              <div style={{ position: 'relative', zIndex: 1, background: 'linear-gradient(135deg, #EC4899, #BE185D)', color: 'white', padding: '1.2rem', borderRadius: '50%', flexShrink: 0, boxShadow: '0 10px 20px rgba(236,72,153,0.3)' }}>
-                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+            <div className={styles.journeyItem}>
+              <div 
+                className={styles.journeyIconWrapper}
+                style={{ background: 'linear-gradient(135deg, #EC4899, #BE185D)', color: 'white', border: 'none', boxShadow: '0 10px 20px rgba(236,72,153,0.3)' }}
+              >
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '55%', height: '55%' }}>
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polygon points="10 8 16 12 10 16 10 8"></polygon>
+                </svg>
               </div>
-              <div className="glass-card" style={{ flexGrow: 1, padding: '2.5rem', border: 'none', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(10px)', borderLeft: '6px solid #EC4899', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}>
-                <h3 style={{ fontSize: '1.8rem', marginBottom: '1rem', color: '#111827', fontWeight: '800' }}>Transforming Fear into Focus</h3>
-                <p style={{ color: '#4B5563', lineHeight: '1.8', fontSize: '1.1rem' }}>
+              <div className={`glass-card ${styles.journeyCard} ${styles.journeyCardPink}`}>
+                <h3>Transforming Fear into Focus</h3>
+                <p>
                   Driven by a mission to unlock true potential, Avinash conducts powerful <strong style={{color: '#BE185D'}}>One Day Workshops</strong> for students and professionals. These sessions go beyond theoretical lectures—focusing on practical exercises, confidence building, and handling real-world pressure like a champion. His ultimate philosophy: Transform anxiety into achievement.
                 </p>
               </div>
@@ -114,7 +128,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
 
       <AchievementsGallery />
 

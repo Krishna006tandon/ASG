@@ -1,0 +1,242 @@
+.gallerySection {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  padding: 5rem 2rem;
+  margin: 4rem 0;
+  border-radius: 30px;
+  background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.galleryHeader {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+.galleryTitle {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  color: #111827;
+  margin-bottom: 0.75rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  word-break: break-word;
+}
+
+.galleryDivider {
+  width: 70px;
+  height: 5px;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+  margin: 0 auto;
+  border-radius: 3px;
+}
+
+.gallerySubtitle {
+  margin-top: 1rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+  color: #6B7280;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+.cardsGrid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.awardCard {
+  padding: 0 !important;
+  overflow: hidden;
+  border: none !important;
+  background: rgba(255, 255, 255, 0.85);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.imageContainer {
+  height: 260px;
+  width: 100%;
+  overflow: hidden;
+  background-color: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.awardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.4s ease;
+}
+
+.awardImageContain {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.4s ease;
+}
+
+.awardCard:hover .awardImage,
+.awardCard:hover .awardImageContain {
+  transform: scale(1.04);
+}
+
+.cardBody {
+  padding: 1.5rem;
+  flex-grow: 1;
+}
+
+.cardBody h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: #111827;
+  font-weight: 800;
+}
+
+.cardBody p {
+  color: #4B5563;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+/* HAZOP Feature Section */
+.hazopCard {
+  max-width: 1000px;
+  margin: 4rem auto 0;
+  display: flex;
+  gap: 2.5rem;
+  align-items: center;
+  padding: 2.25rem !important;
+  border: none !important;
+  background: rgba(255, 255, 255, 0.9);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.hazopImageWrapper {
+  flex: 1 1 420px;
+  min-width: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.hazopImage {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.hazopCard:hover .hazopImage {
+  transform: scale(1.02);
+}
+
+.hazopContent {
+  flex: 1 1 360px;
+  min-width: 0;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: rgba(121, 66, 181, 0.1);
+  color: var(--primary-color);
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 0.85rem;
+}
+
+.hazopTitle {
+  font-size: clamp(1.35rem, 3.5vw, 2rem);
+  margin-bottom: 0.85rem;
+  color: #111827;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.hazopText {
+  color: #4B5563;
+  line-height: 1.65;
+  font-size: 1.05rem;
+}
+
+/* Tablet & Mobile Breakpoints */
+@media (max-width: 768px) {
+  .gallerySection {
+    padding: 2.5rem 1rem;
+    margin: 2.5rem 0;
+    border-radius: 20px;
+  }
+
+  .galleryHeader {
+    margin-bottom: 2rem;
+  }
+
+  .cardsGrid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .imageContainer {
+    height: 220px;
+  }
+
+  .cardBody {
+    padding: 1.25rem;
+  }
+
+  .hazopCard {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.25rem !important;
+    margin: 2.5rem auto 0;
+  }
+
+  .hazopImageWrapper,
+  .hazopContent {
+    flex: none;
+    width: 100%;
+  }
+
+  .hazopText {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallerySection {
+    padding: 2rem 0.75rem;
+    margin: 2rem 0;
+    border-radius: 16px;
+  }
+
+  .imageContainer {
+    height: 190px;
+  }
+
+  .cardBody {
+    padding: 1rem;
+  }
+
+  .cardBody h3 {
+    font-size: 1.15rem;
+  }
+
+  .hazopCard {
+    padding: 1rem !important;
+  }
+}
