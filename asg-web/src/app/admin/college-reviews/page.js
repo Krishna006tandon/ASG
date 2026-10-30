@@ -33,6 +33,7 @@ export default function AdminCollegeReviewsPage() {
   const [parsedRows, setParsedRows] = useState([]);
   const [isImporting, setIsImporting] = useState(false);
   const [importStatus, setImportStatus] = useState(null);
+  const [defaultWorkshopTitle, setDefaultWorkshopTitle] = useState('Empowerment & Diksharambha Workshop');
 
   // Reviews List State
   const [reviews, setReviews] = useState([]);
@@ -40,6 +41,7 @@ export default function AdminCollegeReviewsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCollege, setSelectedCollege] = useState('all');
   const [selectedSource, setSelectedSource] = useState('all');
+  const [selectedLeadFilter, setSelectedLeadFilter] = useState('all'); // 'all' | 'careerTest' | 'book' | 'counselling'
 
   async function loadData() {
     setLoading(true);
@@ -147,7 +149,7 @@ export default function AdminCollegeReviewsPage() {
         const json = XLSX.utils.sheet_to_json(sheet);
 
         if (json.length === 0) {
-          alert("The uploaded Excel sheet contains no rows.");
+          alert("The uploaded Excel sheet contains no data rows.");
           return;
         }
 
@@ -164,34 +166,20 @@ export default function AdminCollegeReviewsPage() {
   const handleDownloadSampleExcel = () => {
     const sampleData = [
       {
-        "Student Name": "Rohan Deshmukh",
-        "College Name": "COEP Technological University, Pune",
-        "Workshop Title": "Youth Empowerment & Exam Phobia Techniques",
-        "Rating": 5,
-        "Review": "Avinash sir's insights completely changed how I manage pre-exam stress. Truly inspiring session!",
-        "Department": "Mechanical Engineering",
-        "Year": "3rd Year",
-        "Key Takeaway": "Exam phobia management techniques and self-belief"
-      },
-      {
-        "Student Name": "Sneha Patil",
-        "College Name": "VJTI Mumbai",
-        "Workshop Title": "Student Induction Program (Diksharambha)",
-        "Rating": 5,
-        "Review": "Learned the true meaning of Swadharma and how to align technical skills with natural passion.",
-        "Department": "Computer Science",
-        "Year": "1st Year",
-        "Key Takeaway": "Swadharma concept and focusing on own journey"
-      },
-      {
-        "Student Name": "Aniket Shinde",
-        "College Name": "MIT World Peace University",
-        "Workshop Title": "Process Safety & Industrial Readiness",
-        "Rating": 4,
-        "Review": "Clear real-world examples from chemical industry. Very helpful for campus placements.",
-        "Department": "Chemical Engineering",
-        "Year": "Final Year",
-        "Key Takeaway": "HAZOP safety mindset and practical plant scenarios"
+        "Timestamp": "2026-09-29 13:33:10",
+        "Name": "Rohit Rajkumar Fating",
+        "College/ Institute/ Organization": "Priyadarshini College Of Engineering",
+        "Mobile No.": "07498336804",
+        "Email ID": "rohitfating04@gmail.com",
+        "Currently Work/ Job Role/ Area of Study": "Design engineer",
+        "Overall, how would you rate s training program?": 5,
+        "How would you rate the Training Content?": 5,
+        "What did you like most about the training?": "Way of communication and practical techniques",
+        "What can we improve in future training programs?": "Nothing, all good",
+        "Any other comments/ suggestions?": "Very helpful guidance",
+        "Would you be interested in purchasing the book 'Come On You Can Do It?'": "Yes",
+        "Would you be interested in taking career counselling/ career assessment test?": "Yes",
+        "Would you be interested in Personal Counselling/ One-to-One Guidance?": "Yes"
       }
     ];
 
@@ -210,13 +198,21 @@ export default function AdminCollegeReviewsPage() {
       const res = await fetch('/api/admin/college-reviews/import-excel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviews: parsedRows })
+        body: JSON.stringify({ 
+          reviews: parsedRows,
+          defaultWorkshopTitle 
+        })
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Import failed');
 
-      alert(data.message || `Imported ${data.importedCount} reviews!`);
+      alert(
+        `${data.message}\n\n` +
+        `🎯 Career Test Leads Found: ${data.leadStats?.careerLeadsCount || 0}\n` +
+        `📖 Book Purchase Leads: ${data.leadStats?.bookLeadsCount || 0}\n` +
+        `🤝 1-on-1 Guidance Leads: ${data.leadStats?.counsellingLeadsCount || 0}`
+      );
       setParsedRows([]);
       setImportStatus({ type: 'success', message: data.message });
       loadData();
@@ -246,13 +242,21 @@ export default function AdminCollegeReviewsPage() {
     return `${origin}/workshop-feedback/${slug}`;
   };
 
+  // Filter reviews by Lead interest if selected
+  const displayedReviews = reviews.filter(rev => {
+    if (selectedLeadFilter === 'careerTest') return rev.leadInterests?.careerTest;
+    if (selectedLeadFilter === 'book') return rev.leadInterests?.book;
+    if (selectedLeadFilter === 'counselling') return rev.leadInterests?.counselling;
+    return true;
+  });
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>College Workshop Reviews Hub</h1>
+          <h1 className={styles.title}>College Workshop Reviews &amp; Leads Hub</h1>
           <p className={styles.subtitle}>
-            Collect live student reviews via dedicated QR links, or import past workshop reviews from Excel sheets.
+            Collect live student reviews via dedicated QR links, or import past Google Form / Excel exports.
           </p>
         </div>
       </div>
@@ -306,7 +310,7 @@ export default function AdminCollegeReviewsPage() {
           className={`${styles.tabBtn} ${activeTab === 'reviews' ? styles.activeTab : ''}`}
           onClick={() => setActiveTab('reviews')}
         >
-          💬 All College Reviews ({reviews.length})
+          💬 All College Reviews &amp; Leads ({displayedReviews.length})
         </button>
       </div>
 
@@ -327,7 +331,7 @@ export default function AdminCollegeReviewsPage() {
                   <input
                     required
                     type="text"
-                    placeholder="e.g. COEP Technological University, Pune"
+                    placeholder="e.g. Priyadarshini College of Engineering, Nagpur"
                     className={styles.inputField}
                     value={newCampaign.collegeName}
                     onChange={e => setNewCampaign({ ...newCampaign, collegeName: e.target.value })}
@@ -339,7 +343,7 @@ export default function AdminCollegeReviewsPage() {
                   <input
                     required
                     type="text"
-                    placeholder="e.g. Youth Empowerment & Exam Phobia"
+                    placeholder="e.g. Student Induction Program (Diksharambha)"
                     className={styles.inputField}
                     value={newCampaign.workshopTitle}
                     onChange={e => setNewCampaign({ ...newCampaign, workshopTitle: e.target.value })}
@@ -360,7 +364,7 @@ export default function AdminCollegeReviewsPage() {
                   <label>Custom Link Slug (Optional)</label>
                   <input
                     type="text"
-                    placeholder="e.g. coep-2026 (leave blank for auto)"
+                    placeholder="e.g. priyadarshini-2026 (leave blank for auto)"
                     className={styles.inputField}
                     value={newCampaign.customSlug}
                     onChange={e => setNewCampaign({ ...newCampaign, customSlug: e.target.value })}
@@ -482,7 +486,7 @@ export default function AdminCollegeReviewsPage() {
                 <span>📊</span> Bulk Import Past College Workshop Reviews
               </h2>
               <p style={{ color: '#6B7280', fontSize: '0.9rem', margin: '0.25rem 0 0 0' }}>
-                Upload an Excel file (.xlsx, .xls) or CSV with student feedback from your previous sessions.
+                Compatible with your standard Google Forms &amp; Excel sheets (Priyadarshini College, etc.).
               </p>
             </div>
 
@@ -492,6 +496,19 @@ export default function AdminCollegeReviewsPage() {
             >
               📥 Download Sample Excel Template
             </button>
+          </div>
+
+          <div style={{ marginBottom: '1.25rem' }}>
+            <label style={{ fontSize: '0.88rem', fontWeight: 600, color: '#374151', display: 'block', marginBottom: '0.35rem' }}>
+              Default Workshop Title for this batch (if missing in sheet):
+            </label>
+            <input
+              type="text"
+              className={styles.inputField}
+              style={{ maxWidth: '450px' }}
+              value={defaultWorkshopTitle}
+              onChange={e => setDefaultWorkshopTitle(e.target.value)}
+            />
           </div>
 
           {/* Upload Dropzone */}
@@ -504,10 +521,10 @@ export default function AdminCollegeReviewsPage() {
             />
             <div className={styles.dropzoneIcon}>📁</div>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1F2937', marginBottom: '0.35rem' }}>
-              Click to browse or drop your Excel / CSV file here
+              Click to browse or drop your Google Forms Excel / CSV file here
             </h3>
             <p style={{ color: '#6B7280', fontSize: '0.85rem', margin: 0 }}>
-              Supports .xlsx, .xls, and .csv with columns: <strong>Student Name, College Name, Rating, Review/Comment</strong>
+              Recognizes: <strong>Name, College, Mobile No., Overall Rating, What did you like most, Career Guidance/Book intent</strong>
             </p>
           </label>
 
@@ -535,8 +552,9 @@ export default function AdminCollegeReviewsPage() {
                       <th>#</th>
                       <th>Student</th>
                       <th>College</th>
+                      <th>Mobile</th>
                       <th>Rating</th>
-                      <th>Review Message</th>
+                      <th>Student Feedback / What they liked</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -544,16 +562,19 @@ export default function AdminCollegeReviewsPage() {
                       <tr key={i}>
                         <td>{i + 1}</td>
                         <td style={{ fontWeight: 700 }}>
-                          {row['Student Name'] || row['Name'] || 'Student'}
+                          {row['Name'] || row['Student Name'] || 'Student'}
                         </td>
                         <td>
-                          {row['College Name'] || row['College'] || 'College Workshop'}
+                          {row['College/ Institute/ Organization'] || row['College Name'] || 'PCE Nagpur'}
+                        </td>
+                        <td style={{ fontFamily: 'monospace', fontSize: '0.82rem' }}>
+                          {row['Mobile No.'] || 'N/A'}
                         </td>
                         <td style={{ color: '#F59E0B', fontWeight: 700 }}>
-                          ★ {row['Rating'] || 5}
+                          ★ {row['Overall, how would you rate s training program?'] || row['Rating'] || 5}
                         </td>
                         <td style={{ maxWidth: '350px', fontSize: '0.85rem' }}>
-                          {row['Review'] || row['Comment'] || row['Feedback'] || 'N/A'}
+                          {row['What did you like most about the training?'] || row['Review'] || row['Comment'] || 'N/A'}
                         </td>
                       </tr>
                     ))}
@@ -571,17 +592,17 @@ export default function AdminCollegeReviewsPage() {
       )}
 
       {/* =========================================================
-          TAB 3: ALL COLLEGE REVIEWS DATABASE
+          TAB 3: ALL COLLEGE REVIEWS & LEADS DATABASE
           ========================================================= */}
       {activeTab === 'reviews' && (
         <div className={styles.tableContainer}>
           <div className={styles.tableHeader}>
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', flex: 1 }}>
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', flex: 1 }}>
               <input
                 type="text"
-                placeholder="Search by student, college, or words..."
+                placeholder="Search student, mobile, college..."
                 className={styles.inputField}
-                style={{ width: '280px' }}
+                style={{ width: '240px' }}
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && loadData()}
@@ -600,6 +621,18 @@ export default function AdminCollegeReviewsPage() {
 
               <select
                 className={styles.inputField}
+                value={selectedLeadFilter}
+                onChange={e => setSelectedLeadFilter(e.target.value)}
+                style={{ borderColor: selectedLeadFilter !== 'all' ? '#7942b5' : '#D1D5DB' }}
+              >
+                <option value="all">All Intentions</option>
+                <option value="careerTest">🎯 Interested in Career Test</option>
+                <option value="book">📖 Interested in Book</option>
+                <option value="counselling">🤝 Interested in 1-on-1 Guidance</option>
+              </select>
+
+              <select
+                className={styles.inputField}
                 value={selectedSource}
                 onChange={e => setSelectedSource(e.target.value)}
               >
@@ -614,11 +647,11 @@ export default function AdminCollegeReviewsPage() {
             </div>
 
             <span style={{ fontSize: '0.9rem', color: '#6B7280', fontWeight: 600 }}>
-              Showing {reviews.length} reviews
+              Showing {displayedReviews.length} records
             </span>
           </div>
 
-          {reviews.length === 0 ? (
+          {displayedReviews.length === 0 ? (
             <p style={{ padding: '2.5rem', textAlign: 'center', color: '#6B7280' }}>
               No reviews found matching the filters.
             </p>
@@ -629,60 +662,93 @@ export default function AdminCollegeReviewsPage() {
                   <tr>
                     <th>Date</th>
                     <th>Student Name</th>
-                    <th>College Name</th>
-                    <th>Department &amp; Year</th>
+                    <th>Contact</th>
+                    <th>College / Area of Study</th>
                     <th>Rating</th>
-                    <th>Student Feedback</th>
-                    <th>Source</th>
+                    <th>Feedback / Key Takeaway</th>
+                    <th>Hot Leads</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {reviews.map(rev => (
-                    <tr key={rev._id}>
-                      <td style={{ color: '#6B7280', whiteSpace: 'nowrap' }}>
-                        {new Date(rev.workshopDate || rev.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </td>
-                      <td style={{ fontWeight: 700, color: '#111827' }}>
-                        {rev.studentName}
-                      </td>
-                      <td style={{ color: '#4B5563', fontWeight: 600 }}>
-                        {rev.collegeName}
-                      </td>
-                      <td style={{ color: '#6B7280', fontSize: '0.85rem' }}>
-                        {rev.department ? `${rev.department}` : ''}
-                        {rev.year ? ` (${rev.year})` : ''}
-                      </td>
-                      <td>
-                        <span style={{ color: '#F59E0B', fontWeight: 700 }}>
-                          ★ {rev.rating}
-                        </span>
-                      </td>
-                      <td style={{ maxWidth: '320px', fontSize: '0.88rem', color: '#374151', lineHeight: '1.4' }}>
-                        <div>{rev.comment}</div>
-                        {rev.keyTakeaway && (
-                          <div style={{ fontSize: '0.78rem', color: '#7942b5', marginTop: '0.25rem' }}>
-                            💡 <em>{rev.keyTakeaway}</em>
+                  {displayedReviews.map(rev => {
+                    const cleanPhone = (rev.phone || '').replace(/\D/g, '').slice(-10);
+
+                    return (
+                      <tr key={rev._id}>
+                        <td style={{ color: '#6B7280', whiteSpace: 'nowrap' }}>
+                          {new Date(rev.workshopDate || rev.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </td>
+                        <td style={{ fontWeight: 700, color: '#111827' }}>
+                          {rev.studentName}
+                        </td>
+                        <td style={{ color: '#4B5563', fontSize: '0.82rem' }}>
+                          {rev.phone && (
+                            <div style={{ fontFamily: 'monospace', fontWeight: 600 }}>
+                              {rev.phone}
+                            </div>
+                          )}
+                          {rev.studentEmail && (
+                            <div style={{ color: '#6B7280' }}>{rev.studentEmail}</div>
+                          )}
+                          {cleanPhone && (
+                            <a
+                              href={`https://wa.me/91${cleanPhone}?text=Hello%20${encodeURIComponent(rev.studentName)},%20thank%20you%20for%20attending%20Avinash%20Gore's%20workshop!`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ display: 'inline-block', marginTop: '0.2rem', color: '#059669', fontWeight: 700, fontSize: '0.75rem', textDecoration: 'none' }}
+                            >
+                              💬 WhatsApp
+                            </a>
+                          )}
+                        </td>
+                        <td style={{ color: '#4B5563', fontSize: '0.85rem' }}>
+                          <div style={{ fontWeight: 600, color: '#111827' }}>{rev.collegeName}</div>
+                          <div style={{ color: '#6B7280' }}>{rev.department}</div>
+                        </td>
+                        <td>
+                          <span style={{ color: '#F59E0B', fontWeight: 700 }}>
+                            ★ {rev.rating}
+                          </span>
+                        </td>
+                        <td style={{ maxWidth: '300px', fontSize: '0.85rem', color: '#374151', lineHeight: '1.4' }}>
+                          <div>{rev.comment}</div>
+                          {rev.improvementFeedback && (
+                            <div style={{ fontSize: '0.75rem', color: '#6B7280', marginTop: '0.25rem' }}>
+                              🔧 <em>Improvement: {rev.improvementFeedback}</em>
+                            </div>
+                          )}
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                            {rev.leadInterests?.careerTest && (
+                              <span style={{ background: '#F1EAFF', color: '#7942b5', fontSize: '0.72rem', fontWeight: 700, padding: '0.15rem 0.45rem', borderRadius: '4px' }}>
+                                🎯 Career Test
+                              </span>
+                            )}
+                            {rev.leadInterests?.book && (
+                              <span style={{ background: '#FEF3C7', color: '#B45309', fontSize: '0.72rem', fontWeight: 700, padding: '0.15rem 0.45rem', borderRadius: '4px' }}>
+                                📖 Wants Book
+                              </span>
+                            )}
+                            {rev.leadInterests?.counselling && (
+                              <span style={{ background: '#ECFDF5', color: '#059669', fontSize: '0.72rem', fontWeight: 700, padding: '0.15rem 0.45rem', borderRadius: '4px' }}>
+                                🤝 1-on-1 Guidance
+                              </span>
+                            )}
                           </div>
-                        )}
-                      </td>
-                      <td>
-                        {rev.source === 'live_link' ? (
-                          <span className={styles.badgeLive}>Live QR</span>
-                        ) : (
-                          <span className={styles.badgeExcel}>Excel</span>
-                        )}
-                      </td>
-                      <td>
-                        <button
-                          className={styles.deleteBtn}
-                          onClick={() => handleDeleteReview(rev._id)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td>
+                          <button
+                            className={styles.deleteBtn}
+                            onClick={() => handleDeleteReview(rev._id)}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

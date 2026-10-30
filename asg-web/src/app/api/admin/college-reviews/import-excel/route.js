@@ -4,10 +4,10 @@ import CollegeReview from '@/models/CollegeReview';
 
 export async function POST(req) {
   try {
-    const { reviews } = await req.json();
+    const { reviews, defaultWorkshopTitle } = await req.json();
 
     if (!Array.isArray(reviews) || reviews.length === 0) {
-      return NextResponse.json({ error: 'No reviews found in the uploaded file.' }, { status: 400 });
+      return NextResponse.json({ error: 'No data rows found in the uploaded file.' }, { status: 400 });
     }
 
     await connectToDatabase();
@@ -16,54 +16,142 @@ export async function POST(req) {
     const skippedRows = [];
 
     reviews.forEach((row, index) => {
-      // Find field names flexibly (case-insensitive, handling various column headers)
-      const getField = (keys) => {
-        for (const k of keys) {
-          for (const rowKey of Object.keys(row)) {
-            if (rowKey.trim().toLowerCase() === k.toLowerCase()) {
-              return row[rowKey];
+      // Helper to find column by multiple candidate strings or regex
+      const getField = (candidates) => {
+        for (const candidate of candidates) {
+          for (const key of Object.keys(row)) {
+            const normalizedKey = key.trim().toLowerCase();
+            const normalizedCand = candidate.toLowerCase();
+            if (normalizedKey === normalizedCand || normalizedKey.includes(normalizedCand)) {
+              if (row[key] !== undefined && row[key] !== null) {
+                return String(row[key]).trim();
+              }
             }
           }
         }
         return '';
       };
 
-      const studentName = String(getField(['Student Name', 'Name', 'Student', 'Full Name', 'Candidate'])).trim();
-      const collegeName = String(getField(['College Name', 'College', 'Institute', 'University', 'Campus'])).trim();
-      const workshopTitle = String(getField(['Workshop Title', 'Workshop', 'Topic', 'Session Title', 'Event'])).trim() || 'College Empowerment Workshop';
-      const comment = String(getField(['Review', 'Comment', 'Feedback', 'Review / Comment', 'Message', 'Student Feedback'])).trim();
-      const rawRating = getField(['Rating', 'Stars', 'Score']);
-      const department = String(getField(['Department', 'Branch', 'Dept', 'Stream'])).trim();
-      const year = String(getField(['Year', 'Semester', 'Class'])).trim();
-      const keyTakeaway = String(getField(['Key Takeaway', 'Takeaway', 'Learnings', 'Best Part'])).trim();
-      const rawDate = getField(['Date', 'Workshop Date', 'Year/Date']);
-
-      if (!studentName || !comment) {
-        skippedRows.push({ row: index + 1, reason: 'Missing Student Name or Comment' });
+      // 1. Student Name
+      const studentName = getField(['Name', 'Student Name', 'Full Name', 'Candidate']);
+      if (!studentName) {
+        skippedRows.push({ row: index + 1, reason: 'Missing Name' });
         return;
       }
 
-      let parsedRating = Number(rawRating);
-      if (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
-        parsedRating = 5; // Default to 5 if not specified or out of bounds
+      // 2. College / Institute Name
+      let collegeName = getField([
+        'College/ Institute/ Organization',
+        'College Name',
+        'College',
+        'Institute',
+        'Organization',
+        'University'
+      ]);
+      if (!collegeName) {
+        collegeName = 'Priyadarshini College of Engineering'; // Sensible fallback
       }
 
+      // 3. Contact Info
+      const phone = getField(['Mobile No.', 'Mobile', 'Phone', 'Contact']);
+      const studentEmail = getField(['Email ID', 'Email', 'Mail']);
+      const dob = getField(['D.O.B.', 'DOB', 'Date of Birth']);
+      const department = getField([
+        'Currently Work/ Job Role/ Area of Study',
+        'Area of Study',
+        'Department',
+        'Branch'
+      ]);
+
+      // 4. Ratings Extraction
+      // Overall Rating
+      let overallRatingRaw = getField(['Overall, how would you rate', 'Overall', 'Rating', 'Stars']);
+      let contentRatingRaw = getField(['Training Content']);
+      let deliveryRatingRaw = getField(['Presentation/ Delivery Style', 'Delivery Style']);
+      let trainer1RatingRaw = getField(['Trainer 1']);
+      let trainer2RatingRaw = getField(['Trainer 2']);
+
+      const parseRatingNum = (val, fallback = 5) => {
+        const num = Number(val);
+        if (!isNaN(num) && num >= 1 && num <= 5) return num;
+        return fallback;
+      };
+
+      const overallRating = parseRatingNum(overallRatingRaw, 5);
+      const contentRating = parseRatingNum(contentRatingRaw, overallRating);
+      const deliveryRating = parseRatingNum(deliveryRatingRaw, overallRating);
+      const trainer1Rating = parseRatingNum(trainer1RatingRaw, overallRating);
+      const trainer2Rating = parseRatingNum(trainer2RatingRaw, overallRating);
+
+      // 5. Review & Feedback Comments
+      const likedMost = getField(['What did you like most about the training?', 'liked most', 'Best Part']);
+      const suggestions = getField(['What can we improve in future training programs?', 'can we improve', 'Improvement']);
+      const otherComments = getField(['Any other comments/ suggestions?', 'other comments', 'Comments']);
+
+      // Clean non-informative text like '.', '-', 'no', 'none', 'n'
+      const isInformative = (text) => {
+        if (!text) return false;
+        const cleaned = text.trim().toLowerCase();
+        if (cleaned.length < 2) return false;
+        if (/^[\.\,\-\_\s]+$/.test(cleaned)) return false;
+        if (['no', 'none', 'nope', 'na', 'n/a', 'nothing', 'not need', 'not sure', 'idk'].includes(cleaned)) return false;
+        return true;
+      };
+
+      let finalComment = '';
+      if (isInformative(likedMost)) {
+        finalComment = likedMost;
+        if (isInformative(otherComments) && otherComments.toLowerCase() !== likedMost.toLowerCase()) {
+          finalComment += ` — ${otherComments}`;
+        }
+      } else if (isInformative(otherComments)) {
+        finalComment = otherComments;
+      } else {
+        // Fallback friendly comment so the rating and lead can still be showcased
+        finalComment = `Attended the workshop session at ${collegeName}. Rated ${overallRating}/5 stars.`;
+      }
+
+      // 6. Lead Interests (Crucial for Career Guidance, Books, and Counselling!)
+      const bookInterest = getField(['purchasing the book', 'book']).toLowerCase();
+      const careerTestInterest = getField(['career assessment test', 'career counselling']).toLowerCase();
+      const counsellingInterest = getField(['One-to-One Guidance', 'Personal Counselling']).toLowerCase();
+      const upcomingInterest = getField(['upcoming workshops']).toLowerCase();
+
+      const leadInterests = {
+        book: bookInterest.includes('yes'),
+        careerTest: careerTestInterest.includes('yes'),
+        counselling: counsellingInterest.includes('yes'),
+        upcomingWorkshops: upcomingInterest.includes('yes')
+      };
+
+      // 7. Date
+      const timestampRaw = getField(['Timestamp', 'Date']);
       let parsedDate = new Date();
-      if (rawDate) {
-        const d = new Date(rawDate);
+      if (timestampRaw) {
+        const d = new Date(timestampRaw);
         if (!isNaN(d.getTime())) parsedDate = d;
       }
 
       validDocuments.push({
-        collegeName: collegeName || 'College Workshop',
-        workshopTitle,
+        collegeName,
+        workshopTitle: defaultWorkshopTitle || 'Empowerment & Diksharambha Workshop',
         studentName,
-        studentEmail: '',
+        studentEmail,
+        phone,
         department,
-        year,
-        rating: parsedRating,
-        comment,
-        keyTakeaway,
+        dob,
+        rating: overallRating,
+        ratingsBreakdown: {
+          content: contentRating,
+          delivery: deliveryRating,
+          trainer1: trainer1Rating,
+          trainer2: trainer2Rating,
+          overall: overallRating
+        },
+        comment: finalComment,
+        keyTakeaway: isInformative(likedMost) ? likedMost : '',
+        improvementFeedback: isInformative(suggestions) ? suggestions : '',
+        leadInterests,
         source: 'excel_import',
         status: 'approved',
         isFeatured: false,
@@ -73,18 +161,27 @@ export async function POST(req) {
 
     if (validDocuments.length === 0) {
       return NextResponse.json({ 
-        error: 'No valid rows found. Please ensure your Excel/CSV has columns like "Student Name", "College Name", "Rating", and "Review".' 
+        error: 'No valid student records found. Please check that the file has a "Name" column.' 
       }, { status: 400 });
     }
 
     const inserted = await CollegeReview.insertMany(validDocuments);
 
+    // Count leads discovered in this import
+    const careerLeadsCount = validDocuments.filter(d => d.leadInterests.careerTest).length;
+    const bookLeadsCount = validDocuments.filter(d => d.leadInterests.book).length;
+    const counsellingLeadsCount = validDocuments.filter(d => d.leadInterests.counselling).length;
+
     return NextResponse.json({
       success: true,
-      message: `Successfully imported ${inserted.length} reviews from Excel!`,
+      message: `Successfully imported ${inserted.length} workshop reviews!`,
       importedCount: inserted.length,
       skippedCount: skippedRows.length,
-      skippedRows
+      leadStats: {
+        careerLeadsCount,
+        bookLeadsCount,
+        counsellingLeadsCount
+      }
     }, { status: 201 });
 
   } catch (error) {
