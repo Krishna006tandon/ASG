@@ -45,6 +45,13 @@ export default function CareerGuidancePage() {
   const [results, setResults] = useState(null);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 
+  // Discrete Coupon state (Hidden by default)
+  const [showCouponInput, setShowCouponInput] = useState(false);
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState('');
+
   // Active filter for 10 archetypes explorer
   const [activeArchetypeTab, setActiveArchetypeTab] = useState(null);
 
@@ -147,6 +154,49 @@ export default function CareerGuidancePage() {
     }
   };
 
+  // Coupon Validation Handler
+  const handleApplyCoupon = async (e) => {
+    e?.preventDefault();
+    if (!couponInput.trim()) {
+      setCouponError('Please enter a coupon code.');
+      return;
+    }
+    setCouponLoading(true);
+    setCouponError('');
+
+    try {
+      const res = await fetch('/api/coupons/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: couponInput.trim(),
+          itemType: 'career',
+          itemId: 'career_assessment',
+          currentAmount: setting.price
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.valid) {
+        throw new Error(data.error || 'Invalid or expired coupon code.');
+      }
+
+      setAppliedCoupon(data.coupon);
+      setCouponError('');
+    } catch (err) {
+      setCouponError(err.message);
+      setAppliedCoupon(null);
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput('');
+    setCouponError('');
+  };
+
   // Handle Pay and Unlock Test (Option A)
   const handleInitiatePayment = async (e) => {
     e.preventDefault();
@@ -158,14 +208,7 @@ export default function CareerGuidancePage() {
     setIsProcessingPayment(true);
 
     try {
-      const sdkLoaded = await loadRazorpayScript();
-      if (!sdkLoaded) {
-        alert("Payment gateway failed to load. Please check your internet connection.");
-        setIsProcessingPayment(false);
-        return;
-      }
-
-      // Step 1: Create Order on Backend
+      // Step 1: Create Order on Backend (with coupon if applied)
       const token = localStorage.getItem('asg_token');
       const orderHeaders = { 'Content-Type': 'application/json' };
       if (token) orderHeaders['Authorization'] = `Bearer ${token}`;
@@ -173,7 +216,10 @@ export default function CareerGuidancePage() {
       const orderRes = await fetch('/api/razorpay/create-career-order', {
         method: 'POST',
         headers: orderHeaders,
-        body: JSON.stringify({ candidateDetails: candidate })
+        body: JSON.stringify({
+          candidateDetails: candidate,
+          couponCode: appliedCoupon?.code || null
+        })
       });
 
       if (!orderRes.ok) {
@@ -190,7 +236,21 @@ export default function CareerGuidancePage() {
         sessionStorage.setItem('asg_career_assessment_id', orderData.assessmentId);
       } catch (e) {}
 
-      // Step 2: Open Razorpay Gateway Modal
+      // SPECIAL CASE: 100% Free Coupon Applied! Skip Razorpay entirely!
+      if (orderData.isFree) {
+        setCurrentStep('test');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setIsProcessingPayment(false);
+        return;
+      }
+
+      // Step 2: Open Razorpay Gateway Modal for paid order
+      const sdkLoaded = await loadRazorpayScript();
+      if (!sdkLoaded) {
+        alert("Payment gateway failed to load. Please check your internet connection.");
+        setIsProcessingPayment(false);
+        return;
+      }
       const options = {
         key: orderData.key_id,
         amount: orderData.amount,
@@ -588,11 +648,25 @@ export default function CareerGuidancePage() {
                     Career Nature Diagnostic Assessment
                   </h3>
                   <div className={styles.priceWrapper}>
-                    <span className={styles.currentPrice}>₹{setting.price}</span>
-                    <span className={styles.originalPrice}>₹{setting.originalPrice}</span>
-                    <span className={styles.discountBadge}>
-                      {Math.round(((setting.originalPrice - setting.price) / setting.originalPrice) * 100)}% OFF
-                    </span>
+                    {appliedCoupon ? (
+                      <>
+                        <span className={styles.currentPrice} style={appliedCoupon.isFree ? { color: '#059669' } : {}}>
+                          {appliedCoupon.isFree ? 'FREE (₹0)' : `₹${appliedCoupon.finalAmount}`}
+                        </span>
+                        <span className={styles.originalPrice}>₹{setting.price}</span>
+                        <span className={styles.discountBadge} style={{ background: '#ECFDF5', color: '#059669', border: '1px solid #A7F3D0' }}>
+                          {appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}% OFF` : `₹${appliedCoupon.discountValue} OFF`}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className={styles.currentPrice}>₹{setting.price}</span>
+                        <span className={styles.originalPrice}>₹{setting.originalPrice}</span>
+                        <span className={styles.discountBadge}>
+                          {Math.round(((setting.originalPrice - setting.price) / setting.originalPrice) * 100)}% OFF
+                        </span>
+                      </>
+                    )}
                   </div>
                   <p style={{ fontSize: '0.88rem', color: '#6B7280', margin: 0 }}>
                     One-time fee &middot; Instant access &middot; Downloadable Lifetime PDF Report
@@ -674,12 +748,148 @@ export default function CareerGuidancePage() {
                     </select>
                   </div>
 
+                  {/* Discreet / Hidden Coupon Section */}
+                  <div style={{ margin: '0.5rem 0 1rem 0' }}>
+                    {!appliedCoupon ? (
+                      <div>
+                        {!showCouponInput ? (
+                          <button
+                            type="button"
+                            onClick={() => setShowCouponInput(true)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#7942b5',
+                              fontSize: '0.85rem',
+                              fontWeight: '600',
+                              cursor: 'pointer',
+                              padding: '0.2rem 0',
+                              textDecoration: 'underline',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.35rem'
+                            }}
+                          >
+                            <span>🏷️</span> Have a coupon or workshop access code?
+                          </button>
+                        ) : (
+                          <div style={{
+                            background: '#FAF5FF',
+                            border: '1px dashed #C084FC',
+                            borderRadius: '8px',
+                            padding: '0.75rem 1rem'
+                          }}>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                              <input
+                                type="text"
+                                placeholder="ENTER COUPON CODE"
+                                value={couponInput}
+                                onChange={e => {
+                                  setCouponInput(e.target.value.toUpperCase());
+                                  setCouponError('');
+                                }}
+                                style={{
+                                  flex: 1,
+                                  padding: '0.5rem 0.75rem',
+                                  borderRadius: '6px',
+                                  border: '1px solid #D1D5DB',
+                                  fontSize: '0.85rem',
+                                  fontWeight: '700',
+                                  letterSpacing: '0.5px',
+                                  textTransform: 'uppercase'
+                                }}
+                              />
+                              <button
+                                type="button"
+                                onClick={handleApplyCoupon}
+                                disabled={couponLoading || !couponInput.trim()}
+                                style={{
+                                  padding: '0.5rem 1.1rem',
+                                  fontSize: '0.85rem',
+                                  background: '#7942b5',
+                                  color: '#ffffff',
+                                  border: 'none',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontWeight: '700'
+                                }}
+                              >
+                                {couponLoading ? 'Verifying...' : 'Apply'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => { setShowCouponInput(false); setCouponError(''); }}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  color: '#6B7280',
+                                  cursor: 'pointer',
+                                  fontSize: '1rem',
+                                  padding: '0 0.25rem'
+                                }}
+                                title="Close"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                            {couponError && (
+                              <div style={{ color: '#DC2626', fontSize: '0.8rem', marginTop: '0.4rem', fontWeight: '500' }}>
+                                ⚠️ {couponError}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div style={{
+                        background: '#ECFDF5',
+                        border: '1px solid #6EE7B7',
+                        borderRadius: '8px',
+                        padding: '0.65rem 0.9rem',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '0.5rem'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.88rem', color: '#065F46', fontWeight: '600' }}>
+                          <span>🎉</span>
+                          <span>
+                            Code <strong>{appliedCoupon.code}</strong> applied &middot; Saved ₹{appliedCoupon.discountAmount}!
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleRemoveCoupon}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#DC2626',
+                            fontSize: '0.8rem',
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            textDecoration: 'underline'
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
                   <button
                     type="submit"
                     disabled={isProcessingPayment}
                     className={styles.submitBtn}
+                    style={appliedCoupon?.isFree ? { background: '#059669', borderColor: '#047857' } : {}}
                   >
-                    {isProcessingPayment ? "Connecting to Gateway..." : `Pay ₹${setting.price} & Unlock Test`}
+                    {isProcessingPayment
+                      ? 'Connecting to Gateway...'
+                      : appliedCoupon?.isFree
+                        ? '🎉 Unlock Free Assessment (100% OFF) →'
+                        : appliedCoupon
+                          ? `Pay ₹${appliedCoupon.finalAmount} & Unlock Test`
+                          : `Pay ₹${setting.price} & Unlock Test`}
                   </button>
 
                   <p style={{ textAlign: 'center', fontSize: '0.78rem', color: '#9CA3AF', margin: '0.5rem 0 0 0' }}>

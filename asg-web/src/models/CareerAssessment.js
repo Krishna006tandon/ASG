@@ -14,6 +14,8 @@ const CareerAssessmentSchema = new mongoose.Schema({
     currentStatus: { type: String, default: '' } // College Student, Graduate, Working Professional, School Student
   },
   amountPaid: { type: Number, required: true },
+  couponApplied: { type: String, default: null },
+  discountAmount: { type: Number, default: 0 },
   paymentStatus: {
     type: String,
     enum: ['Pending', 'Paid', 'Failed'],

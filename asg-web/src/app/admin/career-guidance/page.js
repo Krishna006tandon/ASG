@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import styles from './careerAdmin.module.css';
 
 export default function CareerGuidanceAdmin() {
@@ -88,6 +89,24 @@ export default function CareerGuidanceAdmin() {
             Manage dynamic pricing, custom video URL, and view all student assessment submissions.
           </p>
         </div>
+        <Link
+          href="/admin/coupons"
+          style={{
+            background: '#FAF5FF',
+            color: '#7942B5',
+            border: '1.5px solid #D8B4FE',
+            padding: '0.65rem 1.25rem',
+            borderRadius: '10px',
+            fontWeight: '700',
+            textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            boxShadow: '0 2px 6px rgba(121, 66, 181, 0.08)'
+          }}
+        >
+          <span>🎟️</span> Manage Discount Coupons &rarr;
+        </Link>
       </div>
 
       {/* METRIC STATS ROW */}
@@ -235,6 +254,11 @@ export default function CareerGuidanceAdmin() {
                       </td>
                       <td style={{ fontWeight: '700', color: '#111827' }}>
                         ₹{item.amountPaid}
+                        {item.couponApplied && (
+                          <div style={{ fontSize: '0.72rem', color: '#059669', background: '#ECFDF5', padding: '1px 5px', borderRadius: '4px', display: 'inline-block', marginTop: '2px' }}>
+                            🎟️ {item.couponApplied}
+                          </div>
+                        )}
                       </td>
                       <td>
                         {item.paymentStatus === 'Paid' ? (
