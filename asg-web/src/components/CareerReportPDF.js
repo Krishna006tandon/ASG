@@ -1,11 +1,40 @@
 import React from 'react';
+import { CAREER_CATEGORIES, getScoreInterpretation } from '@/lib/careerData';
 
 export default function CareerReportPDF({ assessment, results, reportRef }) {
   if (!assessment || !results) return null;
 
   const candidate = assessment.candidate || assessment.candidateDetails || {};
-  const top3 = results.top3 || [];
-  const ranked = results.rankedCategories || [];
+  const rawTop3 = (results.top3 && results.top3.length > 0) ? results.top3 : (assessment.topCategories || []);
+  const rawRanked = (results.rankedCategories && results.rankedCategories.length > 0) ? results.rankedCategories : rawTop3;
+
+  const top3 = rawTop3.map((cat, idx) => {
+    const baseCat = CAREER_CATEGORIES.find(c => c.code === cat.code) || {};
+    const score = typeof cat.score === 'number' ? cat.score : 0;
+    return {
+      ...baseCat,
+      ...cat,
+      score,
+      name: cat.name || baseCat.name || `Domain ${idx + 1}`,
+      tagline: cat.tagline || baseCat.tagline || 'Specialized Work Style',
+      roles: cat.roles || baseCat.roles || 'Industry Specializations'
+    };
+  });
+
+  const ranked = rawRanked.map((c, i) => {
+    const baseCat = CAREER_CATEGORIES.find(cat => cat.code === c.code) || {};
+    const score = typeof c.score === 'number' ? c.score : 0;
+    const interp = c.interpretation || getScoreInterpretation(score);
+    return {
+      ...baseCat,
+      ...c,
+      score,
+      name: c.name || baseCat.name || `Category ${c.code || i + 1}`,
+      roles: c.roles || baseCat.roles || 'Specialized Industry Roles',
+      interpretation: interp
+    };
+  });
+
   const dateFormatted = assessment.completedAt 
     ? new Date(assessment.completedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
     : new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -88,7 +117,7 @@ export default function CareerReportPDF({ assessment, results, reportRef }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
           {top3.map((cat, idx) => (
             <div
-              key={cat.code}
+              key={cat.code || idx}
               style={{
                 border: idx === 0 ? '2px solid #7942b5' : '1px solid #E5E7EB',
                 background: idx === 0 ? '#FAF5FF' : '#FFFFFF',
@@ -148,7 +177,7 @@ export default function CareerReportPDF({ assessment, results, reportRef }) {
           </thead>
           <tbody>
             {ranked.map((c, i) => (
-              <tr key={c.code} style={{ borderBottom: '1px solid #F3F4F6', background: i < 3 ? '#FCF9FF' : 'transparent' }}>
+              <tr key={c.code || i} style={{ borderBottom: '1px solid #F3F4F6', background: i < 3 ? '#FCF9FF' : 'transparent' }}>
                 <td style={{ padding: '6px 10px', fontWeight: '700', color: i < 3 ? '#7942b5' : '#6B7280' }}>#{i + 1}</td>
                 <td style={{ padding: '6px 10px', fontWeight: '600', color: '#1F2937' }}>{c.name}</td>
                 <td style={{ padding: '6px 10px', fontWeight: '700', color: '#111827' }}>
@@ -159,8 +188,8 @@ export default function CareerReportPDF({ assessment, results, reportRef }) {
                     </div>
                   </div>
                 </td>
-                <td style={{ padding: '6px 10px', color: c.interpretation.color, fontWeight: '700' }}>
-                  {c.interpretation.level}
+                <td style={{ padding: '6px 10px', color: c.interpretation?.color || '#10B981', fontWeight: '700' }}>
+                  {c.interpretation?.level || 'Evaluated'}
                 </td>
                 <td style={{ padding: '6px 10px', color: '#4B5563', maxWidth: '260px' }}>
                   {c.roles}

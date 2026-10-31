@@ -102,18 +102,40 @@ export default function EcommerceSettings() {
         ebookUrl = newBlob.url;
       }
 
-      // If a thumbnail image file is selected, upload it to Vercel Blob
+      // If a thumbnail image file is selected, upload via /api/admin/books/upload with fallback
       let finalCoverImage = coverImageUrl;
       if (coverImageFile) {
-        const cleanThumbName = coverImageFile.name.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_');
-        const ext = coverImageFile.name.split('.').pop() || 'png';
-        const safeThumbName = `thumb-${cleanThumbName}-${Date.now()}.${ext}`;
+        try {
+          const form = new FormData();
+          form.append('file', coverImageFile);
+          const upRes = await fetch('/api/admin/books/upload', {
+            method: 'POST',
+            body: form
+          });
+          if (upRes.ok) {
+            const upData = await upRes.json();
+            if (upData.url) {
+              finalCoverImage = upData.url;
+            }
+          } else {
+            throw new Error('Upload endpoint fallback');
+          }
+        } catch (upErr) {
+          console.warn('Server upload failed, attempting client upload:', upErr);
+          try {
+            const cleanThumbName = coverImageFile.name.split('.')[0].replace(/[^a-zA-Z0-9]/g, '_');
+            const ext = coverImageFile.name.split('.').pop() || 'png';
+            const safeThumbName = `thumb-${cleanThumbName}-${Date.now()}.${ext}`;
 
-        const thumbBlob = await upload(safeThumbName, coverImageFile, {
-          access: 'private',
-          handleUploadUrl: '/api/upload',
-        });
-        finalCoverImage = thumbBlob.url;
+            const thumbBlob = await upload(safeThumbName, coverImageFile, {
+              access: 'private',
+              handleUploadUrl: '/api/upload',
+            });
+            finalCoverImage = thumbBlob.url;
+          } catch (blobErr) {
+            console.error('All upload methods failed:', blobErr);
+          }
+        }
       }
 
       const payload = {

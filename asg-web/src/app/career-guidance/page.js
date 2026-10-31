@@ -1238,8 +1238,8 @@ export default function CareerGuidancePage() {
                         </div>
                       </div>
                     </td>
-                    <td style={{ color: c.interpretation.color, fontWeight: '700' }}>
-                      {c.interpretation.level}
+                    <td style={{ color: c.interpretation?.color || '#10B981', fontWeight: '700' }}>
+                      {c.interpretation?.level || 'Evaluated'}
                     </td>
                     <td style={{ color: '#4B5563', fontSize: '0.85rem' }}>
                       {c.roles}

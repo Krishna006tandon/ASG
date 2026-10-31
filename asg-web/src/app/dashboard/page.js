@@ -13,6 +13,7 @@ import StarRating from '@/components/StarRating';
 import { useRef } from 'react';
 import { getEbookUrl } from '@/lib/imageHelper';
 import styles from './dashboard.module.css';
+import { CAREER_CATEGORIES, getScoreInterpretation, computeAssessmentResults } from '@/lib/careerData';
 
 export default function ClientDashboard() {
   const [consultations, setConsultations] = useState([]);
@@ -298,56 +299,107 @@ export default function ClientDashboard() {
   };
 
   const handleDownloadCareerPDF = async (assessment) => {
-    setGeneratingCareerPdfFor(assessment._id);
-    setCareerPdfData({
-      assessment: {
-        ...assessment,
-        candidate: assessment.candidateDetails
-      },
-      results: {
-        top3: assessment.topCategories || [],
-        rankedCategories: assessment.topCategories || [],
-        synergyInsight: assessment.synergyInsight || '',
-        scores: assessment.scores || {}
-      }
-    });
+    try {
+      setGeneratingCareerPdfFor(assessment._id);
 
-    setTimeout(async () => {
-      try {
-        if (!careerReportRef.current) throw new Error("Report element not ready");
-        const canvas = await html2canvas(careerReportRef.current, {
-          scale: 2,
-          useCORS: true,
-          logging: false
+      // Reconstruct full rankedCategories and interpretations if possible
+      let computedResults = null;
+      if (assessment.answers && Object.keys(assessment.answers).length >= 10) {
+        const answersObj = assessment.answers instanceof Map ? Object.fromEntries(assessment.answers) : assessment.answers;
+        computedResults = computeAssessmentResults(answersObj);
+      } else if (assessment.scores && Object.keys(assessment.scores).length > 0) {
+        const scoresObj = assessment.scores instanceof Map ? Object.fromEntries(assessment.scores) : assessment.scores;
+        const rankedCategories = CAREER_CATEGORIES.map(cat => {
+          const score = Number(scoresObj[cat.code]) || 0;
+          return {
+            code: cat.code,
+            name: cat.name,
+            tagline: cat.tagline,
+            roles: cat.roles,
+            score,
+            interpretation: getScoreInterpretation(score)
+          };
+        }).sort((a, b) => b.score - a.score);
+
+        computedResults = {
+          top3: rankedCategories.slice(0, 3).map((item, idx) => ({
+            ...item,
+            badge: idx === 0 ? 'Primary Swadharma' : idx === 1 ? 'Secondary Complement' : 'Tertiary Explorer'
+          })),
+          rankedCategories,
+          synergyInsight: assessment.synergyInsight || '',
+          scores: scoresObj
+        };
+      } else {
+        const fallbackTop = (assessment.topCategories || []).map((cat, idx) => {
+          const base = CAREER_CATEGORIES.find(c => c.code === cat.code) || {};
+          const score = Number(cat.score) || 0;
+          return {
+            ...base,
+            ...cat,
+            score,
+            badge: cat.badge || (idx === 0 ? 'Primary Swadharma' : idx === 1 ? 'Secondary Complement' : 'Tertiary Explorer'),
+            interpretation: getScoreInterpretation(score)
+          };
         });
+        computedResults = {
+          top3: fallbackTop,
+          rankedCategories: fallbackTop,
+          synergyInsight: assessment.synergyInsight || '',
+          scores: assessment.scores || {}
+        };
+      }
 
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const imgWidth = 210;
-        const pageHeight = 297;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
+      setCareerPdfData({
+        assessment: {
+          ...assessment,
+          candidate: assessment.candidateDetails
+        },
+        results: computedResults
+      });
 
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+      setTimeout(async () => {
+        try {
+          if (!careerReportRef.current) throw new Error("Report element not ready");
+          const canvas = await html2canvas(careerReportRef.current, {
+            scale: 2,
+            useCORS: true,
+            logging: false
+          });
 
-        while (heightLeft > 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
+          const imgData = canvas.toDataURL('image/png');
+          const pdf = new jsPDF('p', 'mm', 'a4');
+          const imgWidth = 210;
+          const pageHeight = 297;
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+          let heightLeft = imgHeight;
+          let position = 0;
+
           pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
           heightLeft -= pageHeight;
-        }
 
-        const candidateName = (assessment.candidateDetails?.name || 'Report').replace(/[^a-zA-Z0-9]/g, '_');
-        pdf.save(`ASG_Career_Report_${candidateName}.pdf`);
-      } catch (err) {
-        console.error("Career PDF Generation failed:", err);
-        alert("Failed to generate Career Report PDF. Please try again.");
-      } finally {
-        setGeneratingCareerPdfFor(null);
-      }
-    }, 400);
+          while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+          }
+
+          const candidateName = (assessment.candidateDetails?.name || 'Report').replace(/[^a-zA-Z0-9]/g, '_');
+          pdf.save(`ASG_Career_Report_${candidateName}.pdf`);
+        } catch (err) {
+          console.error("Career PDF Generation failed:", err);
+          alert("Failed to generate Career Report PDF. Please try again.");
+        } finally {
+          setGeneratingCareerPdfFor(null);
+          setCareerPdfData(null);
+        }
+      }, 500);
+    } catch (err) {
+      console.error("Failed to prepare career PDF data:", err);
+      setGeneratingCareerPdfFor(null);
+      setCareerPdfData(null);
+    }
   };
 
   const handlePayment = async (appt) => {

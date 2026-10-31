@@ -1,9 +1,64 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './examGuidance.module.css';
+import { getBookCoverUrl } from '@/lib/imageHelper';
 
 export default function ExamGuidancePage() {
+  const [books, setBooks] = useState([]);
+  const [selectedBookIndex, setSelectedBookIndex] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  // Check admin status
+  useEffect(() => {
+    try {
+      const role = localStorage.getItem('asg_role');
+      const token = localStorage.getItem('asg_token');
+      if (role === 'admin' || (token && atob(token.split('.')[1]).includes('"admin"'))) {
+        setIsAdmin(true);
+      }
+    } catch (e) {}
+  }, []);
+
+  // Fetch books from database
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const res = await fetch('/api/admin/books');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setBooks(data);
+            // Default to 'Come On... You Can Do It!' if present
+            const comeOnIndex = data.findIndex(b => /can do it|come on/i.test(b.title));
+            if (comeOnIndex !== -1) {
+              setSelectedBookIndex(comeOnIndex);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch books for guidance page:", err);
+      }
+    };
+
+    fetchBooks();
+  }, []);
+
+  // Default fallback book if database has no items yet
+  const defaultBook = {
+    title: "Come On… You Can Do It!",
+    description: "A simple, practical, and deeply motivational guide designed to transform learning habits, dismantle examination phobia, and prepare students to face examinations with calm, unwavering confidence.",
+    price: 299,
+    originalPrice: 499,
+    physicalPrice: 199,
+    coverImage: "",
+    isFeatured: true
+  };
+
+  const selectedBook = books[selectedBookIndex] || defaultBook;
+
   const wellnessDimensions = [
     {
       num: "01",
@@ -142,6 +197,21 @@ export default function ExamGuidancePage() {
 
   return (
     <main className={styles.main}>
+      {/* Admin Notice Banner (Visible when admin is logged in) */}
+      {isAdmin && (
+        <div className={styles.adminNoticeBanner}>
+          <div className={styles.adminNoticeText}>
+            <span>⚙️</span>
+            <span>
+              <strong>Admin Controls:</strong> You can add more books, upload custom cover thumbnails, and update descriptions in the Admin Portal.
+            </span>
+          </div>
+          <Link href="/admin/ecommerce" className={styles.adminNoticeLink}>
+            Open Books &amp; Store Catalog &rarr;
+          </Link>
+        </div>
+      )}
+
       {/* 1. FOUNDATIONAL START: PHILOSOPHY (From ChatGPT Conversation) */}
       <section className={styles.hero}>
         <div className={styles.heroBadge}>
@@ -308,33 +378,86 @@ export default function ExamGuidancePage() {
         </div>
       </section>
 
-      {/* 6. BOOK SHOWCASE: "COME ON… YOU CAN DO IT!" */}
+      {/* 6. DYNAMIC BOOK SHOWCASE (Managed via Admin Portal) */}
       <section className={styles.bookSection}>
+        {/* If Admin has added multiple books, show a switcher bar */}
+        {books.length > 1 && (
+          <div className={styles.bookTabsBar}>
+            <span className={styles.bookTabLabel}>Select Book:</span>
+            {books.map((b, idx) => (
+              <button
+                key={b._id || idx}
+                onClick={() => {
+                  setSelectedBookIndex(idx);
+                  setImageError(false);
+                }}
+                className={`${styles.bookTabBtn} ${selectedBookIndex === idx ? styles.bookTabBtnActive : ''}`}
+              >
+                <span>📖</span> {b.title}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className={styles.bookCard}>
+          {/* Left Media: Cover Thumbnail or 3D Realistic Book Cover */}
           <div className={styles.bookMedia}>
-            <div className={styles.bookCoverWrapper}>
-              <img 
-                src="/images/image1.png" 
-                alt="Come On… You Can Do It! Book by Avinash S. Gore" 
-                className={styles.bookCover}
-              />
-              <div className={styles.bookBadgeFloating}>
-                ★ Best Seller
+            {selectedBook.coverImage && !imageError ? (
+              <div className={styles.bookCoverWrapper}>
+                <img 
+                  src={getBookCoverUrl(selectedBook.coverImage)} 
+                  alt={selectedBook.title}
+                  className={styles.bookCover}
+                  onError={() => setImageError(true)}
+                />
+                <div className={styles.bookBadgeFloating}>
+                  ★ Best Seller
+                </div>
               </div>
-            </div>
+            ) : (
+              /* Realistic 3D Book Cover Presentation when no custom image is uploaded */
+              <div className={styles.realisticBook}>
+                <span className={styles.realisticBookBadge}>★ Official Guidebook</span>
+                <div>
+                  <div className={styles.realisticBookTitle}>
+                    {selectedBook.title}
+                  </div>
+                  <div className={styles.realisticBookTagline}>
+                    A Small Book That Can Make a Big Difference!
+                  </div>
+                </div>
+                <div className={styles.realisticBookAuthor}>
+                  Written by Avinash S. Gore
+                </div>
+              </div>
+            )}
+
             <div style={{ marginTop: '1.25rem', textAlign: 'center' }}>
               <span style={{ fontSize: '0.85rem', color: '#6B7280', fontWeight: '500' }}>
-                Available in eBook &amp; Physical Editions
+                Available in eBook &amp; Physical Paperback
               </span>
             </div>
           </div>
 
+          {/* Right Details: Managed via Admin Catalog */}
           <div className={styles.bookDetails}>
-            <div className={styles.bookMetaPill}>
-              <span>📖</span> Official Guidebook
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div className={styles.bookMetaPill}>
+                <span>📖</span> Study Skills &amp; Motivation
+              </div>
+
+              {isAdmin && (
+                <Link 
+                  href="/admin/ecommerce" 
+                  style={{ fontSize: '0.8rem', color: '#4F46E5', fontWeight: '600', textDecoration: 'underline' }}
+                >
+                  ✏️ Edit Book in Admin
+                </Link>
+              )}
             </div>
+
             <h2 className={styles.bookTitle}>
-              Introducing: Come On… You Can Do It!
+              Introducing: {selectedBook.title}
             </h2>
             <div className={styles.bookAuthor}>
               Written by Avinash S. Gore
@@ -343,11 +466,30 @@ export default function ExamGuidancePage() {
               A Small Book That Can Make a Big Difference!
             </div>
             <p className={styles.bookDescription}>
-              Written specifically for students and young learners, <em>Come On… You Can Do It!</em> is a simple, practical, and deeply motivational guide designed to transform learning habits and examination results.
+              {selectedBook.description || "Written specifically for students and young learners, Come On… You Can Do It! is a simple, practical, and deeply motivational guide designed to transform learning habits and examination results."}
             </p>
             <p className={styles.bookDescription}>
               Unlike conventional, dry academic manuals, it zooms straight into how human psychology, memory encoding, and stress response actually work during test preparation. Through lucid explanations, relatable real-world examples, and easy-to-adopt techniques, the book helps you build a winning routine.
             </p>
+
+            {/* Pricing Box */}
+            <div className={styles.priceBox}>
+              <div className={styles.priceTag}>
+                <span className={styles.priceLabel}>eBook:</span>
+                <span className={styles.sellingPrice}>₹{selectedBook.price}</span>
+                {selectedBook.originalPrice > selectedBook.price && (
+                  <span className={styles.originalPrice}>₹{selectedBook.originalPrice}</span>
+                )}
+              </div>
+              {selectedBook.physicalPrice > 0 && (
+                <span className={styles.formatBadge}>
+                  Paperback: +₹{selectedBook.physicalPrice}
+                </span>
+              )}
+              <span className={styles.formatBadge} style={{ background: '#ECFDF5', color: '#059669' }}>
+                Instant Access
+              </span>
+            </div>
 
             <div className={styles.bookFeatureTags}>
               <span className={styles.bookFeatureTag}>⚡ The Famous &apos;Music Method&apos;</span>
@@ -367,6 +509,63 @@ export default function ExamGuidancePage() {
             </div>
           </div>
         </div>
+
+        {/* If Admin has added multiple books, display a catalog grid */}
+        {books.length > 1 && (
+          <div className={styles.moreBooksSection}>
+            <div className={styles.sectionHeader} style={{ marginBottom: '1.5rem' }}>
+              <span className={styles.sectionBadge}>Complete Literature</span>
+              <h3 className={styles.sectionTitle} style={{ fontSize: '1.75rem' }}>
+                All Books &amp; Study Resources by Avinash Gore
+              </h3>
+              <p className={styles.sectionDesc}>
+                Explore additional publications, guides, and strategic resources from our published catalog.
+              </p>
+            </div>
+
+            <div className={styles.moreBooksGrid}>
+              {books.map((b, idx) => (
+                <div key={b._id || idx} className={styles.moreBookCard}>
+                  <div className={styles.moreBookThumbWrapper}>
+                    {b.coverImage ? (
+                      <img 
+                        src={getBookCoverUrl(b.coverImage)} 
+                        alt={b.title} 
+                        className={styles.moreBookThumb} 
+                      />
+                    ) : (
+                      <div style={{ textAlign: 'center', padding: '1rem', color: '#4B5563', fontWeight: '700' }}>
+                        📖 {b.title}
+                      </div>
+                    )}
+                  </div>
+                  <h4 className={styles.moreBookTitle}>{b.title}</h4>
+                  <p className={styles.moreBookDesc}>{b.description}</p>
+                  <div className={styles.moreBookPrice}>₹{b.price}</div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                      onClick={() => {
+                        setSelectedBookIndex(idx);
+                        window.scrollTo({ top: 900, behavior: 'smooth' });
+                      }}
+                      className={styles.conversionBtn}
+                      style={{ flex: 1, padding: '0.5rem', background: '#F3F4F6', color: '#374151', border: '1px solid #D1D5DB', cursor: 'pointer' }}
+                    >
+                      Inspect
+                    </button>
+                    <Link
+                      href="/ecommerce"
+                      className={`${styles.conversionBtn} ${styles.btnPrimary}`}
+                      style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem' }}
+                    >
+                      Buy in Store
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* 7. WHAT WILL YOU DISCOVER IN THIS BOOK? (7 Pillars) */}
