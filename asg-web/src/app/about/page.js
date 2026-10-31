@@ -35,9 +35,9 @@ export default function About() {
         <div className={styles.timelineItem}>
           <div className={styles.dot}></div>
           <div className="glass-card" style={{ borderTop: '4px solid #10B981' }}>
-            <h3>Dual MBA: Entrepreneurship & Environmental Management</h3>
+            <h3>MBA in Environmental Management</h3>
             <p className={styles.date}>June 2018</p>
-            <p>A unique dual-specialization focusing on sustainable business practices and innovative venture creation.</p>
+            <p>Specialization focusing on sustainable business practices and environmental management.</p>
           </div>
         </div>
 

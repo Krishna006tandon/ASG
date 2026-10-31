@@ -446,6 +446,7 @@ export default function StartupGuidancePage() {
             <div className={styles.mentorCredentialBadges}>
               <span className={styles.credentialBadge}>🎓 B.Tech Chemical Engineering</span>
               <span className={styles.credentialBadge}>🌱 MBA in Environmental Mgmt</span>
+              <span className={styles.credentialBadge}>📜 Post Graduate Diploma in Entrepreneurship</span>
               <span className={styles.credentialBadge}>🏭 25+ Years Global Industry Leadership</span>
               <span className={styles.credentialBadge}>🚀 4 Active Venture Portfolios</span>
             </div>
@@ -704,48 +705,6 @@ export default function StartupGuidancePage() {
           </div>
           <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#92400E' }}>
             A business should complement your natural temperament, interests, and capabilities &mdash; not work against them.
-          </div>
-        </div>
-      </section>
-
-      {/* 8. MY PHILOSOPHY: PAY IF YOU GET BENEFITTED! (ChatGPT Recommendation #3) */}
-      <section className={styles.payBenefittedSection}>
-        <span className={styles.payBenefittedBadge}>Our Differentiator</span>
-        <h2 className={styles.payBenefittedTitle}>My Philosophy: Pay If You Get Benefitted!</h2>
-        <div className={styles.payBenefittedSubtitle}>
-          Personal Guidance Is My Passion, Not Just Another Consulting Assignment.
-        </div>
-
-        <div className={styles.payBenefittedGrid}>
-          <div className={styles.payBenefittedContent}>
-            <p>
-              I genuinely enjoy interacting with people, understanding their ideas, and helping them discover possibilities they may not have considered. Personal guidance is something I do out of passion and a desire to make a meaningful difference.
-            </p>
-            <p>
-              I do charge a nominal or mutually agreed fee for my time and involvement because I believe that when people invest something in guidance, they are more likely to value the process and take execution seriously.
-            </p>
-            <p>
-              However, I operate on a very straightforward principle:
-            </p>
-            <div style={{ background: 'rgba(255,255,255,0.1)', borderLeft: '4px solid #34D399', padding: '1rem 1.25rem', borderRadius: '8px', margin: '1.25rem 0' }}>
-              <strong style={{ fontSize: '1.1rem', color: '#FFFFFF' }}>
-                &ldquo;If you genuinely feel that my guidance has made a positive difference to your thinking, decisions, or business journey, you pay for the value you have received. If you don&apos;t feel benefited, I don&apos;t expect you to pay.&rdquo;
-              </strong>
-            </div>
-            <p>
-              I am not interested in charging someone merely for having a conversation. I would rather help a few people make tangible, life-changing progress than conduct numerous sessions without making a difference.
-            </p>
-          </div>
-
-          <div className={styles.payBenefittedCardHighlight}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🤝</div>
-            <div className={styles.payBenefittedCardTitle}>A Relationship Built on Mutual Trust</div>
-            <div className={styles.payBenefittedCardText}>
-              Expectations and nominal session parameters are agreed upon mutually prior to the call. You enter the conversation with absolute peace of mind and zero financial risk.
-            </div>
-            <div className={styles.payBenefittedGuaranteeBox}>
-              ✓ 100% Value Guarantee &middot; Authentic Mentoring
-            </div>
           </div>
         </div>
       </section>
