@@ -1,12 +1,52 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './startupGuidance.module.css';
+
+function getEmbedUrl(url) {
+  if (!url) return '';
+  const trimmed = url.trim();
+  const isYouTube = trimmed.includes('youtube.com') || trimmed.includes('youtu.be');
+  if (isYouTube) {
+    const vidIdMatch = trimmed.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+    const vidId = vidIdMatch ? vidIdMatch[1] : '';
+    if (vidId) {
+      return `https://www.youtube.com/embed/${vidId}?autoplay=1&rel=0`;
+    }
+  }
+  return trimmed;
+}
 
 export default function StartupGuidancePage() {
   // Modal states
   const [activeVideoModal, setActiveVideoModal] = useState(null); // 'intro' | 1 | 2 | 3 | null
+
+  // Dynamic Video Settings from Admin
+  const [videoSettings, setVideoSettings] = useState({
+    introVideo: {
+      videoUrl: '',
+      title: 'Why I Guide Aspiring Entrepreneurs',
+      duration: '2 Min 45 Sec',
+      thumbnailUrl: '/images/image1.png',
+      isEnabled: true
+    },
+    caseStudyVideos: []
+  });
+
+  useEffect(() => {
+    fetch('/api/startup-guidance/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.introVideo) {
+          setVideoSettings(data);
+        }
+      })
+      .catch(err => console.error('Failed to load startup video settings:', err));
+  }, []);
+
+  const hasIntroVideo = Boolean(videoSettings.introVideo?.videoUrl && videoSettings.introVideo.videoUrl.trim());
+  const introEmbedUrl = getEmbedUrl(videoSettings.introVideo?.videoUrl);
   
   // Self assessment state (interactive reality check)
   const [checkedQuestions, setCheckedQuestions] = useState({});
@@ -326,12 +366,21 @@ export default function StartupGuidancePage() {
           >
             <span>📅</span> Book a Personal Guidance Session &rarr;
           </button>
-          <button 
-            onClick={() => setActiveVideoModal('intro')}
-            className={styles.ctaSecondary}
-          >
-            <span>▶</span> Watch Introduction Video (2 Min)
-          </button>
+          {hasIntroVideo ? (
+            <button 
+              onClick={() => setActiveVideoModal('intro')}
+              className={styles.ctaSecondary}
+            >
+              <span>▶</span> Watch Introduction Video ({videoSettings.introVideo.duration || '2 Min'})
+            </button>
+          ) : (
+            <button 
+              onClick={() => setActiveVideoModal('intro')}
+              className={styles.ctaSecondary}
+            >
+              <span>⏳</span> Intro Video (Coming Soon)
+            </button>
+          )}
         </div>
 
         {/* Key Feature Stats Pills */}
@@ -402,31 +451,61 @@ export default function StartupGuidancePage() {
             </div>
           </div>
 
-          {/* Right: Video Card with Play Action */}
+          {/* Right: Video Card with Play Action or Coming Soon */}
           <div className={styles.videoCard}>
-            <div 
-              className={styles.videoThumbWrapper}
-              onClick={() => setActiveVideoModal('intro')}
-              role="button"
-              tabIndex={0}
-              aria-label="Play introductory video"
-            >
-              <img 
-                src="/images/image1.png" 
-                alt="Avinash S. Gore startup mentoring video thumbnail" 
-                className={styles.videoThumbImg}
-              />
-              <div className={styles.playBtnCircle}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
+            {hasIntroVideo ? (
+              <div 
+                className={styles.videoThumbWrapper}
+                onClick={() => setActiveVideoModal('intro')}
+                role="button"
+                tabIndex={0}
+                aria-label="Play introductory video"
+              >
+                <img 
+                  src={videoSettings.introVideo.thumbnailUrl || "/images/image1.png"} 
+                  alt="Avinash S. Gore startup mentoring video thumbnail" 
+                  className={styles.videoThumbImg}
+                />
+                <div className={styles.playBtnCircle}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </div>
+                <span className={styles.videoDurationBadge}>{videoSettings.introVideo.duration || '2:45 MIN'}</span>
               </div>
-              <span className={styles.videoDurationBadge}>2:45 MIN</span>
-            </div>
+            ) : (
+              <div 
+                className={styles.comingSoonCard}
+                onClick={() => setActiveVideoModal('intro')}
+                role="button"
+                tabIndex={0}
+                aria-label="Introductory video coming soon"
+              >
+                <div className={styles.comingSoonBadgeRow}>
+                  <span className={styles.comingSoonBadge}>⏳ Coming Soon</span>
+                  <span className={styles.comingSoonBadgeSub}>In Production</span>
+                </div>
+                <div className={styles.comingSoonIconCircle}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                  </svg>
+                </div>
+                <div className={styles.comingSoonTitle}>
+                  Introductory Video Releasing Soon
+                </div>
+                <div className={styles.comingSoonText}>
+                  Avinash S. Gore is currently filming a personal briefing on navigating early-stage business hurdles and our mentoring format.
+                </div>
+                <div className={styles.comingSoonActionHint}>
+                  Click to see topics covered &rarr;
+                </div>
+              </div>
+            )}
 
             <div className={styles.videoMetaInfo}>
               <div className={styles.videoMetaTitle}>
-                A Personal Message to Aspiring Founders
+                {videoSettings.introVideo.title || 'A Personal Message to Aspiring Founders'}
               </div>
               <div className={styles.videoMetaDesc}>
                 Avinash explains his core mentoring philosophy, why practical experience matters more than theory, and how our &ldquo;Pay If You Get Benefitted&rdquo; sessions work.
@@ -702,43 +781,54 @@ export default function StartupGuidancePage() {
         </div>
 
         <div className={styles.testimonialsGrid}>
-          {testimonials.map((t) => (
-            <div key={t.id} className={styles.testimonialCard}>
-              <div 
-                className={styles.testimonialVideoThumb}
-                onClick={() => setActiveVideoModal(t.id)}
-                role="button"
-                tabIndex={0}
-                aria-label={`Watch testimonial by ${t.name}`}
-              >
-                <img 
-                  src={t.thumb} 
-                  alt={`${t.name} testimonial thumbnail`} 
-                  className={styles.testimonialThumbImg}
-                />
-                <span className={styles.testimonialTag}>{t.tag}</span>
-                <div className={styles.testimonialPlayBtn}>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
-                </div>
-              </div>
+          {testimonials.map((t) => {
+            const customCase = videoSettings.caseStudyVideos?.find(c => c.id === t.id);
+            const hasCustomVideo = Boolean(customCase?.videoUrl && customCase.videoUrl.trim());
 
-              <div className={styles.testimonialContent}>
-                <p className={styles.testimonialQuote}>&ldquo;{t.quote}&rdquo;</p>
-                
-                <div className={styles.testimonialFounder}>
-                  <div className={styles.founderAvatar} style={{ background: t.avatarBg }}>
-                    {t.name[0]}
-                  </div>
-                  <div>
-                    <div className={styles.founderName}>{t.name}</div>
-                    <div className={styles.founderJourney}>{t.journey}</div>
+            return (
+              <div key={t.id} className={styles.testimonialCard}>
+                <div 
+                  className={styles.testimonialVideoThumb}
+                  onClick={() => setActiveVideoModal(t.id)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Watch testimonial by ${t.name}`}
+                >
+                  <img 
+                    src={customCase?.thumbnailUrl || t.thumb} 
+                    alt={`${t.name} testimonial thumbnail`} 
+                    className={styles.testimonialThumbImg}
+                  />
+                  <span className={styles.testimonialTag}>{t.tag}</span>
+                  {hasCustomVideo ? (
+                    <div className={styles.testimonialPlayBtn}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    </div>
+                  ) : (
+                    <span className={styles.testimonialComingSoonBadge}>
+                      ⏳ Video Coming Soon
+                    </span>
+                  )}
+                </div>
+
+                <div className={styles.testimonialContent}>
+                  <p className={styles.testimonialQuote}>&ldquo;{t.quote}&rdquo;</p>
+                  
+                  <div className={styles.testimonialFounder}>
+                    <div className={styles.founderAvatar} style={{ background: t.avatarBg }}>
+                      {t.name[0]}
+                    </div>
+                    <div>
+                      <div className={styles.founderName}>{t.name}</div>
+                      <div className={styles.founderJourney}>{t.journey}</div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -1043,26 +1133,38 @@ export default function StartupGuidancePage() {
                   Introductory Video Presentation
                 </span>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#0F172A', marginBottom: '0.5rem' }}>
-                  Why I Guide Aspiring Entrepreneurs
+                  {videoSettings.introVideo.title || 'Why I Guide Aspiring Entrepreneurs'}
                 </h3>
                 <div style={{ fontSize: '0.92rem', color: '#059669', fontWeight: '600', marginBottom: '1.25rem' }}>
                   A Personal Message from Avinash S. Gore
                 </div>
 
-                <div style={{ borderRadius: '14px', overflow: 'hidden', background: '#0F172A', aspectRatio: '16/9', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', marginBottom: '1.5rem' }}>
-                  <img 
-                    src="/images/image5.jpg" 
-                    alt="Avinash Gore" 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} 
-                  />
-                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.6)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', textAlign: 'center', padding: '1rem' }}>
-                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
-                    </div>
-                    <div style={{ fontWeight: '700', fontSize: '1.05rem' }}>Introductory Video Script &amp; Outline</div>
-                    <div style={{ fontSize: '0.85rem', color: '#A7F3D0' }}>Duration: 2 Minutes 45 Seconds</div>
+                {introEmbedUrl ? (
+                  <div style={{ borderRadius: '14px', overflow: 'hidden', background: '#0F172A', aspectRatio: '16/9', position: 'relative', marginBottom: '1.5rem', boxShadow: '0 15px 35px rgba(0,0,0,0.3)' }}>
+                    <iframe
+                      src={introEmbedUrl}
+                      title="Avinash S. Gore Introduction Video"
+                      style={{ width: '100%', height: '100%', border: 'none' }}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
                   </div>
-                </div>
+                ) : (
+                  <div style={{ borderRadius: '14px', overflow: 'hidden', background: 'linear-gradient(135deg, #0F172A 0%, #064E3B 100%)', padding: '2.5rem 1.5rem', textAlign: 'center', color: '#FFFFFF', marginBottom: '1.5rem', border: '1.5px solid #10B981' }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(16,185,129,0.2)', border: '2px solid #10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', fontSize: '1.8rem' }}>
+                      ⏳
+                    </div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#34D399', marginBottom: '0.35rem' }}>
+                      Video Briefing In Production
+                    </div>
+                    <h4 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#FFFFFF', margin: '0 0 0.5rem' }}>
+                      Video Releasing Soon!
+                    </h4>
+                    <p style={{ fontSize: '0.92rem', color: '#CBD5E1', maxWidth: '480px', margin: '0 auto', lineHeight: '1.6' }}>
+                      Avinash S. Gore&apos;s personal guidance introduction is currently being filmed and edited. Meanwhile, you can review the session outline below or directly connect for a 1-on-1 strategy call!
+                    </p>
+                  </div>
+                )}
 
                 <div style={{ background: '#F8FAFC', borderRadius: '12px', padding: '1.25rem', border: '1px solid #E2E8F0' }}>
                   <h4 style={{ margin: '0 0 0.5rem', fontSize: '1.05rem', color: '#0F172A' }}>Key Highlights Covered:</h4>
@@ -1090,6 +1192,9 @@ export default function StartupGuidancePage() {
               (() => {
                 const item = testimonials.find(t => t.id === activeVideoModal);
                 if (!item) return null;
+                const customCase = videoSettings.caseStudyVideos?.find(c => c.id === item.id);
+                const caseEmbedUrl = getEmbedUrl(customCase?.videoUrl);
+
                 return (
                   <div>
                     <span className={styles.sectionBadge} style={{ marginBottom: '0.75rem' }}>
@@ -1102,20 +1207,34 @@ export default function StartupGuidancePage() {
                       {item.name} &mdash; {item.journey}
                     </div>
 
-                    <div style={{ borderRadius: '14px', overflow: 'hidden', background: '#0F172A', aspectRatio: '16/9', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', marginBottom: '1.5rem' }}>
-                      <img 
-                        src={item.thumb} 
-                        alt={item.name} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }} 
-                      />
-                      <div style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.65)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', textAlign: 'center', padding: '1rem' }}>
-                        <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem' }}>
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
-                        </div>
-                        <div style={{ fontWeight: '700', fontSize: '1rem' }}>Case Study &amp; Founder Interview</div>
-                        <div style={{ fontSize: '0.82rem', color: '#A7F3D0' }}>Recorded Mentoring Review</div>
+                    {caseEmbedUrl ? (
+                      <div style={{ borderRadius: '14px', overflow: 'hidden', background: '#0F172A', aspectRatio: '16/9', position: 'relative', marginBottom: '1.5rem', boxShadow: '0 15px 35px rgba(0,0,0,0.3)' }}>
+                        <iframe
+                          src={caseEmbedUrl}
+                          title={item.videoTitle}
+                          style={{ width: '100%', height: '100%', border: 'none' }}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
                       </div>
-                    </div>
+                    ) : (
+                      <div style={{ borderRadius: '14px', overflow: 'hidden', background: '#0F172A', aspectRatio: '16/9', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', marginBottom: '1.5rem' }}>
+                        <img 
+                          src={customCase?.thumbnailUrl || item.thumb} 
+                          alt={item.name} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.65 }} 
+                        />
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', textAlign: 'center', padding: '1.5rem' }}>
+                          <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', fontSize: '1.4rem' }}>
+                            ⏳
+                          </div>
+                          <div style={{ fontWeight: '800', fontSize: '1.1rem', color: '#FFFFFF' }}>Video Interview Coming Soon</div>
+                          <div style={{ fontSize: '0.85rem', color: '#CBD5E1', maxWidth: '380px', marginTop: '0.25rem' }}>
+                            Full video recording with {item.name} will be released on our channel. Read their verified case study takeaways below.
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     <blockquote style={{ background: '#F0FDF4', borderLeft: '4px solid #10B981', padding: '1rem 1.25rem', borderRadius: '8px', margin: '0 0 1.25rem', color: '#166534', fontStyle: 'italic', fontSize: '0.95rem', lineHeight: '1.6' }}>
                       &ldquo;{item.quote}&rdquo;

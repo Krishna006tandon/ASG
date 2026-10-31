@@ -360,6 +360,107 @@
   z-index: 2;
 }
 
+/* Coming Soon State for Video Card */
+.comingSoonCard {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(6, 78, 59, 0.9) 100%);
+  border: 1.5px solid rgba(52, 211, 153, 0.4);
+  aspect-ratio: 16 / 9;
+  cursor: pointer;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(16, 185, 129, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.comingSoonCard:hover {
+  transform: translateY(-2px);
+  border-color: #34D399;
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.25);
+}
+
+.comingSoonBadgeRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.comingSoonBadge {
+  background: #F59E0B;
+  color: #FFFFFF;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.65rem;
+  border-radius: 50px;
+}
+
+.comingSoonBadgeSub {
+  background: rgba(255, 255, 255, 0.12);
+  color: #A7F3D0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 50px;
+}
+
+.comingSoonIconCircle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1.5px solid #10B981;
+  color: #34D399;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.comingSoonTitle {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 0.35rem;
+}
+
+.comingSoonText {
+  font-size: 0.85rem;
+  color: #CBD5E1;
+  max-width: 380px;
+  line-height: 1.5;
+  margin-bottom: 0.65rem;
+}
+
+.comingSoonActionHint {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #34D399;
+}
+
+.testimonialComingSoonBadge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(4px);
+  color: #FBBF24;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 50px;
+  z-index: 2;
+}
+
 .videoMetaInfo {
   margin-top: 1.25rem;
 }
@@ -912,6 +1013,7 @@
   line-height: 1.2;
   margin-bottom: 1.25rem;
   letter-spacing: -0.02em;
+  color: #FFFFFF !important;
 }
 
 .payBenefittedSubtitle {
@@ -1422,6 +1524,7 @@
   font-weight: 900;
   margin-bottom: 1.25rem;
   letter-spacing: -0.02em;
+  color: #FFFFFF !important;
 }
 
 .closingSubtitle {

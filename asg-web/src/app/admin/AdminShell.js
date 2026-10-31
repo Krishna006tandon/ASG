@@ -50,6 +50,7 @@ export default function AdminShell({ children }) {
           <Link href="/admin/orders">Order Management</Link>
           <Link href="/admin/ecommerce">Books &amp; Store Catalog</Link>
           <Link href="/admin/career-guidance">Career Guidance</Link>
+          <Link href="/admin/startup-guidance">Start-up Guidance &amp; Video</Link>
           <Link href="/admin/coupons">Coupons &amp; Discounts</Link>
           <Link href="/admin/webinars">Webinars</Link>
           <Link href="/admin/webinar-registrations">Webinar Attendees</Link>
@@ -57,7 +58,7 @@ export default function AdminShell({ children }) {
           <Link href="/admin/seminar-registrations">Seminar Attendees</Link>
           <Link href="/admin/past-workshops">Past Workshops &amp; Gallery</Link>
           <Link href="/admin/scanner">QR Check-In Scanner</Link>
-          <Link href="/admin/appointments">Consulting Queue</Link>
+          <Link href="/admin/appointments">Consulting &amp; Start-up</Link>
           <Link href="/admin/content">Content & Blogs</Link>
           <Link href="/admin/reviews">Reviews & Feedback</Link>
           <Link href="/admin/college-reviews">College Reviews &amp; QR</Link>
