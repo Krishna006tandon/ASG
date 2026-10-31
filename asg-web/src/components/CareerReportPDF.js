@@ -33,8 +33,8 @@ export default function CareerReportPDF({ assessment, results, reportRef }) {
             <span style={{ fontSize: '24px', fontWeight: '800', color: '#7942b5', letterSpacing: '-0.5px' }}>
               Avinash Gore
             </span>
-            <span style={{ background: '#F1EAFF', color: '#7942b5', fontSize: '11px', fontWeight: '700', padding: '3px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>
-              Perpetual Solutions
+            <span style={{ background: '#F1EAFF', color: '#7942b5', fontSize: '11px', fontWeight: '700', padding: '3px 8px', borderRadius: '4px', textTransform: 'lowercase' }}>
+              avinashsgore.com
             </span>
           </div>
           <h1 style={{ margin: '0', fontSize: '22px', fontWeight: '800', color: '#1F2937' }}>
@@ -180,8 +180,8 @@ export default function CareerReportPDF({ assessment, results, reportRef }) {
           &ldquo;These results are not a lifelong verdict; they are a flashlight showing where your current natural energy and cognitive strengths lie. Combine these insights with your educational qualifications, develop high-leverage skills in your top areas, and build real-world projects. <strong>Come On... You Can Do It!</strong>&rdquo;
         </p>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#64748B', borderTop: '1px solid #E2E8F0', paddingTop: '8px' }}>
-          <span>To book 1-on-1 strategic career mentorship: <strong>asg.com/consulting</strong></span>
-          <span style={{ fontWeight: '700', color: '#7942b5' }}>Perpetual Solutions &copy; {new Date().getFullYear()}</span>
+          <span>To book 1-on-1 strategic career mentorship: <strong>avinashsgore.com/consulting</strong></span>
+          <span style={{ fontWeight: '700', color: '#7942b5' }}>avinashsgore.com &copy; {new Date().getFullYear()}</span>
         </div>
       </div>
     </div>

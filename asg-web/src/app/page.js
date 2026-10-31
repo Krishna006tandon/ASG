@@ -103,6 +103,11 @@ export default async function Home() {
                 <p>
                   Recognizing the struggles students face with exam phobia, Avinash authored the highly acclaimed book <strong style={{color: '#059669'}}>&quot;Come on... You can do it!&quot;</strong>. Praised by academic leaders like Dr. Sarita Deshpande for his &quot;spark of a good writer,&quot; the book distills complex psychological challenges into actionable scientific study techniques and life-changing success principles.
                 </p>
+                <div style={{ marginTop: '1rem' }}>
+                  <Link href="/exam-guidance" style={{ color: '#059669', fontWeight: '700', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                    Explore Exam Guidance &amp; Book &rarr;
+                  </Link>
+                </div>
               </div>
             </div>
 

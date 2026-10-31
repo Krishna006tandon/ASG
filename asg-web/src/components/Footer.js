@@ -7,20 +7,22 @@ export default function Footer() {
       <div className={styles.container}>
         <div className={styles.brand}>
           <h2>Avinash<span>.</span></h2>
-          <p>Expert Guidance in Startups, E-Commerce, and Financial Literacy.</p>
+          <p>Expert Guidance in Career, Education, Startups, and Life Skills.</p>
         </div>
         <div className={styles.links}>
           <div className={styles.column}>
             <h4>Platform</h4>
             <Link href="/about">About</Link>
+            <Link href="/exam-guidance">Exam Guidance</Link>
+            <Link href="/career-guidance">Career Guidance</Link>
             <Link href="/gallery">Workshops Gallery</Link>
             <Link href="/reviews">Reviews</Link>
-            <Link href="/recommends">Curated Reads</Link>
             <Link href="/contact">Contact</Link>
           </div>
           <div className={styles.column}>
             <h4>Resources</h4>
             <Link href="/blog">Blog</Link>
+            <Link href="/recommends">Curated Reads</Link>
             <Link href="/startup-support" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
               Startup Support
               <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(236,72,153,0.18)', color: '#F472B6', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.04em' }}>

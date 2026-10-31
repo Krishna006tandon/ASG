@@ -70,7 +70,7 @@ export default function TicketPDF({ ticket, ticketRef }) {
         
         <div style={{ background: 'white', padding: '12px', borderRadius: '12px', marginBottom: '20px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
           <QRCodeCanvas 
-            value={`${typeof window !== 'undefined' ? window.location.origin : 'https://asg.com'}/ticket/${ticket.ticketNumber}`} 
+            value={`${typeof window !== 'undefined' ? window.location.origin : 'https://avinashsgore.com'}/ticket/${ticket.ticketNumber}`} 
             size={120} 
             bgColor={"#ffffff"}
             fgColor={"#000000"}

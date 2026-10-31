@@ -281,6 +281,7 @@ export default function Navbar() {
         <div className={styles.links}>
           <Link href="/" className={pathname === '/' ? styles.active : ''}>Home</Link>
           <Link href="/about" className={pathname === '/about' ? styles.active : ''}>About</Link>
+          <Link href="/exam-guidance" className={pathname === '/exam-guidance' ? styles.active : ''}>Exam Guidance</Link>
           <Link href="/career-guidance" className={pathname.startsWith('/career-guidance') ? styles.active : ''}>Career Guidance</Link>
           <Link href="/ecommerce" className={pathname === '/ecommerce' ? styles.active : ''}>Store</Link>
           <Link href="/recommends" className={pathname === '/recommends' ? styles.active : ''}>Blog</Link>
@@ -681,6 +682,7 @@ export default function Navbar() {
           <div className={styles.mobileLinks}>
             <Link href="/" className={pathname === '/' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
             <Link href="/about" className={pathname === '/about' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>About</Link>
+            <Link href="/exam-guidance" className={pathname === '/exam-guidance' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Exam Guidance</Link>
             <Link href="/career-guidance" className={pathname.startsWith('/career-guidance') ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Career Guidance</Link>
             <Link href="/ecommerce" className={pathname === '/ecommerce' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Store</Link>
             <Link href="/recommends" className={pathname === '/recommends' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Blog</Link>
