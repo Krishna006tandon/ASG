@@ -557,27 +557,106 @@ export default function CareerGuidancePage() {
             {/* BHAGAVAD GITA PHILOSOPHICAL CARD */}
             <section className={styles.gitaCard}>
               <span className={styles.sectionTag} style={{ color: '#B45309' }}>Ancient Wisdom &middot; Modern Career</span>
-              <div className={styles.sanskritQuote}>
-                श्रेयान्स्वधर्मो विगुणः परधर्मात्स्वनुष्ठितात्।
-                <br />
-                स्वधर्मे निधनं श्रेयः परधर्मो भयावहः॥
-              </div>
-              <p className={styles.quoteMeaning}>
-                &ldquo;It is better to follow one&apos;s own natural path (Swadharma), even if done imperfectly,
-                than to imitate another person&apos;s path merely because it appears prestigious or successful.&rdquo;
-                <br />
-                <span style={{ fontSize: '0.85rem', color: '#92400E' }}>&mdash; Shrimad Bhagavad Gita 3.35 &amp; 18.47</span>
+              
+              <h2 style={{ fontSize: 'clamp(1.35rem, 3.5vw, 1.85rem)', color: '#78350F', fontWeight: '800', margin: '0.75rem 0 0.5rem 0' }}>
+                The Timeless Principle of Swadharma &amp; Svabhava
+              </h2>
+              <p style={{ color: '#92400E', fontSize: '0.98rem', maxWidth: '680px', margin: '0 auto 1.5rem auto', lineHeight: '1.6' }}>
+                The Shrimad Bhagavad Gita emphasizes in two pivotal chapters that enduring career success comes from aligning your work with your natural inner wiring rather than imitating others.
               </p>
+
+              {/* Verses Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem', margin: '1.5rem 0', textAlign: 'center' }}>
+                
+                {/* Verse 3.35 */}
+                <div style={{ background: 'rgba(255, 255, 255, 0.85)', borderRadius: '16px', padding: '1.5rem', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 4px 15px rgba(245, 158, 11, 0.06)' }}>
+                  <div>
+                    <span style={{ display: 'inline-block', fontSize: '0.78rem', fontWeight: '800', background: '#FEF3C7', color: '#92400E', padding: '0.25rem 0.75rem', borderRadius: '6px', marginBottom: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Bhagavad Gita &middot; Chapter 3, Verse 35
+                    </span>
+                    <div className={styles.sanskritQuote} style={{ fontSize: '1.2rem', marginBottom: '0.75rem', lineHeight: '1.5' }}>
+                      श्रेयान्स्वधर्मो विगुणः परधर्मात्स्वनुष्ठितात्।
+                      <br />
+                      स्वधर्मे निधनं श्रेयः परधर्मो भयावहः॥
+                    </div>
+                    <p style={{ color: '#78350F', fontSize: '0.92rem', lineHeight: '1.6', margin: '0 0 1.25rem 0' }}>
+                      &ldquo;It is far better to follow one&apos;s own natural path (Swadharma), even if done imperfectly, than to expertly imitate another&apos;s path. Following another&apos;s path is fraught with fear &amp; danger.&rdquo;
+                    </p>
+                  </div>
+                  <a
+                    href="https://www.holy-bhagavad-gita.org/chapter/3/verse/35/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.4rem',
+                      padding: '0.55rem 1.1rem',
+                      borderRadius: '8px',
+                      background: '#F59E0B',
+                      color: '#FFFFFF',
+                      fontSize: '0.82rem',
+                      fontWeight: '700',
+                      textDecoration: 'none',
+                      boxShadow: '0 2px 8px rgba(245, 158, 11, 0.25)'
+                    }}
+                  >
+                    <span>Read BG 3.35 Detailed Commentary</span>
+                    <span>&rarr;</span>
+                  </a>
+                </div>
+
+                {/* Verse 18.47 */}
+                <div style={{ background: 'rgba(255, 255, 255, 0.85)', borderRadius: '16px', padding: '1.5rem', border: '1px solid rgba(245, 158, 11, 0.25)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 4px 15px rgba(245, 158, 11, 0.06)' }}>
+                  <div>
+                    <span style={{ display: 'inline-block', fontSize: '0.78rem', fontWeight: '800', background: '#FEF3C7', color: '#92400E', padding: '0.25rem 0.75rem', borderRadius: '6px', marginBottom: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Bhagavad Gita &middot; Chapter 18, Verse 47
+                    </span>
+                    <div className={styles.sanskritQuote} style={{ fontSize: '1.2rem', marginBottom: '0.75rem', lineHeight: '1.5' }}>
+                      श्रेयान्स्वधर्मो विगुणः परधर्मात्स्वनुष्ठितात्।
+                      <br />
+                      स्वभावनियतं कर्म कुर्वन्नाप्नोति किल्बिषम्॥
+                    </div>
+                    <p style={{ color: '#78350F', fontSize: '0.92rem', lineHeight: '1.6', margin: '0 0 1.25rem 0' }}>
+                      &ldquo;Better is one&apos;s own natural duty, though tinged with faults, than another&apos;s duty well performed. One who performs action born of their own inborn nature (Svabhava) incurs no inner conflict or grief.&rdquo;
+                    </p>
+                  </div>
+                  <a
+                    href="https://www.holy-bhagavad-gita.org/chapter/18/verse/47/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.4rem',
+                      padding: '0.55rem 1.1rem',
+                      borderRadius: '8px',
+                      background: '#F59E0B',
+                      color: '#FFFFFF',
+                      fontSize: '0.82rem',
+                      fontWeight: '700',
+                      textDecoration: 'none',
+                      boxShadow: '0 2px 8px rgba(245, 158, 11, 0.25)'
+                    }}
+                  >
+                    <span>Read BG 18.47 Detailed Commentary</span>
+                    <span>&rarr;</span>
+                  </a>
+                </div>
+
+              </div>
 
               <div className={styles.gitaLessonsGrid}>
                 <div className={styles.gitaLessonBox}>
-                  <div className={styles.lessonTitle}>Lesson 1: Don&apos;t Blindly Copy Friends</div>
+                  <div className={styles.lessonTitle}>Lesson 1: Don&apos;t Blindly Copy Friends (3.35)</div>
                   <div className={styles.lessonText}>
                     Your closest friend may thrive in computer coding or corporate banking. That does not make it the right environment for your unique mental wiring.
                   </div>
                 </div>
                 <div className={styles.gitaLessonBox}>
-                  <div className={styles.lessonTitle}>Lesson 2: Work According to Svabhava</div>
+                  <div className={styles.lessonTitle}>Lesson 2: Work According to Svabhava (18.47)</div>
                   <div className={styles.lessonText}>
                     Success is not just competing with others in a crowded race; it is mastering the art of applying your own natural temperament to create immense value.
                   </div>
@@ -901,22 +980,33 @@ export default function CareerGuidancePage() {
 
             {/* AUTHOR INSPIRATION MESSAGE */}
             <section className={styles.section} style={{ paddingTop: '1rem' }}>
-              <div style={{ background: '#FFFFFF', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '3rem', maxWidth: '860px', margin: '0 auto', display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div className={styles.authorCard}>
                 <img
                   src="/images/image5.jpg"
                   alt="Avinash Gore"
-                  style={{ width: '110px', height: '110px', borderRadius: '50%', objectFit: 'cover', border: '4px solid var(--primary-light)' }}
+                  className={styles.authorAvatar}
                 />
-                <div style={{ flex: 1, minWidth: '260px' }}>
-                  <h3 style={{ fontSize: '1.35rem', fontWeight: '800', color: '#111827', marginBottom: '0.5rem' }}>
+                <div className={styles.authorContent}>
+                  <div style={{ display: 'inline-block', fontSize: '0.78rem', fontWeight: '800', background: 'var(--primary-light)', color: 'var(--primary-color)', padding: '0.2rem 0.65rem', borderRadius: '6px', marginBottom: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     A Message to Every Student &middot; Avinash Gore
+                  </div>
+                  <h3 style={{ fontSize: 'clamp(1.25rem, 3.5vw, 1.55rem)', fontWeight: '900', color: '#111827', marginBottom: '0.85rem', letterSpacing: '-0.02em' }}>
+                    Come On&hellip; You Can Do It!
                   </h3>
-                  <p style={{ fontSize: '0.95rem', color: '#4B5563', lineHeight: '1.6', marginBottom: '0.75rem' }}>
-                    &ldquo;In my decades of industry leadership and conducting Diksharambha Student Induction Programs, I notice that the most valuable question is not just <em>&lsquo;Which job pays the most?&rsquo;</em> It is <em>&lsquo;What kind of work allows me to use my natural temperament, grow steadily, and find genuine meaning?&rsquo;</em> Know yourself, develop courage, and build your own path.&rdquo;
-                  </p>
-                  <p style={{ fontSize: '0.95rem', fontWeight: '800', color: '#7942b5', margin: 0 }}>
-                    Come On… You Can Do It!
-                  </p>
+                  <div style={{ fontSize: '0.96rem', color: '#4B5563', lineHeight: '1.75' }}>
+                    <p style={{ marginBottom: '0.85rem' }}>
+                      Through decades of industry experience, leadership, and mentoring GETs and interns across industries, my association with Diksharambha Student Induction Programs at leading engineering colleges, and even my four years of conducting tuition classes during engineering to support my own education, I have realised one important thing:
+                    </p>
+                    <p style={{ marginBottom: '0.85rem', fontStyle: 'italic', color: '#1F2937', fontWeight: '600', background: 'rgba(121, 66, 181, 0.05)', padding: '0.85rem 1.15rem', borderRadius: '12px', borderLeft: '4px solid var(--primary-color)' }}>
+                      The most valuable career question is not simply, <em>&ldquo;Which job pays the most?&rdquo;</em> It is <em>&ldquo;What kind of work allows me to use my natural temperament, grow consistently, and find genuine meaning in what I do?&rdquo;</em>
+                    </p>
+                    <p style={{ fontWeight: '700', color: '#111827', marginBottom: '0.75rem', fontStyle: 'italic' }}>
+                      Know yourself. Develop courage. Build your own path.
+                    </p>
+                    <p style={{ fontSize: '1.05rem', fontWeight: '800', color: '#7942b5', margin: 0 }}>
+                      Come On&hellip; You Can Do It!
+                    </p>
+                  </div>
                 </div>
               </div>
             </section>
@@ -1160,12 +1250,12 @@ export default function CareerGuidancePage() {
             </table>
 
             {/* 1-on-1 MENTORSHIP CTA */}
-            <div style={{ background: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)', borderRadius: '24px', padding: '3rem', color: '#FFFFFF', textAlign: 'center', boxShadow: '0 20px 50px rgba(49, 46, 129, 0.25)' }}>
+            <div style={{ background: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)', borderRadius: '24px', padding: '3rem 1.5rem', color: '#FFFFFF', textAlign: 'center', boxShadow: '0 20px 50px rgba(49, 46, 129, 0.25)' }}>
               <span style={{ color: '#FCD34D', fontSize: '0.85rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 Next Step Towards Your Career Goal
               </span>
-              <h2 style={{ fontSize: '2rem', fontWeight: '800', margin: '0.75rem 0' }}>
-                Want Personal Guidance from Avinash Gore?
+              <h2 style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', fontWeight: '800', margin: '0.75rem 0', color: '#FFFFFF' }}>
+                Want Personal Guidance from An Expert?
               </h2>
               <p style={{ color: '#C7D2FE', fontSize: '1.05rem', maxWidth: '640px', margin: '0 auto 2rem auto', lineHeight: '1.6' }}>
                 Book a 1-on-1 strategic mentorship session to analyze your test results, resume, and educational choices directly with the author of <em>Come On… You Can Do It!</em>
