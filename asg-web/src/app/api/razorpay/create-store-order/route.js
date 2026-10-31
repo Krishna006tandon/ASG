@@ -4,6 +4,8 @@ import connectToDatabase from '@/lib/mongodb';
 import Order from '@/models/Order';
 import Coupon from '@/models/Coupon';
 import { authenticateApi } from '@/lib/auth';
+import { sendEmail } from '@/lib/mailer';
+import { orderConfirmationTemplate, adminNotificationTemplate } from '@/lib/emailTemplates';
 
 export async function POST(req) {
   try {
@@ -94,6 +96,42 @@ export async function POST(req) {
 
       if (validCouponDoc) {
         await Coupon.findByIdAndUpdate(validCouponDoc._id, { $inc: { usedCount: 1 } });
+      }
+
+      // Send User Confirmation
+      const userEmail = customerDetails.email || user.email;
+      if (userEmail) {
+        try {
+          await sendEmail({
+            to: userEmail,
+            subject: 'Order Confirmed (100% Free Pass) - ASG Store',
+            html: orderConfirmationTemplate(customerDetails.name || user.name || 'Customer', 0, newOrder._id)
+          });
+        } catch (mailErr) {
+          console.error('Failed to send free order user email:', mailErr);
+        }
+      }
+
+      // Send Admin Notification
+      const adminEmail = process.env.ADMIN_EMAIL || process.env.FROM_EMAIL;
+      if (adminEmail) {
+        const detailsHtml = `
+          <p><strong>Order ID:</strong> ${newOrder._id}</p>
+          <p><strong>Customer Name:</strong> ${customerDetails.name || user.name || 'N/A'}</p>
+          <p><strong>Customer Email:</strong> ${userEmail || 'N/A'}</p>
+          <p><strong>Coupon Applied:</strong> ${validCouponDoc ? validCouponDoc.code : 'FREE_PASS'} (100% OFF)</p>
+          <p><strong>Total Amount:</strong> ₹0 (Free)</p>
+          <p><strong>Items:</strong> ${cart.map(i => i.title + ' (x' + i.quantity + ')').join(', ')}</p>
+        `;
+        try {
+          await sendEmail({
+            to: adminEmail,
+            subject: `🎉 New Free Order Placed (${validCouponDoc?.code || 'Free Pass'})`,
+            html: adminNotificationTemplate('New Free Order', detailsHtml)
+          });
+        } catch (mailErr) {
+          console.error('Failed to send free order admin email:', mailErr);
+        }
       }
 
       console.log(`[Store Order] Free Order ${newOrder._id} created with coupon '${validCouponDoc?.code}'`);

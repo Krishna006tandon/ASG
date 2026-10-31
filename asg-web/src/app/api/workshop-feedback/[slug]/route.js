@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import WorkshopReviewCampaign from '@/models/WorkshopReviewCampaign';
 import CollegeReview from '@/models/CollegeReview';
+import { sendEmail } from '@/lib/mailer';
+import { workshopFeedbackAckTemplate, adminNotificationTemplate } from '@/lib/emailTemplates';
 
 export const dynamic = 'force-dynamic';
 
@@ -239,6 +241,49 @@ export async function POST(req, { params }) {
     campaign.totalReviews = count;
     campaign.averageRating = avg;
     await campaign.save();
+
+    // 1. Send Thank You / Attendance Acknowledgement Email to Student
+    if (studentEmail && studentEmail.includes('@')) {
+      try {
+        await sendEmail({
+          to: studentEmail.trim().toLowerCase(),
+          subject: `Thank you for attending the workshop at ${campaign.collegeName} | Avinash S. Gore`,
+          html: workshopFeedbackAckTemplate(studentName, campaign.collegeName, campaign.workshopTitle)
+        });
+      } catch (mailErr) {
+        console.error('Failed to send workshop student email:', mailErr);
+      }
+    }
+
+    // 2. Alert Admin about New College Workshop Review & Student Lead
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.FROM_EMAIL;
+    if (adminEmail) {
+      const interests = [];
+      if (leadInterests.careerTest) interests.push('Career Assessment');
+      if (leadInterests.book) interests.push('Book: Come On You Can Do It');
+      if (leadInterests.counselling) interests.push('1-on-1 Guidance');
+
+      const detailsHtml = `
+        <p><strong>College / Institution:</strong> ${campaign.collegeName}</p>
+        <p><strong>Workshop:</strong> ${campaign.workshopTitle}</p>
+        <p><strong>Student Name:</strong> ${studentName}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Email:</strong> ${studentEmail || 'N/A'}</p>
+        <p><strong>Department &amp; Year:</strong> ${department || 'N/A'} ${year ? `(${year})` : ''}</p>
+        <p><strong>Overall Rating:</strong> ${overallRating}/5</p>
+        <p><strong>Key Takeaway:</strong> ${primaryComment}</p>
+        ${interests.length > 0 ? `<p><strong>🎯 High Interest In:</strong> <span style="color:#059669; font-weight:bold;">${interests.join(', ')}</span></p>` : ''}
+      `;
+      try {
+        await sendEmail({
+          to: adminEmail,
+          subject: `🎓 New Workshop Feedback from ${studentName} (${campaign.collegeName})`,
+          html: adminNotificationTemplate('College Workshop Attendance & Feedback', detailsHtml)
+        });
+      } catch (mailErr) {
+        console.error('Failed to send workshop review admin email:', mailErr);
+      }
+    }
 
     return NextResponse.json({
       success: true,

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import connectToDatabase from '@/lib/mongodb';
 import CareerAssessment from '@/models/CareerAssessment';
+import { sendEmail } from '@/lib/mailer';
+import { careerAssessmentAccessTemplate, adminNotificationTemplate } from '@/lib/emailTemplates';
 
 export async function POST(req) {
   try {
@@ -50,6 +52,45 @@ export async function POST(req) {
 
     if (!assessment) {
       return NextResponse.json({ error: 'Assessment record not found' }, { status: 404 });
+    }
+
+    // 1. Send Assessment Access Link Email to Candidate
+    const candidateEmail = assessment.candidateDetails?.email;
+    const candidateName = assessment.candidateDetails?.name || 'Candidate';
+    if (candidateEmail) {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://avinashsgore.com';
+      const startUrl = `${siteUrl}/career-guidance?resume=${assessment._id}`;
+      try {
+        await sendEmail({
+          to: candidateEmail,
+          subject: 'Your Career Nature Assessment is Ready | Avinash S. Gore',
+          html: careerAssessmentAccessTemplate(candidateName, startUrl)
+        });
+      } catch (userMailErr) {
+        console.error('Failed to send career test access email to user:', userMailErr);
+      }
+    }
+
+    // 2. Alert Admin
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.FROM_EMAIL;
+    if (adminEmail) {
+      const detailsHtml = `
+        <p><strong>Candidate Name:</strong> ${assessment.candidateDetails?.name || 'N/A'}</p>
+        <p><strong>Email:</strong> ${assessment.candidateDetails?.email || 'N/A'}</p>
+        <p><strong>Phone:</strong> ${assessment.candidateDetails?.phone || 'N/A'}</p>
+        <p><strong>Class / Stream:</strong> ${assessment.candidateDetails?.classStream || 'N/A'}</p>
+        <p><strong>Amount Paid:</strong> ₹${assessment.amountPaid || 299}</p>
+        <p><strong>Order ID:</strong> ${razorpay_order_id}</p>
+      `;
+      try {
+        await sendEmail({
+          to: adminEmail,
+          subject: `🎯 New Career Assessment Purchased: ${assessment.candidateDetails?.name || 'Candidate'}`,
+          html: adminNotificationTemplate('New Career Assessment Purchase', detailsHtml)
+        });
+      } catch (mailErr) {
+        console.error('Failed to send career purchase admin email:', mailErr);
+      }
     }
 
     return NextResponse.json({

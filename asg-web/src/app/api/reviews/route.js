@@ -8,6 +8,8 @@ import WebinarRegistration from '@/models/WebinarRegistration';
 import SeminarRegistration from '@/models/SeminarRegistration';
 import Consultation from '@/models/Consultation';
 import { authenticateApi } from '@/lib/auth';
+import { sendEmail } from '@/lib/mailer';
+import { adminNotificationTemplate } from '@/lib/emailTemplates';
 
 export async function GET(req) {
   try {
@@ -217,6 +219,28 @@ export async function POST(req) {
       new: true,
       setDefaultsOnInsert: true
     });
+
+    // Alert Admin about New Review
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.FROM_EMAIL;
+    if (adminEmail) {
+      const stars = '★'.repeat(numericRating) + '☆'.repeat(5 - numericRating);
+      const detailsHtml = `
+        <p><strong>Reviewer:</strong> ${user.name} (${user.email})</p>
+        <p><strong>Program / Item:</strong> ${itemType.toUpperCase()} &mdash; ${review.itemTitle}</p>
+        <p><strong>Rating:</strong> <span style="color:#F59E0B; font-size:16px;">${stars}</span> (${numericRating}/5)</p>
+        <p><strong>Feedback / Review:</strong></p>
+        <blockquote style="background:#f3f4f6; padding:10px; border-left:3px solid #F59E0B; margin:0;">${comment.trim()}</blockquote>
+      `;
+      try {
+        await sendEmail({
+          to: adminEmail,
+          subject: `⭐ New Review Received (${numericRating}/5 stars) by ${user.name}`,
+          html: adminNotificationTemplate('New Client Review', detailsHtml)
+        });
+      } catch (mailErr) {
+        console.error('Failed to send review admin email:', mailErr);
+      }
+    }
 
     return NextResponse.json({
       message: 'Review saved successfully!',

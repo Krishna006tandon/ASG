@@ -3,6 +3,8 @@ import connectToDatabase from '@/lib/mongodb';
 import CareerAssessment from '@/models/CareerAssessment';
 import { computeAssessmentResults } from '@/lib/careerData';
 import { authenticateApi } from '@/lib/auth';
+import { sendEmail } from '@/lib/mailer';
+import { careerAssessmentResultTemplate, adminNotificationTemplate } from '@/lib/emailTemplates';
 
 export async function POST(req) {
   try {
@@ -51,6 +53,58 @@ export async function POST(req) {
     assessment.completedAt = new Date();
 
     await assessment.save();
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://avinashsgore.com';
+    const reportUrl = `${siteUrl}/career-guidance?result=${assessment._id}`;
+    const topArchetypes = results.top3.map(t => `${t.name} (${t.score} pts)`).join(', ');
+
+    // 1. Send Results Report Email to Candidate
+    const candidateEmail = assessment.candidateDetails?.email;
+    const candidateName = assessment.candidateDetails?.name || 'Candidate';
+    if (candidateEmail) {
+      try {
+        await sendEmail({
+          to: candidateEmail,
+          subject: `Your Career Nature Assessment Results & Swadharma Report | Avinash S. Gore`,
+          html: careerAssessmentResultTemplate(
+            candidateName, 
+            topArchetypes, 
+            results.synergyInsight?.headline || '', 
+            reportUrl
+          )
+        });
+      } catch (userMailErr) {
+        console.error('Failed to send career result email to candidate:', userMailErr);
+      }
+    }
+
+    // 2. Alert Admin about Completed Assessment
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.FROM_EMAIL;
+    if (adminEmail) {
+      const detailsHtml = `
+        <p><strong>Candidate Name:</strong> ${candidateName}</p>
+        <p><strong>Email:</strong> ${candidateEmail || 'N/A'}</p>
+        <p><strong>Phone:</strong> ${assessment.candidateDetails?.phone || 'N/A'}</p>
+        <p><strong>Class / Stream:</strong> ${assessment.candidateDetails?.classStream || 'N/A'}</p>
+        <p><strong>Top 3 Nature Archetypes:</strong> ${topArchetypes}</p>
+        <p><strong>Synergy Insight:</strong> ${results.synergyInsight?.headline || 'Standard profile'}</p>
+        <p><strong>Assessment ID:</strong> ${assessment._id}</p>
+        <p style="margin-top: 15px;">
+          <a href="${siteUrl}/admin/career-guidance" style="background:#4F46E5; color:#fff; padding:8px 16px; text-decoration:none; border-radius:6px; font-weight:bold; display:inline-block;">
+            Open Career Assessment in Admin &rarr;
+          </a>
+        </p>
+      `;
+      try {
+        await sendEmail({
+          to: adminEmail,
+          subject: `📊 Career Assessment Completed: ${candidateName}`,
+          html: adminNotificationTemplate('Career Assessment Completed', detailsHtml)
+        });
+      } catch (mailErr) {
+        console.error('Failed to send career completion admin email:', mailErr);
+      }
+    }
 
     return NextResponse.json({
       success: true,

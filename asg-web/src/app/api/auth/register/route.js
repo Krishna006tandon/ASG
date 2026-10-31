@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import { signToken } from '@/lib/auth';
+import { sendEmail } from '@/lib/mailer';
+import { welcomeUserTemplate, adminNotificationTemplate } from '@/lib/emailTemplates';
 
 export async function POST(req) {
   try {
@@ -28,6 +30,36 @@ export async function POST(req) {
     });
 
     const token = signToken({ userId: newUser._id, role: newUser.role });
+
+    // 1. Send Welcome Email to the User
+    try {
+      await sendEmail({
+        to: newUser.email,
+        subject: `Welcome to Avinash S. Gore Platform, ${newUser.name}! 🎉`,
+        html: welcomeUserTemplate(newUser.name)
+      });
+    } catch (mailErr) {
+      console.error('Failed to send welcome email to user:', mailErr);
+    }
+
+    // 2. Alert Admin about New User Registration
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.FROM_EMAIL;
+    if (adminEmail) {
+      const detailsHtml = `
+        <p><strong>Name:</strong> ${newUser.name}</p>
+        <p><strong>Email:</strong> ${newUser.email}</p>
+        <p><strong>Registered At:</strong> ${new Date().toLocaleString()}</p>
+      `;
+      try {
+        await sendEmail({
+          to: adminEmail,
+          subject: `👤 New User Registered: ${newUser.name}`,
+          html: adminNotificationTemplate('New User Registration', detailsHtml)
+        });
+      } catch (mailErr) {
+        console.error('Failed to send registration admin email:', mailErr);
+      }
+    }
 
     return NextResponse.json({ 
       message: 'User created successfully', 

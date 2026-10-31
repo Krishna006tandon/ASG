@@ -10,11 +10,14 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+export const ADMIN_EMAIL_ADDRESS = process.env.ADMIN_EMAIL || 'avinashsgore@gmail.com';
+
 export const sendEmail = async ({ to, subject, html, text }) => {
   try {
+    const recipient = to === 'admin' || !to ? ADMIN_EMAIL_ADDRESS : to;
     const info = await transporter.sendMail({
       from: process.env.FROM_EMAIL || '"Avinash Gore" <no-reply@avinashsgore.com>',
-      to,
+      to: recipient,
       subject,
       text: text || '',
       html,
