@@ -26,6 +26,12 @@ export default async function sitemap() {
       priority: 0.95,
     },
     {
+      url: `${baseUrl}/startup-guidance`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.95,
+    },
+    {
       url: `${baseUrl}/about`,
       lastModified: currentDate,
       changeFrequency: 'monthly',

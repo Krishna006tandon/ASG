@@ -129,6 +129,27 @@ export default async function Home() {
                 </p>
               </div>
             </div>
+
+            {/* Journey 4: Entrepreneur & Start-up Mentor */}
+            <div className={styles.journeyItem}>
+              <div 
+                className={styles.journeyIconWrapper}
+                style={{ background: 'linear-gradient(135deg, #059669, #047857)', color: 'white', border: 'none', boxShadow: '0 10px 20px rgba(5,150,105,0.3)' }}
+              >
+                <span style={{ fontSize: '1.25rem' }}>🚀</span>
+              </div>
+              <div className={`glass-card ${styles.journeyCard}`} style={{ borderTop: '4px solid #059669' }}>
+                <h3>From an Idea to an Enterprise</h3>
+                <p>
+                  As an entrepreneur who has built and operated successful ventures across industrial consultancy (<strong style={{color: '#059669'}}>Perpetual Solutions</strong>), event management (<strong style={{color: '#059669'}}>Celefesto</strong>), education (<strong style={{color: '#059669'}}>X-Caliber</strong>), and digital software, Avinash provides practical 1-on-1 mentoring for aspiring founders and business owners under a unique <strong style={{color: '#059669'}}>&quot;Pay If You Get Benefitted&quot;</strong> philosophy.
+                </p>
+                <div style={{ marginTop: '1rem' }}>
+                  <Link href="/startup-guidance" style={{ color: '#059669', fontWeight: '700', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                    Explore Start-up Guidance &amp; Book Session &rarr;
+                  </Link>
+                </div>
+              </div>
+            </div>
             
           </div>
         </div>

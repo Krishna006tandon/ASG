@@ -15,6 +15,7 @@ export default function Navbar() {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [checkoutDetails, setCheckoutDetails] = useState({
     name: '', email: '', phone: '', address: ''
   });
@@ -128,6 +129,10 @@ export default function Navbar() {
         setIsAdmin(true);
       }
     }
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -274,15 +279,16 @@ export default function Navbar() {
   return (
     <nav className={styles.navbar}>
       <div className={styles.container}>
-        <Link href="/" className={styles.logo} style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', textDecoration: 'none' }}>
-          <img src="/images/image5.jpg" alt="Avinash Gore" style={{ width: '52px', height: '52px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary-color)' }} />
-          <span style={{ fontSize: '1.6rem', fontWeight: '800', whiteSpace: 'nowrap' }}>Avinash Gore</span>
+        <Link href="/" className={styles.logo} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
+          <img src="/images/image5.jpg" alt="Avinash Gore" style={{ width: '44px', height: '44px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary-color)' }} />
+          <span style={{ fontSize: '1.35rem', fontWeight: '800', whiteSpace: 'nowrap' }}>Avinash Gore</span>
         </Link>
         <div className={styles.links}>
           <Link href="/" className={pathname === '/' ? styles.active : ''}>Home</Link>
           <Link href="/about" className={pathname === '/about' ? styles.active : ''}>About</Link>
           <Link href="/exam-guidance" className={pathname === '/exam-guidance' ? styles.active : ''}>Exam Guidance</Link>
           <Link href="/career-guidance" className={pathname.startsWith('/career-guidance') ? styles.active : ''}>Career Guidance</Link>
+          <Link href="/startup-guidance" className={pathname === '/startup-guidance' || pathname === '/startup-support' ? styles.active : ''}>Start-up Guidance</Link>
           <Link href="/ecommerce" className={pathname === '/ecommerce' ? styles.active : ''}>Store</Link>
           <Link href="/recommends" className={pathname === '/recommends' ? styles.active : ''}>Blog</Link>
           <Link href="/webinars" className={pathname === '/webinars' ? styles.active : ''}>Workshops</Link>
@@ -293,29 +299,32 @@ export default function Navbar() {
         </div>
         
         <div className={styles.actions}>
-          {isLoggedIn ? (
-            <div className={styles.userActions}>
-              <div className={styles.cartContainer}>
-                <button 
-                  className={styles.cartIcon} 
-                  onClick={() => setIsCartOpen(!isCartOpen)}
-                  style={{background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', position: 'relative', padding: 0}}
-                >
-                  <svg 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    style={{ width: '22px', height: '22px', color: '#374151' }}
-                  >
-                    <circle cx="9" cy="21" r="1"></circle>
-                    <circle cx="20" cy="21" r="1"></circle>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                  </svg>
-                  <span className={styles.badge}>{cartCount}</span>
-                </button>
+          {/* Universal Shopping Cart Icon (Always Visible) */}
+          <div className={styles.cartContainer}>
+            <button 
+              type="button"
+              className={styles.cartIcon} 
+              onClick={() => setIsCartOpen(!isCartOpen)}
+              aria-label="Shopping Cart"
+              title="Shopping Cart"
+            >
+              <svg 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                style={{ width: '20px', height: '20px' }}
+              >
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+              </svg>
+              {mounted && cartCount > 0 && (
+                <span className={styles.badge}>{cartCount}</span>
+              )}
+            </button>
                 
                 {isCartOpen && (
                   <div className={styles.cartDropdown}>
@@ -572,87 +581,29 @@ export default function Navbar() {
                 )}
               </div>
 
-              <div className={styles.profileMenuContainer}>
-                <Link href={isAdmin ? "/admin" : "/dashboard"} className={styles.avatarBtn} title={isAdmin ? "Admin Dashboard" : "My Dashboard"}>
-                  <span className={styles.avatar}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width: '18px', height: '18px'}}>
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                  </span>
+              {/* User Account or Login Button */}
+              {isLoggedIn ? (
+                <div className={styles.profileMenuContainer}>
+                  <Link href={isAdmin ? "/admin" : "/dashboard"} className={styles.avatarBtn} title={isAdmin ? "Admin Dashboard" : "My Dashboard"}>
+                    <span className={styles.avatar}>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width: '18px', height: '18px'}}>
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                    </span>
+                  </Link>
+                  {isAdmin ? (
+                    <Link href="/admin" className={styles.navTextLink} style={{ color: '#0284c7', fontWeight: 'bold' }}>Admin Dashboard</Link>
+                  ) : (
+                    <Link href="/dashboard" className={styles.navTextLink}>Dashboard</Link>
+                  )}
+                  <button onClick={handleLogout} className={styles.logoutBtn}>Logout</button>
+                </div>
+              ) : (
+                <Link href="/login" style={{ textDecoration: 'none' }}>
+                  <button className="btn-primary" style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}>Login</button>
                 </Link>
-                {isAdmin ? (
-                  <Link href="/admin" className={styles.navTextLink} style={{ color: '#0284c7', fontWeight: 'bold' }}>Admin Dashboard</Link>
-                ) : (
-                  <Link href="/dashboard" className={styles.navTextLink}>Dashboard</Link>
-                )}
-                <button onClick={handleLogout} className={styles.logoutBtn}>Logout</button>
-              </div>
-            </div>
-          ) : (
-            <div style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
-              <div className={styles.cartContainer}>
-                <button 
-                  className={styles.cartIcon} 
-                  onClick={() => setIsCartOpen(!isCartOpen)}
-                  style={{background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', position: 'relative', padding: 0}}
-                >
-                  <svg 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    style={{ width: '22px', height: '22px', color: '#374151' }}
-                  >
-                    <circle cx="9" cy="21" r="1"></circle>
-                    <circle cx="20" cy="21" r="1"></circle>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                  </svg>
-                  <span className={styles.badge}>{cartCount}</span>
-                </button>
-                {isCartOpen && (
-                  <div className={styles.cartDropdown}>
-                    <div className={styles.cartHeader}>
-                      <h3>Your Cart</h3>
-                      <button onClick={() => setIsCartOpen(false)} className={styles.closeBtn}>&times;</button>
-                    </div>
-                    {cart.length === 0 ? (
-                      <p className={styles.emptyCart}>Your cart is empty.</p>
-                    ) : (
-                      <div className={styles.cartBody}>
-                        {cart.map(item => (
-                          <div key={item._id} className={styles.cartItem}>
-                            <div className={styles.cartItemInfo}>
-                              <span className={styles.cartItemTitle}>{item.title}</span>
-                              <div className={styles.cartItemControls}>
-                                <button onClick={() => updateQuantity(item._id, item.quantity - 1)} className={styles.qtyBtn}>-</button>
-                                <span className={styles.qtySpan}>{item.quantity}</span>
-                                <button onClick={() => updateQuantity(item._id, item.quantity + 1)} className={styles.qtyBtn}>+</button>
-                                <span className={styles.itemPrice}>x ₹{item.price}</span>
-                              </div>
-                            </div>
-                            <button onClick={() => removeFromCart(item._id)} className={styles.removeBtn}>&times;</button>
-                          </div>
-                        ))}
-                        <div className={styles.cartTotal}>
-                          <span>Total:</span>
-                          <span>₹{cartTotal}</span>
-                        </div>
-                        <Link href="/login" className="btn-primary" style={{display: 'block', textAlign: 'center', marginTop: '1rem', textDecoration: 'none'}}>
-                          Login to Checkout
-                        </Link>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-              <Link href="/login">
-                <button className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>Login</button>
-              </Link>
-            </div>
-          )}
+              )}
 
           {/* Mobile Hamburger Toggle */}
           <button 
@@ -679,11 +630,37 @@ export default function Navbar() {
       {/* Mobile Navigation Drawer */}
       {isMobileMenuOpen && (
         <div className={styles.mobileDrawer}>
+          <button 
+            type="button"
+            className={styles.mobileCartBtn}
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              setIsCartOpen(true);
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '20px', height: '20px' }}>
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+              </svg>
+              <span>Shopping Cart</span>
+            </div>
+            <span className={styles.mobileCartCount}>
+              {mounted ? cartCount : 0} items
+            </span>
+          </button>
+
           <div className={styles.mobileLinks}>
             <Link href="/" className={pathname === '/' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
             <Link href="/about" className={pathname === '/about' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>About</Link>
-            <Link href="/exam-guidance" className={pathname === '/exam-guidance' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Exam Guidance</Link>
-            <Link href="/career-guidance" className={pathname.startsWith('/career-guidance') ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Career Guidance</Link>
+            
+            <div className={styles.mobileSectionHeader}>Guidance Programs</div>
+            <Link href="/exam-guidance" className={pathname === '/exam-guidance' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>🎓 Exam Guidance</Link>
+            <Link href="/career-guidance" className={pathname.startsWith('/career-guidance') ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>🧭 Career Guidance</Link>
+            <Link href="/startup-guidance" className={pathname === '/startup-guidance' || pathname === '/startup-support' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>🚀 Start-up Guidance</Link>
+            
+            <div className={styles.mobileSectionHeader}>Explore More</div>
             <Link href="/ecommerce" className={pathname === '/ecommerce' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Store</Link>
             <Link href="/recommends" className={pathname === '/recommends' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Blog</Link>
             <Link href="/webinars" className={pathname === '/webinars' ? styles.mobileActive : styles.mobileLink} onClick={() => setIsMobileMenuOpen(false)}>Workshops</Link>
