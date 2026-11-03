@@ -75,8 +75,7 @@ export default function StartupGuidancePage() {
     challenges: [],
     message: '',
     sessionMode: 'Virtual (Google Meet/Zoom)',
-    preferredDate: '',
-    agreedPayBenefitted: true
+    preferredDate: ''
   });
   const [formLoading, setFormLoading] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
@@ -285,7 +284,7 @@ export default function StartupGuidancePage() {
       avatarBg: "#D97706",
       tag: "Events & Digital Brand",
       thumb: "/images/image4.png",
-      quote: "The 'Pay If You Get Benefitted' philosophy proved his absolute sincerity. He took time to dissect my cash flow bottlenecks and marketing missteps. In just three sessions, our unit economics turned profitable.",
+      quote: "Avinash Sir's practical approach and deep business acumen proved transformative. He took time to dissect my cash flow bottlenecks and marketing missteps. In just three sessions, our unit economics turned profitable.",
       videoTitle: "Vikram's Journey: Mastering Working Capital & Event Logistics",
       videoOutline: [
         "High revenue but constant cash crunches and delayed payments.",
@@ -408,8 +407,8 @@ export default function StartupGuidancePage() {
           <div className={styles.statPill}>
             <div className={styles.statIcon}>🤝</div>
             <div>
-              <div className={styles.statLabel}>Unique Philosophy</div>
-              <div className={styles.statValue}>Pay If You Get Benefitted</div>
+              <div className={styles.statLabel}>Personal Guidance</div>
+              <div className={styles.statValue}>1-on-1 Direct Deep Dive</div>
             </div>
           </div>
           <div className={styles.statPill}>
@@ -529,7 +528,7 @@ export default function StartupGuidancePage() {
                 {videoSettings.introVideo.title || 'A Personal Message to Aspiring Founders'}
               </div>
               <div className={styles.videoMetaDesc}>
-                Avinash explains his core mentoring philosophy, why practical experience matters more than theory, and how our &ldquo;Pay If You Get Benefitted&rdquo; sessions work.
+                Avinash explains his core mentoring approach, why practical experience matters more than theory, and how personalized 1-on-1 strategy sessions work.
               </div>
             </div>
           </div>
@@ -829,7 +828,7 @@ export default function StartupGuidancePage() {
               Thank you, <strong>{formData.name}</strong>. We have received your details and an acknowledgement email has been sent to <strong>{formData.email}</strong>.
             </p>
             <p className={styles.successText}>
-              Avinash will personally review your venture overview and contact you to schedule your 1-on-1 session. Remember, our &ldquo;Pay If You Get Benefitted&rdquo; philosophy applies completely!
+              Avinash will personally review your venture overview and contact you with session details, fee confirmation, and scheduling options.
             </p>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '1.5rem' }}>
               <Link 
@@ -851,8 +850,7 @@ export default function StartupGuidancePage() {
                     challenges: [],
                     message: '',
                     sessionMode: 'Virtual (Google Meet/Zoom)',
-                    preferredDate: '',
-                    agreedPayBenefitted: true
+                    preferredDate: ''
                   });
                 }}
                 className={styles.ctaSecondary}
@@ -1001,11 +999,11 @@ export default function StartupGuidancePage() {
               </div>
             </div>
 
-            {/* Pay If You Get Benefitted Checkbox Notice */}
+            {/* Session Confirmation Notice */}
             <div className={styles.formNoticeBox}>
-              <div style={{ fontSize: '1.4rem' }}>💡</div>
+              <div style={{ fontSize: '1.4rem' }}>🗓️</div>
               <div className={styles.formNoticeText}>
-                <strong>&ldquo;Pay If You Get Benefitted&rdquo; Commitment:</strong> We will review your application and agree upon mutually convenient session timings. You only pay the nominal session honorarium if you genuinely feel the consultation has added clarity and value to your entrepreneurial journey.
+                <strong>Session Confirmation:</strong> Once you submit your enquiry, our team will review your venture details and connect with you via WhatsApp/Email to confirm the consultation fee, payment link, and schedule your session slot.
               </div>
             </div>
 
@@ -1159,7 +1157,7 @@ export default function StartupGuidancePage() {
                     <li><strong>The Gap in Theory:</strong> Why MBA textbooks don&apos;t prepare you for real customer objections, cash crunches, and supply chain bottlenecks.</li>
                     <li><strong>The 4 Ventures:</strong> Real lessons from Perpetual Solutions, Celefesto, X-Caliber, and tech platforms.</li>
                     <li><strong>The Mentoring Format:</strong> 1-on-1 private deep dives, dissecting your exact unit economics and launch fears.</li>
-                    <li><strong>Pay If You Get Benefitted:</strong> Why personal integrity and your actual results come before fees.</li>
+                    <li><strong>Actionable Strategy:</strong> Practical guidance focused directly on your unit economics, cashflow, and realistic growth.</li>
                   </ul>
                 </div>
 

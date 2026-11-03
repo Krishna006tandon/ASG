@@ -981,95 +981,6 @@
 }
 
 /* --------------------------------------------------------------------------
-   Pay If You Get Benefitted Section (ChatGPT Recommendation #3)
-   -------------------------------------------------------------------------- */
-.payBenefittedSection {
-  background: linear-gradient(135deg, #064E3B 0%, #065F46 60%, #047857 100%);
-  border-radius: 26px;
-  padding: 3.5rem 2.5rem;
-  color: #FFFFFF;
-  margin-bottom: 4.5rem;
-  box-shadow: 0 25px 50px -10px rgba(6, 78, 59, 0.4);
-  position: relative;
-  overflow: hidden;
-}
-
-.payBenefittedBadge {
-  background: #34D399;
-  color: #064E3B;
-  font-size: 0.82rem;
-  font-weight: 800;
-  padding: 0.35rem 1rem;
-  border-radius: 50px;
-  display: inline-block;
-  margin-bottom: 1rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.payBenefittedTitle {
-  font-size: 2.5rem;
-  font-weight: 900;
-  line-height: 1.2;
-  margin-bottom: 1.25rem;
-  letter-spacing: -0.02em;
-  color: #FFFFFF !important;
-}
-
-.payBenefittedSubtitle {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #A7F3D0;
-  margin-bottom: 1.75rem;
-}
-
-.payBenefittedGrid {
-  display: grid;
-  grid-template-columns: 1.3fr 1fr;
-  gap: 2.5rem;
-  align-items: center;
-}
-
-.payBenefittedContent p {
-  color: #D1FAE5;
-  font-size: 1.05rem;
-  line-height: 1.75;
-  margin-bottom: 1.25rem;
-}
-
-.payBenefittedCardHighlight {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1.5px solid rgba(52, 211, 153, 0.4);
-  border-radius: 20px;
-  padding: 2rem;
-  backdrop-filter: blur(10px);
-  text-align: center;
-}
-
-.payBenefittedCardTitle {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #FFFFFF;
-  margin-bottom: 0.75rem;
-}
-
-.payBenefittedCardText {
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: #E2E8F0;
-  margin-bottom: 1.5rem;
-}
-
-.payBenefittedGuaranteeBox {
-  background: #34D399;
-  color: #064E3B;
-  padding: 1rem 1.25rem;
-  border-radius: 12px;
-  font-weight: 800;
-  font-size: 1.05rem;
-}
-
-/* --------------------------------------------------------------------------
    Who Should Approach Me? (7 Personas)
    -------------------------------------------------------------------------- */
 .personasGrid {
@@ -1601,10 +1512,6 @@
     gap: 2.5rem;
   }
 
-  .payBenefittedGrid {
-    grid-template-columns: 1fr;
-  }
-
   .formGrid {
     grid-template-columns: 1fr;
   }
@@ -1642,14 +1549,6 @@
 
   .sectionTitle {
     font-size: 1.85rem;
-  }
-
-  .payBenefittedSection {
-    padding: 2.5rem 1.25rem;
-  }
-
-  .payBenefittedTitle {
-    font-size: 2rem;
   }
 
   .enquirySection {

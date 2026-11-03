@@ -39,8 +39,6 @@ ${businessIdea || 'N/A'}
 
 Specific Challenge / Goal for Session:
 ${message || 'N/A'}
-
-Philosophy Acknowledged: "Pay If You Get Benefitted"
 `.trim();
 
     // Create Consultation record in DB
@@ -70,17 +68,10 @@ Philosophy Acknowledged: "Pay If You Get Benefitted"
         <p>Dear ${name},</p>
         
         <p>Thank you for reaching out for <strong>Personal Start-up Guidance</strong>. I have received your enquiry and details regarding your entrepreneurial journey.</p>
-        
-        <div style="background: #f0fdf4; border-left: 4px solid #059669; padding: 14px 16px; margin: 18px 0; border-radius: 4px;">
-          <h4 style="margin: 0 0 6px; color: #065f46; font-size: 15px;">Our "Pay If You Get Benefitted" Philosophy</h4>
-          <p style="margin: 0; font-size: 13.5px; line-height: 1.5; color: #047857;">
-            Personal guidance is my passion. If you genuinely feel that our conversation has made a positive difference to your thinking, decisions, or business, you pay for the value received. If you do not feel benefited, I do not expect you to pay.
-          </p>
-        </div>
 
         <p><strong>Next Steps:</strong></p>
         <p style="color: #4b5563; line-height: 1.6;">
-          I or my team will review your business background and reach out via WhatsApp/email at <strong>${email}</strong> ${phone ? `(${phone})` : ''} to coordinate an agreeable date, time, and session link.
+          I or my team will review your business background and reach out via WhatsApp/email at <strong>${email}</strong> ${phone ? `(${phone})` : ''} with session details, charges/payment confirmation, and agreeable slot scheduling.
         </p>
 
         <p>You can also track your session status anytime in your <strong><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://avinashsgore.com'}/dashboard?tab=startup" style="color: #059669; font-weight: bold;">User Dashboard &rarr;</a></strong>.</p>

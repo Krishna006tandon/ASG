@@ -141,7 +141,7 @@ export default async function Home() {
               <div className={`glass-card ${styles.journeyCard}`} style={{ borderTop: '4px solid #059669' }}>
                 <h3>From an Idea to an Enterprise</h3>
                 <p>
-                  As an entrepreneur who has built and operated successful ventures across industrial consultancy (<strong style={{color: '#059669'}}>Perpetual Solutions</strong>), event management (<strong style={{color: '#059669'}}>Celefesto</strong>), education (<strong style={{color: '#059669'}}>X-Caliber</strong>), and digital software, Avinash provides practical 1-on-1 mentoring for aspiring founders and business owners under a unique <strong style={{color: '#059669'}}>&quot;Pay If You Get Benefitted&quot;</strong> philosophy.
+                  As an entrepreneur who has built and operated successful ventures across industrial consultancy (<strong style={{color: '#059669'}}>Perpetual Solutions</strong>), event management (<strong style={{color: '#059669'}}>Celefesto</strong>), education (<strong style={{color: '#059669'}}>X-Caliber</strong>), and digital software, Avinash provides practical 1-on-1 strategic guidance and mentoring for aspiring founders, professionals, and business owners.
                 </p>
                 <div style={{ marginTop: '1rem' }}>
                   <Link href="/startup-guidance" style={{ color: '#059669', fontWeight: '700', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
