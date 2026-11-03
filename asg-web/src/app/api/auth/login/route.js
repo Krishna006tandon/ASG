@@ -14,7 +14,15 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
-    const user = await User.findOne({ email });
+    const cleanEmail = String(email).trim().toLowerCase();
+    const escapedEmail = cleanEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    const user = await User.findOne({
+      $or: [
+        { email: cleanEmail },
+        { email: { $regex: new RegExp(`^${escapedEmail}$`, 'i') } }
+      ]
+    });
 
     if (!user) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
@@ -25,7 +33,12 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    const token = signToken({ userId: user._id, role: user.role });
+    const token = signToken({ 
+      userId: user._id, 
+      email: user.email, 
+      name: user.name, 
+      role: user.role 
+    });
 
     return NextResponse.json({ 
       message: 'Login successful', 

@@ -26,6 +26,7 @@ export default function Login() {
         setStatus('Success! Redirecting to dashboard...');
         localStorage.setItem('asg_token', data.token);
         localStorage.setItem('asg_role', data.user.role);
+        localStorage.setItem('asg_user', JSON.stringify(data.user));
         // Simulate redirect
         setTimeout(() => {
           window.location.href = data.user.role === 'admin' ? '/admin' : '/';
@@ -75,7 +76,7 @@ export default function Login() {
             <label className={styles.remember}>
               <input type="checkbox" /> Remember me
             </label>
-            <Link href="#" className={styles.forgot}>Forgot password?</Link>
+            <Link href="/forgot-password" className={styles.forgot}>Forgot password?</Link>
           </div>
           
           <button type="submit" className={`btn-primary ${styles.submitBtn}`}>

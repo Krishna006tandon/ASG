@@ -19,6 +19,7 @@ export default function EcommerceSettings() {
   const [physicalPrice, setPhysicalPrice] = useState('');
   const [shippingCost, setShippingCost] = useState('');
   const [stock, setStock] = useState('');
+  const [hasPhysicalBook, setHasPhysicalBook] = useState(false);
   const [file, setFile] = useState(null);
   const [coverImageFile, setCoverImageFile] = useState(null);
   const [coverImageUrl, setCoverImageUrl] = useState('');
@@ -58,6 +59,7 @@ export default function EcommerceSettings() {
     setDescription(book.description);
     setOriginalPrice(book.originalPrice || '');
     setPrice(book.price);
+    setHasPhysicalBook(Boolean(book.hasPhysicalBook));
     setPhysicalPrice(book.physicalPrice || '');
     setShippingCost(book.shippingCost || '');
     setStock(book.stock);
@@ -73,6 +75,7 @@ export default function EcommerceSettings() {
     setDescription('');
     setOriginalPrice('');
     setPrice('');
+    setHasPhysicalBook(false);
     setPhysicalPrice('');
     setShippingCost('');
     setStock('');
@@ -143,8 +146,9 @@ export default function EcommerceSettings() {
         description,
         originalPrice,
         price,
-        physicalPrice,
-        shippingCost,
+        hasPhysicalBook,
+        physicalPrice: hasPhysicalBook ? physicalPrice : 0,
+        shippingCost: hasPhysicalBook ? shippingCost : 0,
         stock,
         ebookUrl,
         coverImage: finalCoverImage
@@ -229,16 +233,50 @@ export default function EcommerceSettings() {
               </div>
             </div>
 
-            <div className={styles.row}>
-              <div className={styles.inputGroup}>
-                <label>Physical Upgrade Price (₹)</label>
-                <input type="number" min="0" value={physicalPrice} onChange={(e) => setPhysicalPrice(e.target.value)} />
-              </div>
-              <div className={styles.inputGroup}>
-                <label>Shipping Cost (₹)</label>
-                <input type="number" min="0" value={shippingCost} onChange={(e) => setShippingCost(e.target.value)} />
+            <div className={styles.inputGroup} style={{ background: '#F8FAFC', padding: '0.85rem', borderRadius: '8px', border: '1px solid #E2E8F0', marginBottom: '1rem' }}>
+              <label style={{ fontWeight: 600, color: '#1E293B', marginBottom: '0.5rem', display: 'block' }}>
+                Physical Paperback Book Available?
+              </label>
+              <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontWeight: 500, fontSize: '0.9rem' }}>
+                  <input
+                    type="radio"
+                    name="hasPhysicalBook"
+                    value="yes"
+                    checked={hasPhysicalBook === true}
+                    onChange={() => setHasPhysicalBook(true)}
+                  />
+                  <span>Yes (Physical Paperback + E-Book)</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontWeight: 500, fontSize: '0.9rem' }}>
+                  <input
+                    type="radio"
+                    name="hasPhysicalBook"
+                    value="no"
+                    checked={hasPhysicalBook === false}
+                    onChange={() => {
+                      setHasPhysicalBook(false);
+                      setPhysicalPrice('');
+                      setShippingCost('');
+                    }}
+                  />
+                  <span>No (Digital E-Book Only)</span>
+                </label>
               </div>
             </div>
+
+            {hasPhysicalBook && (
+              <div className={styles.row}>
+                <div className={styles.inputGroup}>
+                  <label>Physical Upgrade Price (₹)</label>
+                  <input type="number" min="0" value={physicalPrice} onChange={(e) => setPhysicalPrice(e.target.value)} placeholder="e.g. 299" required={hasPhysicalBook} />
+                </div>
+                <div className={styles.inputGroup}>
+                  <label>Shipping Cost (₹)</label>
+                  <input type="number" min="0" value={shippingCost} onChange={(e) => setShippingCost(e.target.value)} placeholder="e.g. 50" />
+                </div>
+              </div>
+            )}
 
             <div className={styles.inputGroup}>
               <label>Book Thumbnail / Cover Image {editingId && '(Optional: Leave empty to keep existing)'}</label>
@@ -375,8 +413,19 @@ export default function EcommerceSettings() {
                         <span style={{fontWeight: 500}}>₹{book.price}</span>
                       </td>
                       <td>
-                        <div style={{fontWeight: 500}}>₹{book.physicalPrice || 0}</div>
-                        <div style={{fontSize: '0.8rem', color: '#6B7280'}}>+ ₹{book.shippingCost || 0} shipping</div>
+                        {book.hasPhysicalBook ? (
+                          <>
+                            <div style={{fontWeight: 500, color: '#047857'}}>₹{book.physicalPrice || 0}</div>
+                            <div style={{fontSize: '0.8rem', color: '#6B7280'}}>+ ₹{book.shippingCost || 0} shipping</div>
+                            <span style={{ display: 'inline-block', fontSize: '0.7rem', padding: '1px 6px', background: '#DCFCE7', color: '#166534', borderRadius: '4px', fontWeight: 600, marginTop: '3px' }}>
+                              📦 Physical Available
+                            </span>
+                          </>
+                        ) : (
+                          <span style={{ display: 'inline-block', fontSize: '0.75rem', padding: '2px 8px', background: '#F3F4F6', color: '#4B5563', borderRadius: '4px', fontWeight: 500 }}>
+                            📄 Digital Only
+                          </span>
+                        )}
                       </td>
                       <td>
                         <span className={book.stock > 0 ? styles.inStock : styles.outOfStock}>

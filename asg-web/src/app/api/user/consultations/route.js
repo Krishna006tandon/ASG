@@ -25,9 +25,26 @@ export async function GET(req) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
     
-    const consultations = await Consultation.find({ 'customerDetails.email': user.email })
+    const escapedEmail = user.email ? user.email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
+
+    const allConsultations = await Consultation.find({
+      $or: [
+        { userId: decoded.userId },
+        ...(escapedEmail ? [{ 'customerDetails.email': { $regex: new RegExp(`^${escapedEmail}$`, 'i') } }] : [])
+      ]
+    })
       .sort({ createdAt: -1 })
       .lean();
+
+    const isStartupItem = (c) => Boolean(
+      c.type === 'startup' ||
+      c.message?.includes('[START-UP GUIDANCE') ||
+      c.message?.toLowerCase().includes('start-up') ||
+      c.message?.toLowerCase().includes('startup')
+    );
+
+    const startupGuidance = allConsultations.filter(isStartupItem);
+    const generalConsultations = allConsultations.filter(c => !isStartupItem(c));
 
     const orders = await Order.find({ 'customerDetails.email': user.email })
       .populate('items.bookId', 'ebookUrl physicalPrice shippingCost')
@@ -49,7 +66,6 @@ export async function GET(req) {
       .sort({ createdAt: -1 })
       .lean();
 
-    const escapedEmail = user.email ? user.email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
     const careerAssessments = await CareerAssessment.find({
       $or: [
         { userId: decoded.userId },
@@ -60,7 +76,9 @@ export async function GET(req) {
       .lean();
 
     return NextResponse.json({
-      consultations,
+      consultations: allConsultations,
+      startupGuidance,
+      generalConsultations,
       orders,
       webinars,
       seminarRegistrations,

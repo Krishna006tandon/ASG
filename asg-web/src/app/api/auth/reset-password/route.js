@@ -13,9 +13,13 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Missing token or new password' }, { status: 400 });
     }
 
+    if (typeof newPassword !== 'string' || newPassword.length < 6) {
+      return NextResponse.json({ error: 'Password must be at least 6 characters long' }, { status: 400 });
+    }
+
     const user = await User.findOne({ 
-      resetPasswordToken: token,
-      resetPasswordExpires: { $gt: Date.now() } // Token hasn't expired
+      resetPasswordToken: token.trim(),
+      resetPasswordExpires: { $gt: new Date() } // Token hasn't expired
     });
 
     if (!user) {

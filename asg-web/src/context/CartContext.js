@@ -36,7 +36,8 @@ export function CartProvider({ children }) {
 
   const addToCart = (product, isPhysical = false) => {
     setCart(prev => {
-      const isPhys = Boolean(isPhysical);
+      const canHavePhysical = product.hasPhysicalBook !== false && (product.physicalPrice > 0);
+      const isPhys = Boolean(isPhysical && canHavePhysical);
       const existing = prev.find(item => item._id === product._id && Boolean(item.isPhysicalRequested) === isPhys);
       if (existing) {
         if (existing.quantity >= product.stock) {

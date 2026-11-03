@@ -3,11 +3,14 @@ import connectToDatabase from '@/lib/mongodb';
 import Consultation from '@/models/Consultation';
 import { sendEmail } from '@/lib/mailer';
 import { adminNotificationTemplate } from '@/lib/emailTemplates';
+import { authenticateApi } from '@/lib/auth';
 
 export async function POST(req) {
   try {
     await connectToDatabase();
     
+    const decoded = await authenticateApi(req);
+
     const body = await req.json();
     const { 
       name, 
@@ -42,9 +45,11 @@ Philosophy Acknowledged: "Pay If You Get Benefitted"
 
     // Create Consultation record in DB
     const newBooking = await Consultation.create({
+      userId: decoded?.userId || null,
+      type: 'startup',
       customerDetails: { 
         name, 
-        email, 
+        email: email.trim().toLowerCase(), 
         phone: phone || '' 
       },
       date: preferredDate ? new Date(preferredDate) : new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // Default 2 days ahead
@@ -78,6 +83,8 @@ Philosophy Acknowledged: "Pay If You Get Benefitted"
           I or my team will review your business background and reach out via WhatsApp/email at <strong>${email}</strong> ${phone ? `(${phone})` : ''} to coordinate an agreeable date, time, and session link.
         </p>
 
+        <p>You can also track your session status anytime in your <strong><a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://avinashsgore.com'}/dashboard?tab=startup" style="color: #059669; font-weight: bold;">User Dashboard &rarr;</a></strong>.</p>
+
         <p style="margin-top: 24px; color: #111827; font-weight: 600;">
           Best Regards,<br/>
           <span style="font-size: 16px;">Avinash S. Gore</span><br/>
@@ -97,7 +104,7 @@ Philosophy Acknowledged: "Pay If You Get Benefitted"
     }
 
     // 2. Alert Admin
-    const adminEmail = process.env.ADMIN_EMAIL || process.env.FROM_EMAIL;
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.FROM_EMAIL || 'avinashsgore@gmail.com';
     if (adminEmail) {
       const detailsHtml = `
         <p><strong>Applicant Name:</strong> ${name}</p>

@@ -15,8 +15,45 @@ import { getEbookUrl } from '@/lib/imageHelper';
 import styles from './dashboard.module.css';
 import { CAREER_CATEGORIES, getScoreInterpretation, computeAssessmentResults } from '@/lib/careerData';
 
+const parseStartupEnquiry = (rawMessage) => {
+  if (!rawMessage) return null;
+  const result = {
+    stage: '',
+    mode: '',
+    areas: [],
+    idea: '',
+    goal: '',
+    payBenefitted: false,
+    rawText: rawMessage
+  };
+
+  const stageMatch = rawMessage.match(/Current Status \/ Stage:\s*([^\n\r]+)/i);
+  if (stageMatch) result.stage = stageMatch[1].trim();
+
+  const modeMatch = rawMessage.match(/Preferred Mode:\s*([^\n\r]+)/i);
+  if (modeMatch) result.mode = modeMatch[1].trim();
+
+  const areasMatch = rawMessage.match(/Selected Discussion Areas:\s*([^\n\r]+)/i);
+  if (areasMatch) {
+    result.areas = areasMatch[1].split(',').map(s => s.trim()).filter(Boolean);
+  }
+
+  const ideaMatch = rawMessage.match(/Business Idea \/ Venture Overview:\s*([\s\S]*?)(?=(?:Specific Challenge \/ Goal for Session:|$))/i);
+  if (ideaMatch) result.idea = ideaMatch[1].trim();
+
+  const goalMatch = rawMessage.match(/Specific Challenge \/ Goal for Session:\s*([\s\S]*?)(?=(?:Philosophy Acknowledged:|$))/i);
+  if (goalMatch) result.goal = goalMatch[1].trim();
+
+  if (rawMessage.toLowerCase().includes('pay if you get benefitted')) {
+    result.payBenefitted = true;
+  }
+
+  return result;
+};
+
 export default function ClientDashboard() {
   const [consultations, setConsultations] = useState([]);
+  const [startupGuidance, setStartupGuidance] = useState([]);
   const [orders, setOrders] = useState([]);
   const [webinars, setWebinars] = useState([]);
   const [seminars, setSeminars] = useState([]);
@@ -72,8 +109,9 @@ export default function ClientDashboard() {
       if (!res.ok) throw new Error('Failed to fetch your data');
       const data = await res.json();
       
-      // Data contains { consultations, orders, webinars, seminarRegistrations, careerAssessments }
-      setConsultations(data.consultations || []);
+      // Data contains { consultations, startupGuidance, generalConsultations, orders, webinars, seminarRegistrations, careerAssessments }
+      setConsultations(data.generalConsultations || data.consultations || []);
+      setStartupGuidance(data.startupGuidance || []);
       setOrders(data.orders || []);
       setWebinars(data.webinars || []);
       setSeminars(data.seminarRegistrations || []);
@@ -111,7 +149,7 @@ export default function ClientDashboard() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const tab = params.get('tab');
-      if (tab && ['consultations', 'career', 'orders', 'webinars', 'seminars', 'reviews'].includes(tab)) {
+      if (tab && ['consultations', 'startup', 'career', 'orders', 'webinars', 'seminars', 'reviews'].includes(tab)) {
         setActiveTab(tab);
       }
     }
@@ -562,7 +600,14 @@ export default function ClientDashboard() {
             className={`${styles.tabBtn} ${activeTab === 'consultations' ? styles.activeTab : ''}`}
             onClick={() => setActiveTab('consultations')}
           >
-            My Consultations
+            My Consultations {consultations.length > 0 ? `(${consultations.length})` : ''}
+          </button>
+          <button 
+            className={`${styles.tabBtn} ${activeTab === 'startup' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('startup')}
+            style={activeTab === 'startup' ? { background: '#059669', borderColor: '#059669', color: '#ffffff', fontWeight: '700' } : {}}
+          >
+            🚀 Start-up Guidance {startupGuidance.length > 0 ? `(${startupGuidance.length})` : ''}
           </button>
           <button 
             className={`${styles.tabBtn} ${activeTab === 'career' ? styles.activeTab : ''}`}
@@ -682,7 +727,7 @@ export default function ClientDashboard() {
                       
                       {appt.status === 'Confirmed' && appt.paymentStatus === 'Pending' && appt.charges && (
                         <button 
-                          onClick={() => handlePayment(appt._id, appt.charges)} 
+                          onClick={() => handlePayment(appt)} 
                           className={`btn-accent ${styles.payBtn}`}
                           disabled={isProcessing === appt._id}
                         >
@@ -721,6 +766,248 @@ export default function ClientDashboard() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Start-up Guidance History Tab */}
+        {activeTab === 'startup' && (
+          <div className={styles.section}>
+            <div className={styles.headerRow}>
+              <div>
+                <h2 style={{ color: '#065F46', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span>🚀</span> Start-up Guidance &amp; Venture Mentoring
+                </h2>
+                <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem', color: '#4B5563' }}>
+                  1-on-1 Personalized Entrepreneurial Strategy Sessions with Avinash S. Gore &middot; &ldquo;Pay If You Get Benefitted&rdquo;
+                </p>
+              </div>
+              <Link 
+                href="/startup-guidance#booking-enquiry-section" 
+                className="btn-primary"
+                style={{ background: '#059669', borderColor: '#059669', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none' }}
+              >
+                <span>➕</span> Request New Guidance Session
+              </Link>
+            </div>
+
+            {startupGuidance.length === 0 ? (
+              <div className={styles.emptyState} style={{ padding: '3.5rem 1.5rem', textAlign: 'center', background: '#F0FDF4', border: '1.5px dashed #86EFAC', borderRadius: '16px' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🚀</div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#065F46', marginBottom: '0.5rem' }}>
+                  No Start-up Guidance Requests Yet
+                </h3>
+                <p style={{ maxWidth: '540px', margin: '0 auto 1.5rem auto', color: '#374151', fontSize: '0.95rem', lineHeight: '1.6' }}>
+                  Have a new venture idea, planning to launch your startup, or seeking practical advice to solve operational and cashflow challenges? Schedule a personal session with Avinash S. Gore.
+                </p>
+                <div style={{ display: 'inline-block', background: '#DCFCE7', color: '#166534', padding: '0.45rem 1rem', borderRadius: '50px', fontSize: '0.85rem', fontWeight: '700', marginBottom: '1.5rem', border: '1px solid #86EFAC' }}>
+                  💡 Our Philosophy: &ldquo;Pay If You Get Benefitted&rdquo;
+                </div>
+                <div>
+                  <Link 
+                    href="/startup-guidance" 
+                    className="btn-primary" 
+                    style={{ background: '#059669', borderColor: '#059669', padding: '0.75rem 2rem', fontWeight: '700', textDecoration: 'none', display: 'inline-block' }}
+                  >
+                    Explore Start-up Guidance &amp; Book
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className={styles.grid}>
+                {startupGuidance.map(item => {
+                  const parsed = parseStartupEnquiry(item.message);
+                  const isConfirmed = item.status === 'Confirmed';
+                  const isCompleted = item.status === 'Completed';
+                  const isCancelled = item.status === 'Cancelled';
+                  const isPending = !isConfirmed && !isCompleted && !isCancelled;
+                  const dateObj = item.date ? new Date(item.date) : new Date(item.createdAt);
+
+                  return (
+                    <div key={item._id} className={`${styles.card} ${styles.startupCard}`}>
+                      <div className={styles.cardHeader} style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '1rem', marginBottom: '1.25rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                          <div className={styles.dateBadge} style={{ background: '#059669' }}>
+                            <span className={styles.month}>{dateObj.toLocaleDateString('en-US', { month: 'short' })}</span>
+                            <span className={styles.day}>{dateObj.getDate()}</span>
+                          </div>
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                              <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#0F172A', fontWeight: '800' }}>
+                                Start-up Guidance Consultation
+                              </h3>
+                              <span style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: '600' }}>
+                                Ref: {String(item._id).slice(-8).toUpperCase()}
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.35rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                              <span className={styles.startupBadge}>
+                                🧭 {parsed?.mode || 'Virtual / Online'}
+                              </span>
+                              {item.time && (
+                                <span style={{ fontSize: '0.85rem', color: '#475569', fontWeight: '500' }}>
+                                  ⏰ {item.time}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Status Badge */}
+                        <div>
+                          <span 
+                            style={{
+                              padding: '0.35rem 0.85rem',
+                              borderRadius: '50px',
+                              fontSize: '0.82rem',
+                              fontWeight: '700',
+                              letterSpacing: '0.02em',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.4rem',
+                              background: isConfirmed ? '#DCFCE7' : isCompleted ? '#F3E8FF' : isCancelled ? '#FEE2E2' : '#FEF3C7',
+                              color: isConfirmed ? '#166534' : isCompleted ? '#6B21A8' : isCancelled ? '#991B1B' : '#92400E',
+                              border: `1px solid ${isConfirmed ? '#86EFAC' : isCompleted ? '#D8B4FE' : isCancelled ? '#FCA5A5' : '#FDE68A'}`
+                            }}
+                          >
+                            <span style={{ fontSize: '0.75rem' }}>
+                              {isConfirmed ? '●' : isCompleted ? '✓' : isCancelled ? '✕' : '⏳'}
+                            </span>
+                            {isPending ? 'Under Review' : item.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className={styles.cardBody} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {/* Venture Stage */}
+                        {parsed?.stage && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem', color: '#334155', flexWrap: 'wrap' }}>
+                            <span style={{ fontWeight: '700', color: '#0F172A' }}>Current Background:</span>
+                            <span style={{ background: '#F1F5F9', padding: '0.2rem 0.6rem', borderRadius: '6px', fontWeight: '600' }}>
+                              {parsed.stage}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Business Idea Box */}
+                        {parsed?.idea && parsed.idea !== 'N/A' && (
+                          <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '1rem' }}>
+                            <div style={{ fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#059669', marginBottom: '0.35rem' }}>
+                              💼 Venture Idea / Overview
+                            </div>
+                            <p style={{ margin: 0, fontSize: '0.92rem', color: '#334155', lineHeight: '1.55', whiteSpace: 'pre-line' }}>
+                              {parsed.idea}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Specific Goal */}
+                        {parsed?.goal && parsed.goal !== 'N/A' && (
+                          <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '10px', padding: '0.85rem 1rem' }}>
+                            <div style={{ fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#166534', marginBottom: '0.25rem' }}>
+                              🎯 Key Question / Session Goal
+                            </div>
+                            <p style={{ margin: 0, fontSize: '0.9rem', color: '#14532D', lineHeight: '1.5' }}>
+                              {parsed.goal}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Focus Areas */}
+                        {parsed?.areas && parsed.areas.length > 0 && (
+                          <div>
+                            <div style={{ fontSize: '0.8rem', fontWeight: '700', color: '#64748B', marginBottom: '0.4rem' }}>
+                              Selected Discussion Focus:
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                              {parsed.areas.map((area, idx) => (
+                                <span key={idx} className={styles.startupPillarTag}>
+                                  ✓ {area}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Raw Message Fallback if not standard formatted */}
+                        {(!parsed || (!parsed.idea && !parsed.stage && !parsed.goal)) && item.message && (
+                          <p className={styles.message} style={{ fontStyle: 'italic', color: '#475569' }}>
+                            &ldquo;{item.message}&rdquo;
+                          </p>
+                        )}
+
+                        {/* "Pay If You Get Benefitted" Reminder Banner */}
+                        <div style={{ background: 'linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%)', border: '1px solid #A7F3D0', borderRadius: '10px', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <span style={{ fontSize: '1.25rem' }}>💡</span>
+                          <div style={{ fontSize: '0.84rem', color: '#065F46', lineHeight: '1.45' }}>
+                            <strong>Mentorship Commitment:</strong> Our sessions follow the <em>&ldquo;Pay If You Get Benefitted&rdquo;</em> philosophy. You pay a voluntary honorarium only if you feel this conversation brought tangible clarity and value.
+                          </div>
+                        </div>
+
+                        {/* Actions / Meeting Links / Review */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid #F1F5F9' }}>
+                          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                            {item.meetingLink ? (
+                              <a 
+                                href={item.meetingLink} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="btn-primary"
+                                style={{ background: '#059669', borderColor: '#059669', padding: '0.55rem 1.25rem', fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none' }}
+                              >
+                                📹 Join Session Meeting
+                              </a>
+                            ) : isConfirmed ? (
+                              <div style={{ fontSize: '0.85rem', color: '#059669', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                <span>📅</span> Session confirmed! Meeting link will be shared via WhatsApp/Email shortly.
+                              </div>
+                            ) : isPending ? (
+                              <div style={{ fontSize: '0.85rem', color: '#D97706', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                <span>⏳</span> Avinash S. Gore is reviewing your venture details. You will be contacted soon.
+                              </div>
+                            ) : null}
+
+                            {/* Payment option if charges set by admin and unpaid */}
+                            {item.charges && item.paymentStatus === 'Pending' && (
+                              <button 
+                                onClick={() => handlePayment(item)} 
+                                className={`btn-accent ${styles.payBtn}`}
+                                disabled={isProcessing === item._id}
+                                style={{ background: '#059669' }}
+                              >
+                                {isProcessing === item._id ? 'Processing...' : `Pay ₹${item.charges} Honorarium`}
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Review Action */}
+                          <div>
+                            <button
+                              onClick={() => handleOpenReviewModal('platform', null, 'Start-up Mentorship with Avinash S. Gore')}
+                              className="btn-accent"
+                              style={{ 
+                                padding: '0.45rem 1rem', 
+                                fontSize: '0.82rem', 
+                                background: '#ECFDF5', 
+                                color: '#065F46', 
+                                border: '1px solid #A7F3D0', 
+                                display: 'inline-flex', 
+                                alignItems: 'center', 
+                                gap: '0.35rem', 
+                                cursor: 'pointer',
+                                borderRadius: '8px',
+                                fontWeight: '600'
+                              }}
+                            >
+                              <span>⭐</span> {getExistingReview('platform', null) ? 'Edit Experience Feedback' : 'Share Mentorship Feedback'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

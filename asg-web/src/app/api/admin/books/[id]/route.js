@@ -34,6 +34,7 @@ export async function PUT(req, { params }) {
       originalPrice,
       price,
       stock,
+      hasPhysicalBook,
       physicalPrice,
       shippingCost,
       ebookUrl,
@@ -49,8 +50,9 @@ export async function PUT(req, { params }) {
       description,
       originalPrice: Number(originalPrice || 0),
       price: Number(price),
-      physicalPrice: Number(physicalPrice || 0),
-      shippingCost: Number(shippingCost || 0),
+      hasPhysicalBook: Boolean(hasPhysicalBook),
+      physicalPrice: Boolean(hasPhysicalBook) ? Number(physicalPrice || 0) : 0,
+      shippingCost: Boolean(hasPhysicalBook) ? Number(shippingCost || 0) : 0,
       stock: Number(stock) || 0,
     };
     

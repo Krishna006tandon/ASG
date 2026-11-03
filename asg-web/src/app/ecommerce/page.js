@@ -78,6 +78,7 @@ export default function EcommerceStore() {
   const [selectedFormats, setSelectedFormats] = useState({});
 
   const getFormat = (book) => {
+    if (!book.hasPhysicalBook) return 'digital';
     if (selectedFormats[book._id]) return selectedFormats[book._id];
     return book.physicalPrice > 0 ? 'physical' : 'digital';
   };
@@ -150,7 +151,7 @@ export default function EcommerceStore() {
                 </div>
                 <div className={styles.bookInfo}>
                   {/* Format Selector on Card */}
-                  {book.physicalPrice > 0 ? (
+                  {book.hasPhysicalBook && book.physicalPrice > 0 ? (
                     <div style={{ marginBottom: '0.75rem' }}>
                       <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#4B5563', marginBottom: '0.4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span>Choose Format:</span>

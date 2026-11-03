@@ -16,7 +16,10 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
-    const existingUser = await User.findOne({ email });
+    const cleanName = String(name).trim();
+    const cleanEmail = String(email).trim().toLowerCase();
+
+    const existingUser = await User.findOne({ email: cleanEmail });
     if (existingUser) {
       return NextResponse.json({ error: 'User already exists' }, { status: 400 });
     }
@@ -24,12 +27,17 @@ export async function POST(req) {
     const hashedPassword = await bcrypt.hash(password, 10);
     
     const newUser = await User.create({
-      name,
-      email,
+      name: cleanName,
+      email: cleanEmail,
       password: hashedPassword,
     });
 
-    const token = signToken({ userId: newUser._id, role: newUser.role });
+    const token = signToken({ 
+      userId: newUser._id, 
+      email: newUser.email, 
+      name: newUser.name, 
+      role: newUser.role 
+    });
 
     // 1. Send Welcome Email to the User
     try {

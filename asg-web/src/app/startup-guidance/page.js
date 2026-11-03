@@ -43,6 +43,20 @@ export default function StartupGuidancePage() {
         }
       })
       .catch(err => console.error('Failed to load startup video settings:', err));
+
+    // Auto-populate user details if logged in
+    try {
+      const storedUser = localStorage.getItem('asg_user');
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        setFormData(prev => ({
+          ...prev,
+          name: prev.name || parsed.name || '',
+          email: prev.email || parsed.email || '',
+          phone: prev.phone || parsed.phone || ''
+        }));
+      }
+    } catch (e) {}
   }, []);
 
   const hasIntroVideo = Boolean(videoSettings.introVideo?.videoUrl && videoSettings.introVideo.videoUrl.trim());
@@ -300,9 +314,15 @@ export default function StartupGuidancePage() {
     setFormError('');
 
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('asg_token') : null;
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const res = await fetch('/api/startup-guidance/enquiry', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(formData)
       });
 
@@ -811,27 +831,35 @@ export default function StartupGuidancePage() {
             <p className={styles.successText}>
               Avinash will personally review your venture overview and contact you to schedule your 1-on-1 session. Remember, our &ldquo;Pay If You Get Benefitted&rdquo; philosophy applies completely!
             </p>
-            <button 
-              onClick={() => {
-                setFormSuccess(false);
-                setFormData({
-                  name: '',
-                  email: '',
-                  phone: '',
-                  currentStage: 'Employed professional exploring a business idea',
-                  businessIdea: '',
-                  challenges: [],
-                  message: '',
-                  sessionMode: 'Virtual (Google Meet/Zoom)',
-                  preferredDate: '',
-                  agreedPayBenefitted: true
-                });
-              }}
-              className={styles.ctaSecondary}
-              style={{ margin: '0 auto' }}
-            >
-              Submit Another Inquiry
-            </button>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '1.5rem' }}>
+              <Link 
+                href="/dashboard?tab=startup"
+                className={styles.ctaPrimary}
+                style={{ textDecoration: 'none', background: '#059669', color: '#FFFFFF', padding: '0.75rem 1.75rem', borderRadius: '10px' }}
+              >
+                Track in Your Dashboard &rarr;
+              </Link>
+              <button 
+                onClick={() => {
+                  setFormSuccess(false);
+                  setFormData({
+                    name: '',
+                    email: '',
+                    phone: '',
+                    currentStage: 'Employed professional exploring a business idea',
+                    businessIdea: '',
+                    challenges: [],
+                    message: '',
+                    sessionMode: 'Virtual (Google Meet/Zoom)',
+                    preferredDate: '',
+                    agreedPayBenefitted: true
+                  });
+                }}
+                className={styles.ctaSecondary}
+              >
+                Submit Another Inquiry
+              </button>
+            </div>
           </div>
         ) : (
           <form onSubmit={handleFormSubmit}>

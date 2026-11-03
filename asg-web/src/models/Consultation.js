@@ -1,6 +1,16 @@
 import mongoose from 'mongoose';
 
 const ConsultationSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false
+  },
+  type: {
+    type: String,
+    enum: ['general', 'startup'],
+    default: 'general'
+  },
   customerDetails: {
     name: { type: String, required: true },
     email: { type: String, required: true },

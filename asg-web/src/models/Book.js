@@ -7,6 +7,7 @@ const BookSchema = new mongoose.Schema({
   price: { type: Number, required: true }, // Selling Price
   coverImage: { type: String, default: '' },
   ebookUrl: { type: String, default: '' }, // For Vercel Blob PDF URL
+  hasPhysicalBook: { type: Boolean, default: false },
   physicalPrice: { type: Number, default: 0 },
   shippingCost: { type: Number, default: 0 },
   stock: { type: Number, required: true, default: 0 },

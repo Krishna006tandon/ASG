@@ -1,9 +1,26 @@
 export const forgotPasswordTemplate = (resetUrl) => `
-  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-    <h2>Password Reset Request</h2>
-    <p>You requested to reset your password. Click the button below to proceed:</p>
-    <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; color: #fff; background-color: #007bff; text-decoration: none; border-radius: 5px;">Reset Password</a>
-    <p>If you did not request this, please ignore this email.</p>
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px; background: #ffffff;">
+    <div style="border-bottom: 2px solid #7942B5; padding-bottom: 12px; margin-bottom: 16px;">
+      <h2 style="color: #111827; margin: 0; font-size: 22px;">Password Reset Request</h2>
+      <p style="color: #7942B5; font-weight: 600; margin: 4px 0 0;">Avinash S. Gore Platform</p>
+    </div>
+    <p>Hello,</p>
+    <p>We received a request to reset your password. Click the button below to choose a new password:</p>
+    <div style="margin: 25px 0; text-align: center;">
+      <a href="${resetUrl}" style="display: inline-block; padding: 12px 28px; color: #ffffff; background-color: #7942B5; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px;">
+        Reset Password
+      </a>
+    </div>
+    <div style="background: #FFFBEB; border-left: 4px solid #F59E0B; padding: 12px 14px; margin: 20px 0; border-radius: 4px; font-size: 13px; color: #92400E;">
+      ⏰ <strong>Security Notice:</strong> This link is valid for <strong>1 hour</strong>. If you did not request this reset, you can safely ignore this email; your account remains secure.
+    </div>
+    <p style="font-size: 12.5px; color: #6B7280; word-break: break-all;">
+      If the button above does not work, copy and paste this link into your browser:<br/>
+      <a href="${resetUrl}" style="color: #7942B5;">${resetUrl}</a>
+    </p>
+    <br/>
+    <p style="margin: 0; font-size: 13px; color: #374151;">Best Regards,</p>
+    <p style="margin: 2px 0 0 0; font-weight: bold; color: #111827;">Avinash S. Gore &amp; Team</p>
   </div>
 `;
 

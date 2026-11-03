@@ -38,7 +38,8 @@ export default function Navbar() {
     return cart.reduce((sum, item) => {
       let itemPrice = item.price;
       const key = item.cartItemId || item._id;
-      const isPhysical = item.isPhysicalRequested || physicalSelections[key] || physicalSelections[item._id];
+      const canBePhysical = item.hasPhysicalBook !== false && (item.physicalPrice > 0);
+      const isPhysical = canBePhysical && Boolean(item.isPhysicalRequested || physicalSelections[key] || physicalSelections[item._id]);
       if (isPhysical) {
         itemPrice += (item.physicalPrice || 0) + (item.shippingCost || 0);
       }
@@ -111,16 +112,37 @@ export default function Navbar() {
     if (token) {
       setIsLoggedIn(true);
       
-      // Attempt to decode the JWT payload to get the role reliably
+      let uName = '';
+      let uEmail = '';
+
+      try {
+        const storedUser = localStorage.getItem('asg_user');
+        if (storedUser) {
+          const u = JSON.parse(storedUser);
+          if (u.name) uName = u.name;
+          if (u.email) uEmail = u.email;
+        }
+      } catch (e) {}
+
+      // Attempt to decode the JWT payload to get the role and user info reliably
       try {
         const payloadStr = atob(token.split('.')[1]);
         const payload = JSON.parse(payloadStr);
         if (payload.role === 'admin') {
           setIsAdmin(true);
-          return;
         }
+        if (!uName && payload.name) uName = payload.name;
+        if (!uEmail && payload.email) uEmail = payload.email;
       } catch (e) {
         console.error("Failed to decode token", e);
+      }
+
+      if (uName || uEmail) {
+        setCheckoutDetails(prev => ({
+          ...prev,
+          name: prev.name || uName,
+          email: prev.email || uEmail
+        }));
       }
       
       // Fallback
@@ -167,13 +189,52 @@ export default function Navbar() {
         return;
       }
 
+      // Resolve user details if missing in state
+      let resolvedName = checkoutDetails.name;
+      let resolvedEmail = checkoutDetails.email;
+
+      if (!resolvedEmail || !resolvedName) {
+        try {
+          const storedUser = localStorage.getItem('asg_user');
+          if (storedUser) {
+            const u = JSON.parse(storedUser);
+            if (!resolvedEmail) resolvedEmail = u.email;
+            if (!resolvedName) resolvedName = u.name;
+          }
+        } catch (e) {}
+
+        if (!resolvedEmail || !resolvedName) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            if (!resolvedEmail) resolvedEmail = payload.email;
+            if (!resolvedName) resolvedName = payload.name;
+          } catch (e) {}
+        }
+      }
+
       const cartWithSelections = cart.map(item => {
         const key = item.cartItemId || item._id;
+        const canBePhysical = item.hasPhysicalBook !== false && (item.physicalPrice > 0);
         return {
           ...item,
-          isPhysicalRequested: Boolean(item.isPhysicalRequested || physicalSelections[key] || physicalSelections[item._id])
+          isPhysicalRequested: Boolean(canBePhysical && (item.isPhysicalRequested || physicalSelections[key] || physicalSelections[item._id]))
         };
       });
+
+      const hasPhysical = cartWithSelections.some(item => item.isPhysicalRequested);
+      if (hasPhysical && (!checkoutDetails.phone?.trim() || !checkoutDetails.address?.trim())) {
+        setShowCheckoutForm(true);
+        setIsCheckingOut(false);
+        alert("Please provide your delivery address and phone number for the physical book dispatch.");
+        return;
+      }
+
+      const activeCustomerDetails = {
+        name: resolvedName || 'Valued Customer',
+        email: resolvedEmail || '',
+        phone: checkoutDetails.phone || '',
+        address: checkoutDetails.address || ''
+      };
 
       // Create Order on Backend (pass couponCode if applied)
       const orderRes = await fetch('/api/razorpay/create-store-order', {
@@ -184,7 +245,7 @@ export default function Navbar() {
         },
         body: JSON.stringify({ 
           cart: cartWithSelections, 
-          customerDetails: checkoutDetails,
+          customerDetails: activeCustomerDetails,
           couponCode: appliedCoupon?.code || null
         })
       });
@@ -338,43 +399,67 @@ export default function Navbar() {
                     ) : showCheckoutForm ? (
                       <div className={styles.cartBody}>
                         <form onSubmit={(e) => { e.preventDefault(); handleStoreCheckout(); }} style={{display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
-                          <div>
-                            <label style={{fontSize: '0.85rem', fontWeight: '500'}}>Full Name *</label>
-                            <input required type="text" value={checkoutDetails.name} onChange={e => setCheckoutDetails({...checkoutDetails, name: e.target.value})} style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #D1D5DB'}} />
-                          </div>
-                          <div>
-                            <label style={{fontSize: '0.85rem', fontWeight: '500'}}>Email *</label>
-                            <input required type="email" value={checkoutDetails.email} onChange={e => setCheckoutDetails({...checkoutDetails, email: e.target.value})} style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #D1D5DB'}} />
-                          </div>
-                          
-                          <div style={{marginTop: '0.5rem', padding: '0.75rem', background: '#F3F4F6', borderRadius: '8px'}}>
-                            <h4 style={{fontSize: '0.9rem', marginBottom: '0.5rem'}}>Selected Formats</h4>
-                            {cart.map(item => {
-                              const itemKey = item.cartItemId || item._id;
-                              const isPhysical = Boolean(item.isPhysicalRequested || physicalSelections[itemKey] || physicalSelections[item._id]);
-                              return (
-                                <div key={itemKey} style={{marginBottom: '0.5rem', fontSize: '0.85rem'}}>
-                                  <div style={{fontWeight: '500'}}>{item.title}</div>
-                                  <label style={{display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.25rem', cursor: item.isPhysicalRequested ? 'default' : 'pointer'}}>
-                                    <input 
-                                      type="checkbox" 
-                                      checked={isPhysical}
-                                      disabled={item.isPhysicalRequested}
-                                      onChange={(e) => updateCartItemPhysical(itemKey, e.target.checked)}
-                                    />
-                                    <span>
-                                      {item.isPhysicalRequested 
-                                        ? `📦 Physical Copy included (+₹${(item.physicalPrice || 0) + (item.shippingCost || 0)})`
-                                        : `Add Physical Copy (+₹${(item.physicalPrice || 0) + (item.shippingCost || 0)})`
-                                      }
-                                    </span>
-                                  </label>
+                          {isLoggedIn ? (
+                            <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', padding: '0.65rem 0.75rem', borderRadius: '8px', fontSize: '0.85rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#166534', fontWeight: 600 }}>
+                                  <span>✓</span>
+                                  <span>Account: {checkoutDetails.email || 'Logged In'}</span>
                                 </div>
-                              );
-                            })}
-                          </div>
+                                <span style={{ fontSize: '0.7rem', background: '#DCFCE7', color: '#15803D', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                                  VERIFIED
+                                </span>
+                              </div>
+                              {checkoutDetails.name && (
+                                <div style={{ fontSize: '0.78rem', color: '#4B5563', marginTop: '0.2rem' }}>
+                                  Name: <strong>{checkoutDetails.name}</strong>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <>
+                              <div>
+                                <label style={{fontSize: '0.85rem', fontWeight: '500'}}>Full Name *</label>
+                                <input required type="text" value={checkoutDetails.name} onChange={e => setCheckoutDetails({...checkoutDetails, name: e.target.value})} style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #D1D5DB'}} />
+                              </div>
+                              <div>
+                                <label style={{fontSize: '0.85rem', fontWeight: '500'}}>Email *</label>
+                                <input required type="email" value={checkoutDetails.email} onChange={e => setCheckoutDetails({...checkoutDetails, email: e.target.value})} style={{width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #D1D5DB'}} />
+                              </div>
+                            </>
+                          )}
+                          
+                          {cart.some(item => item.hasPhysicalBook !== false && (item.physicalPrice > 0)) && (
+                            <div style={{marginTop: '0.25rem', padding: '0.75rem', background: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0'}}>
+                              <h4 style={{fontSize: '0.85rem', marginBottom: '0.5rem', color: '#334155'}}>Physical Delivery Options</h4>
+                              {cart.map(item => {
+                                if (item.hasPhysicalBook === false || !item.physicalPrice) return null;
+                                const itemKey = item.cartItemId || item._id;
+                                const isPhysical = Boolean(item.isPhysicalRequested || physicalSelections[itemKey] || physicalSelections[item._id]);
+                                return (
+                                  <div key={itemKey} style={{marginBottom: '0.5rem', fontSize: '0.82rem'}}>
+                                    <div style={{fontWeight: '600', color: '#1E293B'}}>{item.title}</div>
+                                    <label style={{display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.25rem', cursor: item.isPhysicalRequested ? 'default' : 'pointer'}}>
+                                      <input 
+                                        type="checkbox" 
+                                        checked={isPhysical}
+                                        disabled={item.isPhysicalRequested}
+                                        onChange={(e) => updateCartItemPhysical(itemKey, e.target.checked)}
+                                      />
+                                      <span style={{ color: isPhysical ? '#059669' : '#64748B', fontWeight: isPhysical ? 600 : 400 }}>
+                                        {item.isPhysicalRequested 
+                                          ? `📦 Physical Paperback included (+₹${(item.physicalPrice || 0) + (item.shippingCost || 0)})`
+                                          : `Add Physical Paperback (+₹${(item.physicalPrice || 0) + (item.shippingCost || 0)})`
+                                        }
+                                      </span>
+                                    </label>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
 
-                          {cart.some(item => item.isPhysicalRequested || physicalSelections[item.cartItemId || item._id] || physicalSelections[item._id]) && (
+                          {cart.some(item => (item.hasPhysicalBook !== false && item.physicalPrice > 0) && (item.isPhysicalRequested || physicalSelections[item.cartItemId || item._id] || physicalSelections[item._id])) && (
                             <>
                               <div>
                                 <label style={{fontSize: '0.85rem', fontWeight: '500'}}>Phone Number *</label>
@@ -521,7 +606,8 @@ export default function Navbar() {
                       <div className={styles.cartBody}>
                         {cart.map(item => {
                           const itemKey = item.cartItemId || item._id;
-                          const isPhysical = Boolean(item.isPhysicalRequested || physicalSelections[itemKey] || physicalSelections[item._id]);
+                          const canBePhysical = item.hasPhysicalBook !== false && (item.physicalPrice > 0);
+                          const isPhysical = Boolean(canBePhysical && (item.isPhysicalRequested || physicalSelections[itemKey] || physicalSelections[item._id]));
                           const unitPrice = item.price + (isPhysical ? ((item.physicalPrice || 0) + (item.shippingCost || 0)) : 0);
 
                           return (
@@ -568,12 +654,30 @@ export default function Navbar() {
                               window.location.href = '/login';
                               return;
                             }
-                            setShowCheckoutForm(true);
+
+                            const cartWithSelections = cart.map(item => {
+                              const key = item.cartItemId || item._id;
+                              const canBePhysical = item.hasPhysicalBook !== false && (item.physicalPrice > 0);
+                              return {
+                                ...item,
+                                isPhysicalRequested: Boolean(canBePhysical && (item.isPhysicalRequested || physicalSelections[key] || physicalSelections[item._id]))
+                              };
+                            });
+
+                            const hasPhysical = cartWithSelections.some(item => item.isPhysicalRequested);
+                            
+                            // If cart has only digital books, directly trigger payment!
+                            if (!hasPhysical) {
+                              handleStoreCheckout();
+                            } else {
+                              setShowCheckoutForm(true);
+                            }
                           }} 
                           className="btn-primary" 
                           style={{width: '100%', marginTop: '1rem'}}
+                          disabled={isCheckingOut}
                         >
-                          Checkout Now
+                          {isCheckingOut ? 'Initiating Checkout...' : 'Checkout Now'}
                         </button>
                       </div>
                     )}

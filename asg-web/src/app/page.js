@@ -186,7 +186,7 @@ export default async function Home() {
                   <span style={{ fontSize: '0.75rem', fontWeight: '600', padding: '0.2rem 0.55rem', borderRadius: '4px', background: '#EEF2FF', color: '#4F46E5' }}>
                     📄 Digital E-Book
                   </span>
-                  {book.physicalPrice > 0 && (
+                  {book.hasPhysicalBook && book.physicalPrice > 0 && (
                     <span style={{ fontSize: '0.75rem', fontWeight: '600', padding: '0.2rem 0.55rem', borderRadius: '4px', background: '#F0FDF4', color: '#166534' }}>
                       📦 Physical Copy Available
                     </span>
