@@ -36,8 +36,24 @@ export async function POST(req) {
     user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hour
     await user.save();
 
-    // Construct the reset URL using configured site URL
-    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/+$/, '');
+    // Determine the public site URL (ensuring it never falls back to localhost)
+    let siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || '').trim().replace(/\/+$/, '');
+
+    // If siteUrl is empty or points to localhost, check request headers or force production domain
+    if (!siteUrl || siteUrl.includes('localhost') || siteUrl.includes('127.0.0.1')) {
+      const origin = req.headers.get('origin');
+      const forwardedHost = req.headers.get('x-forwarded-host') || req.headers.get('host');
+      const proto = req.headers.get('x-forwarded-proto') || 'https';
+
+      if (origin && !origin.includes('localhost') && !origin.includes('127.0.0.1')) {
+        siteUrl = origin.replace(/\/+$/, '');
+      } else if (forwardedHost && !forwardedHost.includes('localhost') && !forwardedHost.includes('127.0.0.1')) {
+        siteUrl = `${proto}://${forwardedHost}`.replace(/\/+$/, '');
+      } else {
+        siteUrl = 'https://avinashsgore.com';
+      }
+    }
+
     const resetUrl = `${siteUrl}/reset-password?token=${resetToken}`;
 
     await sendEmail({
