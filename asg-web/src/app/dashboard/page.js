@@ -23,7 +23,6 @@ const parseStartupEnquiry = (rawMessage) => {
     areas: [],
     idea: '',
     goal: '',
-    payBenefitted: false,
     rawText: rawMessage
   };
 
@@ -43,10 +42,6 @@ const parseStartupEnquiry = (rawMessage) => {
 
   const goalMatch = rawMessage.match(/Specific Challenge \/ Goal for Session:\s*([\s\S]*?)(?=(?:Philosophy Acknowledged:|$))/i);
   if (goalMatch) result.goal = goalMatch[1].trim();
-
-  if (rawMessage.toLowerCase().includes('pay if you get benefitted')) {
-    result.payBenefitted = true;
-  }
 
   return result;
 };
@@ -719,20 +714,43 @@ export default function ClientDashboard() {
                       {appt.message && (
                         <p className={styles.message}>"{appt.message}"</p>
                       )}
-                      {appt.charges && appt.paymentStatus === 'Pending' && (
-                        <div className={styles.chargesAlert}>
-                          Admin has set the charges for this session at <strong>₹{appt.charges}</strong>
+                      {appt.charges > 0 && appt.paymentStatus !== 'Paid' && (
+                        <div className={styles.chargesAlert} style={{ background: '#FEF3C7', border: '1px solid #FCD34D', padding: '0.75rem', borderRadius: '8px', color: '#92400E', margin: '0.75rem 0' }}>
+                          <div style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                            <span>🔔</span> Session Reviewed & Confirmed!
+                          </div>
+                          <div>
+                            Admin has reviewed your session and set the consultation fee at <strong>₹{appt.charges}</strong>.
+                          </div>
                         </div>
                       )}
                       
-                      {appt.status === 'Confirmed' && appt.paymentStatus === 'Pending' && appt.charges && (
-                        <button 
-                          onClick={() => handlePayment(appt)} 
-                          className={`btn-accent ${styles.payBtn}`}
-                          disabled={isProcessing === appt._id}
-                        >
-                          {isProcessing === appt._id ? 'Processing...' : `Pay ₹${appt.charges} with Razorpay`}
-                        </button>
+                      {appt.charges > 0 && appt.paymentStatus !== 'Paid' && (
+                        <div style={{ margin: '0.65rem 0' }}>
+                          <button 
+                            onClick={() => handlePayment(appt)} 
+                            className={`btn-accent ${styles.payBtn}`}
+                            disabled={isProcessing === appt._id}
+                            style={{
+                              background: 'linear-gradient(135deg, #4F46E5 0%, #3730A3 100%)',
+                              color: '#fff',
+                              border: 'none',
+                              padding: '0.6rem 1.25rem',
+                              borderRadius: '8px',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.5rem',
+                              boxShadow: '0 4px 12px rgba(79, 70, 229, 0.25)'
+                            }}
+                          >
+                            <span>💳</span> {isProcessing === appt._id ? 'Processing...' : `Pay ₹${appt.charges} with Razorpay`}
+                          </button>
+                          <div style={{ fontSize: '0.75rem', color: '#6B7280', marginTop: '0.3rem' }}>
+                            ⚡ Complete payment to unlock your 1-on-1 Zoom meeting link and official invoice.
+                          </div>
+                        </div>
                       )}
                       {appt.paymentStatus === 'Paid' && (
                         <div className={styles.paidContainer}>
@@ -780,7 +798,7 @@ export default function ClientDashboard() {
                   <span>🚀</span> Start-up Guidance &amp; Venture Mentoring
                 </h2>
                 <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem', color: '#4B5563' }}>
-                  1-on-1 Personalized Entrepreneurial Strategy Sessions with Avinash S. Gore &middot; &ldquo;Pay If You Get Benefitted&rdquo;
+                  1-on-1 Personalized Entrepreneurial Strategy Sessions with Avinash S. Gore
                 </p>
               </div>
               <Link 
@@ -801,9 +819,6 @@ export default function ClientDashboard() {
                 <p style={{ maxWidth: '540px', margin: '0 auto 1.5rem auto', color: '#374151', fontSize: '0.95rem', lineHeight: '1.6' }}>
                   Have a new venture idea, planning to launch your startup, or seeking practical advice to solve operational and cashflow challenges? Schedule a personal session with Avinash S. Gore.
                 </p>
-                <div style={{ display: 'inline-block', background: '#DCFCE7', color: '#166534', padding: '0.45rem 1rem', borderRadius: '50px', fontSize: '0.85rem', fontWeight: '700', marginBottom: '1.5rem', border: '1px solid #86EFAC' }}>
-                  💡 Our Philosophy: &ldquo;Pay If You Get Benefitted&rdquo;
-                </div>
                 <div>
                   <Link 
                     href="/startup-guidance" 
@@ -937,14 +952,6 @@ export default function ClientDashboard() {
                           </p>
                         )}
 
-                        {/* "Pay If You Get Benefitted" Reminder Banner */}
-                        <div style={{ background: 'linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%)', border: '1px solid #A7F3D0', borderRadius: '10px', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                          <span style={{ fontSize: '1.25rem' }}>💡</span>
-                          <div style={{ fontSize: '0.84rem', color: '#065F46', lineHeight: '1.45' }}>
-                            <strong>Mentorship Commitment:</strong> Our sessions follow the <em>&ldquo;Pay If You Get Benefitted&rdquo;</em> philosophy. You pay a voluntary honorarium only if you feel this conversation brought tangible clarity and value.
-                          </div>
-                        </div>
-
                         {/* Actions / Meeting Links / Review */}
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid #F1F5F9' }}>
                           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -969,15 +976,54 @@ export default function ClientDashboard() {
                             ) : null}
 
                             {/* Payment option if charges set by admin and unpaid */}
-                            {item.charges && item.paymentStatus === 'Pending' && (
-                              <button 
-                                onClick={() => handlePayment(item)} 
-                                className={`btn-accent ${styles.payBtn}`}
-                                disabled={isProcessing === item._id}
-                                style={{ background: '#059669' }}
-                              >
-                                {isProcessing === item._id ? 'Processing...' : `Pay ₹${item.charges} Honorarium`}
-                              </button>
+                            {item.charges > 0 && item.paymentStatus !== 'Paid' && (
+                              <div style={{ width: '100%', margin: '0.65rem 0' }}>
+                                <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', padding: '0.65rem 0.85rem', borderRadius: '8px', marginBottom: '0.5rem', color: '#065F46', fontSize: '0.85rem' }}>
+                                  <div style={{ fontWeight: 700, marginBottom: '0.15rem' }}>💼 Mentorship Fee Set:</div>
+                                  <div>Admin has reviewed your venture details and confirmed the session fee at <strong>₹{item.charges}</strong>.</div>
+                                </div>
+                                <button 
+                                  onClick={() => handlePayment(item)} 
+                                  className={`btn-accent ${styles.payBtn}`}
+                                  disabled={isProcessing === item._id}
+                                  style={{
+                                    background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                                    color: '#fff',
+                                    padding: '0.6rem 1.25rem',
+                                    borderRadius: '8px',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    border: 'none',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.45rem',
+                                    boxShadow: '0 4px 12px rgba(5, 150, 105, 0.2)'
+                                  }}
+                                >
+                                  <span>💳</span> {isProcessing === item._id ? 'Processing...' : `Pay ₹${item.charges} for Session`}
+                                </button>
+                                <div style={{ fontSize: '0.75rem', color: '#6B7280', marginTop: '0.3rem' }}>
+                                  ⚡ Once paid, your session Zoom link will be unlocked immediately.
+                                </div>
+                              </div>
+                            )}
+
+                            {item.paymentStatus === 'Paid' && (
+                              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                                <span style={{ fontSize: '0.82rem', fontWeight: 700, background: '#DCFCE7', color: '#166534', padding: '0.3rem 0.65rem', borderRadius: '6px' }}>
+                                  ✓ Payment Complete (₹{item.charges || 0})
+                                </span>
+                                {item.charges > 0 && (
+                                  <button 
+                                    className="btn-accent" 
+                                    style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                                    onClick={() => handleDownloadInvoice(item, 'Consultation')}
+                                    disabled={generatingInvoiceFor === item._id}
+                                  >
+                                    {generatingInvoiceFor === item._id ? '⏳ Generating...' : '⬇ Download Invoice'}
+                                  </button>
+                                )}
+                              </div>
                             )}
                           </div>
 

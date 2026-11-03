@@ -39,6 +39,38 @@ export const consultationBookingTemplate = (name, date, time) => `
   </div>
 `;
 
+export const consultationConfirmedTemplate = (name, date, time, charges, dashboardUrl) => `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px; background: #ffffff;">
+    <div style="border-bottom: 2px solid #059669; padding-bottom: 12px; margin-bottom: 16px;">
+      <h2 style="color: #111827; margin: 0; font-size: 22px;">Consultation Confirmed! 🎉</h2>
+      <p style="color: #059669; font-weight: 600; margin: 4px 0 0;">Avinash S. Gore 1-on-1 Mentorship</p>
+    </div>
+    <p>Dear <strong>${name}</strong>,</p>
+    <p>Your session request has been reviewed and officially <strong>Confirmed</strong> by Avinash S. Gore.</p>
+    <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 16px; margin: 18px 0;">
+      <div style="font-size: 14px; color: #166534; margin-bottom: 6px;">
+        📅 <strong>Date:</strong> ${new Date(date).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+      </div>
+      <div style="font-size: 14px; color: #166534; margin-bottom: 6px;">
+        ⏰ <strong>Time:</strong> ${time}
+      </div>
+      <div style="font-size: 15px; color: #065F46; font-weight: bold; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #86EFAC;">
+        💳 <strong>Session Fee:</strong> ₹${charges}
+      </div>
+    </div>
+    <p>Please click below to complete your payment via Razorpay. Once paid, your direct 1-on-1 Zoom meeting link and official invoice will be unlocked immediately in your dashboard:</p>
+    <div style="margin: 24px 0; text-align: center;">
+      <a href="${dashboardUrl}" style="display: inline-block; padding: 12px 28px; color: #ffffff; background-color: #059669; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px;">
+        Pay ₹${charges} &amp; Unlock Session &rarr;
+      </a>
+    </div>
+    <p style="font-size: 12.5px; color: #6B7280;">You can also log in to your dashboard anytime at <a href="${dashboardUrl}" style="color: #059669;">${dashboardUrl}</a> to complete payment or access past sessions.</p>
+    <br/>
+    <p style="margin: 0; font-size: 13px; color: #374151;">Best Regards,</p>
+    <p style="margin: 2px 0 0 0; font-weight: bold; color: #111827;">Avinash S. Gore &amp; Team</p>
+  </div>
+`;
+
 export const contactAutoReplyTemplate = (name) => `
   <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
     <h2>Thank You for Reaching Out!</h2>
