@@ -174,6 +174,7 @@ export default function ClientDashboard() {
     if (!updatedAppt || !updatedAppt._id) return;
     setConsultations(prev => prev.map(c => c._id === updatedAppt._id ? { ...c, ...updatedAppt } : c));
     setStartupGuidance(prev => prev.map(c => c._id === updatedAppt._id ? { ...c, ...updatedAppt } : c));
+    setCareerAssessments(prev => prev.map(c => c._id === updatedAppt._id ? { ...c, ...updatedAppt } : c));
     fetchMyReviews();
   };
 
@@ -1284,6 +1285,22 @@ export default function ClientDashboard() {
                             )}
                           </div>
                         </div>
+
+                        {/* Interactive Career Guidance Requirements, Follow-up Checklist & Feedback */}
+                        {isPaid && (
+                          <div style={{ marginTop: '1rem', borderTop: '1px solid #E5E7EB', paddingTop: '1rem' }}>
+                            <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#6B21A8', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                              <span>🎯</span> 1-on-1 Career Mentorship &amp; Discussion
+                            </div>
+                            <ConsultationWorkflow 
+                              appt={item} 
+                              onUpdate={handleConsultationUpdated} 
+                              isCareer={true}
+                              apiEndpoint="/api/user/career-guidance"
+                              title="Career Guidance"
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
                   );

@@ -15,7 +15,7 @@ const ConsultationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['general', 'startup'],
+    enum: ['general', 'startup', 'career'],
     default: 'general'
   },
   customerDetails: {

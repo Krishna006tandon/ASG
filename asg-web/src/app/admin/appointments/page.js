@@ -9,7 +9,7 @@ export default function AppointmentsQueue() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
-  const [activeFilter, setActiveFilter] = useState('all'); // 'all' | 'startup' | 'general'
+  const [activeFilter, setActiveFilter] = useState('all'); // 'all' | 'startup' | 'general' | 'career'
   const [selectedAppt, setSelectedAppt] = useState(null); // For detail modal
   const [editingMeetingLink, setEditingMeetingLink] = useState('');
 
@@ -83,6 +83,48 @@ export default function AppointmentsQueue() {
     alert('Meeting link updated successfully!');
   };
 
+  const handleCopyMeetingBrief = (appt) => {
+    const name = appt.customerDetails?.name || 'Client';
+    const email = appt.customerDetails?.email || 'N/A';
+    const phone = appt.customerDetails?.phone || 'N/A';
+    const date = appt.date ? new Date(appt.date).toLocaleDateString() : 'N/A';
+    const time = appt.time || 'N/A';
+    const typeLabel = isStartup(appt) 
+      ? 'Start-up Guidance' 
+      : (isCareer(appt) ? 'Career Guidance & Swadharma' : '1-on-1 Consultation');
+    const goal = appt.requirements?.goals || 'Not specified';
+    const text = appt.requirements?.text || appt.message || 'No description provided';
+    const questions = (appt.requirements?.specificQuestions || []).map((q, i) => `${i + 1}. ${q}`).join('\n') || 'None listed';
+
+    const brief = `
+=== 📋 ${typeLabel} Meeting Brief ===
+👤 Client: ${name}
+📞 Contact: ${phone} | ${email}
+📅 Scheduled Slot: ${date} at ${time}
+
+🎯 Primary Goal / Focus:
+${goal}
+
+📋 Client Situation & Requirements:
+${text}
+
+❓ Specific Questions for Mentor:
+${questions}
+======================================
+`.trim();
+
+    navigator.clipboard.writeText(brief);
+    alert('📋 Meeting Brief copied to clipboard! You can paste it into Zoom in-call chat or your notepad.');
+  };
+
+  const handleJoinWithCompanion = (appt) => {
+    if (appt.meetingLink) {
+      window.open(appt.meetingLink, '_blank');
+    }
+    setSelectedAppt(appt);
+    setEditingMeetingLink(appt.meetingLink || '');
+  };
+
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this appointment permanently?")) return;
     try {
@@ -104,12 +146,22 @@ export default function AppointmentsQueue() {
     );
   };
 
+  const isCareer = (appt) => {
+    return Boolean(
+      appt?.type === 'career' ||
+      appt?.message?.toLowerCase().includes('career') ||
+      appt?.message?.toLowerCase().includes('swadharma')
+    );
+  };
+
   const startupCount = appointments.filter(isStartup).length;
-  const generalCount = appointments.length - startupCount;
+  const careerCount = appointments.filter(a => isCareer(a) && !isStartup(a)).length;
+  const generalCount = appointments.length - startupCount - careerCount;
 
   const filteredAppointments = appointments.filter(appt => {
     if (activeFilter === 'startup') return isStartup(appt);
-    if (activeFilter === 'general') return !isStartup(appt);
+    if (activeFilter === 'career') return isCareer(appt) && !isStartup(appt);
+    if (activeFilter === 'general') return !isStartup(appt) && !isCareer(appt);
     return true;
   });
 
@@ -120,26 +172,45 @@ export default function AppointmentsQueue() {
     <div className={styles.container}>
       <div className={styles.header} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1>Consulting &amp; Start-up Guidance Queue</h1>
-          <p>Track client requirements, manage sessions, review post-meeting follow-up checklists, and monitor client feedback.</p>
+          <h1>Consulting, Start-up &amp; Career Guidance Queue</h1>
+          <p>Review pre-meeting requirements, launch Zoom calls with companion briefing notes, track execution checklists, and inspect feedback.</p>
         </div>
-        <Link 
-          href="/admin/startup-guidance"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            background: '#059669',
-            color: '#FFFFFF',
-            textDecoration: 'none',
-            padding: '0.55rem 1rem',
-            borderRadius: '8px',
-            fontSize: '0.85rem',
-            fontWeight: 700
-          }}
-        >
-          ⚙️ Manage Start-up Video &amp; Content
-        </Link>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <Link 
+            href="/admin/career-guidance"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              background: '#7942B5',
+              color: '#FFFFFF',
+              textDecoration: 'none',
+              padding: '0.55rem 1rem',
+              borderRadius: '8px',
+              fontSize: '0.85rem',
+              fontWeight: 700
+            }}
+          >
+            🎯 Career Guidance Tests
+          </Link>
+          <Link 
+            href="/admin/startup-guidance"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              background: '#059669',
+              color: '#FFFFFF',
+              textDecoration: 'none',
+              padding: '0.55rem 1rem',
+              borderRadius: '8px',
+              fontSize: '0.85rem',
+              fontWeight: 700
+            }}
+          >
+            ⚙️ Manage Start-up Video
+          </Link>
+        </div>
       </div>
 
       {/* Filter Tabs */}
@@ -192,6 +263,24 @@ export default function AppointmentsQueue() {
         >
           💼 1-on-1 Consulting ({generalCount})
         </button>
+        {careerCount > 0 && (
+          <button
+            type="button"
+            onClick={() => setActiveFilter('career')}
+            style={{
+              padding: '0.45rem 1rem',
+              borderRadius: '8px',
+              border: activeFilter === 'career' ? '2px solid #7942B5' : '1px solid #E2E8F0',
+              background: activeFilter === 'career' ? '#FAF5FF' : '#FFFFFF',
+              color: activeFilter === 'career' ? '#6B21A8' : '#475569',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer'
+            }}
+          >
+            🎯 Career Guidance ({careerCount})
+          </button>
+        )}
       </div>
 
       <div className={styles.tableWrapper}>
@@ -216,6 +305,7 @@ export default function AppointmentsQueue() {
             ) : (
               filteredAppointments.map((appt) => {
                 const isStart = isStartup(appt);
+                const isCar = isCareer(appt) && !isStart;
                 const hasReqs = Boolean(appt.requirements?.text || appt.message);
                 const hasFollowUp = Boolean(appt.followUp?.filled);
                 const actionItems = appt.followUp?.actionItems || [];
@@ -239,6 +329,20 @@ export default function AppointmentsQueue() {
                             display: 'inline-block'
                           }}>
                             🚀 START-UP GUIDANCE
+                          </span>
+                        ) : isCar ? (
+                          <span style={{
+                            background: '#FAF5FF',
+                            color: '#6B21A8',
+                            border: '1px solid #D8B4FE',
+                            padding: '0.2rem 0.55rem',
+                            borderRadius: '4px',
+                            fontSize: '0.72rem',
+                            fontWeight: 800,
+                            letterSpacing: '0.04em',
+                            display: 'inline-block'
+                          }}>
+                            🎯 CAREER GUIDANCE
                           </span>
                         ) : (
                           <span style={{
@@ -264,10 +368,14 @@ export default function AppointmentsQueue() {
                         </div>
                       )}
                       {appt.meetingLink && (
-                        <div style={{marginTop: '0.4rem'}}>
-                          <a href={appt.meetingLink} target="_blank" rel="noopener noreferrer" style={{fontSize: '0.8rem', color: '#2563EB', textDecoration: 'underline'}}>
-                            📹 Join Session Link
-                          </a>
+                        <div style={{marginTop: '0.4rem', display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap'}}>
+                          <button 
+                            type="button" 
+                            onClick={() => handleJoinWithCompanion(appt)}
+                            style={{ background: '#2563EB', color: '#FFFFFF', border: 'none', padding: '0.25rem 0.55rem', borderRadius: '4px', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer' }}
+                          >
+                            📹 Join + Companion
+                          </button>
                         </div>
                       )}
                     </td>
@@ -364,7 +472,7 @@ export default function AppointmentsQueue() {
                       </select>
                     </td>
                     <td>
-                      <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center', flexWrap: 'wrap' }}>
                         <button
                           type="button"
                           onClick={() => {
@@ -384,9 +492,26 @@ export default function AppointmentsQueue() {
                         >
                           View Details
                         </button>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyMeetingBrief(appt)}
+                          title="Copy requirements brief for Zoom in-call notes"
+                          style={{
+                            background: '#F1F5F9',
+                            border: '1px solid #CBD5E1',
+                            color: '#334155',
+                            padding: '0.35rem 0.55rem',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '0.76rem',
+                            fontWeight: 700
+                          }}
+                        >
+                          📋 Brief
+                        </button>
                         <button 
                           onClick={() => handleDelete(appt._id)}
-                          style={{ background: 'transparent', border: '1px solid #FCA5A5', color: '#EF4444', padding: '0.35rem 0.65rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.78rem'}}
+                          style={{ background: 'transparent', border: '1px solid #FCA5A5', color: '#EF4444', padding: '0.35rem 0.55rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.76rem'}}
                         >
                           Delete
                         </button>
@@ -401,7 +526,7 @@ export default function AppointmentsQueue() {
         </table>
       </div>
 
-      {/* DETAIL MODAL */}
+      {/* DETAIL & MEETING COMPANION MODAL */}
       {selectedAppt && (
         <div style={{
           position: 'fixed',
@@ -463,6 +588,18 @@ export default function AppointmentsQueue() {
                 }}>
                   🚀 START-UP GUIDANCE ENQUIRY
                 </span>
+              ) : isCareer(selectedAppt) ? (
+                <span style={{
+                  background: '#FAF5FF',
+                  color: '#6B21A8',
+                  border: '1px solid #D8B4FE',
+                  padding: '0.25rem 0.65rem',
+                  borderRadius: '4px',
+                  fontSize: '0.78rem',
+                  fontWeight: 800
+                }}>
+                  🎯 CAREER GUIDANCE
+                </span>
               ) : (
                 <span style={{
                   background: '#EFF6FF',
@@ -523,7 +660,7 @@ export default function AppointmentsQueue() {
             </div>
 
             {/* Direct Connect & Session Control Buttons */}
-            <div style={{ display: 'flex', gap: '0.65rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
               {selectedAppt.customerDetails?.phone && (
                 <a
                   href={`https://wa.me/${selectedAppt.customerDetails.phone.replace(/[^0-9]/g, '')}`}
@@ -542,17 +679,42 @@ export default function AppointmentsQueue() {
                     fontWeight: 700
                   }}
                 >
-                  💬 Chat on WhatsApp
+                  💬 WhatsApp
                 </a>
               )}
-              {selectedAppt.customerDetails?.email && (
+
+              {/* 📋 Copy Meeting Brief Button */}
+              <button
+                type="button"
+                onClick={() => handleCopyMeetingBrief(selectedAppt)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  background: '#F1F5F9',
+                  border: '1px solid #CBD5E1',
+                  color: '#334155',
+                  padding: '0.5rem 0.9rem',
+                  borderRadius: '8px',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                📋 Copy Meeting Brief
+              </button>
+
+              {/* 📹 Launch Zoom with Companion Mode */}
+              {selectedAppt.meetingLink && (
                 <a
-                  href={`mailto:${selectedAppt.customerDetails.email}?subject=Regarding Your Consultation with Avinash S. Gore`}
+                  href={selectedAppt.meetingLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '0.35rem',
-                    background: '#0284c7',
+                    background: '#2563EB',
                     color: '#FFFFFF',
                     textDecoration: 'none',
                     padding: '0.5rem 0.9rem',
@@ -561,7 +723,7 @@ export default function AppointmentsQueue() {
                     fontWeight: 700
                   }}
                 >
-                  ✉️ Send Email
+                  📹 Launch Zoom Call
                 </a>
               )}
 

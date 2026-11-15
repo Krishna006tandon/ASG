@@ -2,7 +2,14 @@
 
 import { useState } from 'react';
 
-export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false }) {
+export default function ConsultationWorkflow({ 
+  appt, 
+  onUpdate, 
+  isStartup = false, 
+  isCareer = false, 
+  apiEndpoint = '/api/user/consultations', 
+  title = 'Session' 
+}) {
   // Modals state
   const [reqModalOpen, setReqModalOpen] = useState(false);
   const [followUpModalOpen, setFollowUpModalOpen] = useState(false);
@@ -29,9 +36,9 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
   const [feedbackComment, setFeedbackComment] = useState('');
   const [isSavingFeedback, setIsSavingFeedback] = useState(false);
 
-  const themeColor = isStartup ? '#059669' : '#4F46E5';
-  const themeLight = isStartup ? '#ECFDF5' : '#EEF2FF';
-  const themeBorder = isStartup ? '#A7F3D0' : '#C7D2FE';
+  const themeColor = isCareer ? '#7942b5' : (isStartup ? '#059669' : '#4F46E5');
+  const themeLight = isCareer ? '#FAF5FF' : (isStartup ? '#ECFDF5' : '#EEF2FF');
+  const themeBorder = isCareer ? '#D8B4FE' : (isStartup ? '#A7F3D0' : '#C7D2FE');
 
   // 1. OPEN REQUIREMENTS MODAL
   const handleOpenReqModal = () => {
@@ -56,7 +63,7 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
         .map(q => q.trim())
         .filter(Boolean);
 
-      const res = await fetch(`/api/user/consultations/${appt._id}`, {
+      const res = await fetch(`${apiEndpoint}/${appt._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -73,8 +80,9 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to update requirements');
 
-      if (onUpdate && data.consultation) {
-        onUpdate(data.consultation);
+      const updatedDoc = data.consultation || data.assessment || data;
+      if (onUpdate && updatedDoc) {
+        onUpdate(updatedDoc);
       }
       setReqModalOpen(false);
       alert('Requirements saved! Admin will review your session requirements.');
@@ -123,7 +131,7 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
     setIsSavingFollowUp(true);
     try {
       const token = localStorage.getItem('asg_token');
-      const res = await fetch(`/api/user/consultations/${appt._id}`, {
+      const res = await fetch(`${apiEndpoint}/${appt._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -139,8 +147,9 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to submit follow-up');
 
-      if (onUpdate && data.consultation) {
-        onUpdate(data.consultation);
+      const updatedDoc = data.consultation || data.assessment || data;
+      if (onUpdate && updatedDoc) {
+        onUpdate(updatedDoc);
       }
       setFollowUpModalOpen(false);
       alert('Follow-up and action plan saved! You can now track your task progress and leave session feedback.');
@@ -155,7 +164,7 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
   const handleToggleTask = async (taskId, currentStatus) => {
     try {
       const token = localStorage.getItem('asg_token');
-      const res = await fetch(`/api/user/consultations/${appt._id}`, {
+      const res = await fetch(`${apiEndpoint}/${appt._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -169,8 +178,9 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
       });
 
       const data = await res.json();
-      if (res.ok && onUpdate && data.consultation) {
-        onUpdate(data.consultation);
+      const updatedDoc = data.consultation || data.assessment || data;
+      if (res.ok && onUpdate && updatedDoc) {
+        onUpdate(updatedDoc);
       }
     } catch (err) {
       console.error('Failed to toggle task:', err);
@@ -185,7 +195,7 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
     setIsAddingQuickTask(true);
     try {
       const token = localStorage.getItem('asg_token');
-      const res = await fetch(`/api/user/consultations/${appt._id}`, {
+      const res = await fetch(`${apiEndpoint}/${appt._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -198,8 +208,9 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
       });
 
       const data = await res.json();
-      if (res.ok && onUpdate && data.consultation) {
-        onUpdate(data.consultation);
+      const updatedDoc = data.consultation || data.assessment || data;
+      if (res.ok && onUpdate && updatedDoc) {
+        onUpdate(updatedDoc);
         setQuickTaskInput('');
       }
     } catch (err) {
@@ -230,7 +241,7 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
     setIsSavingFeedback(true);
     try {
       const token = localStorage.getItem('asg_token');
-      const res = await fetch(`/api/user/consultations/${appt._id}`, {
+      const res = await fetch(`${apiEndpoint}/${appt._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -246,8 +257,9 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to submit feedback');
 
-      if (onUpdate && data.consultation) {
-        onUpdate(data.consultation);
+      const updatedDoc = data.consultation || data.assessment || data;
+      if (onUpdate && updatedDoc) {
+        onUpdate(updatedDoc);
       }
       setFeedbackModalOpen(false);
       alert('Thank you for your feedback! It helps us continually elevate our mentorship sessions.');
@@ -260,7 +272,7 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
 
   // Derived calculations
   const hasRequirements = Boolean(appt.requirements?.text || appt.message);
-  const isCompleted = appt.status === 'Completed';
+  const isCompleted = appt.status === 'Completed' || appt.sessionStatus === 'Completed';
   const hasFollowUp = Boolean(appt.followUp?.filled);
   const actionItems = appt.followUp?.actionItems || [];
   const completedTasksCount = actionItems.filter(i => i.completed).length;
@@ -281,7 +293,7 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, fontSize: '0.88rem', color: '#0F172A' }}>
-            <span>📋</span> Pre-Session Requirements &amp; Goals
+            <span>📋</span> {isCareer ? 'Pre-Guidance Questions & Career Goals' : 'Pre-Session Requirements & Goals'}
           </div>
           <button
             type="button"
@@ -329,7 +341,7 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
           </div>
         ) : (
           <div style={{ fontSize: '0.85rem', color: '#64748B', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span>💡</span> You haven't added specific requirements yet. Click &quot;Add Requirements&quot; so Avinash Gore can review them before your call.
+            <span>💡</span> You haven&apos;t added specific requirements yet. Click &quot;Add Requirements&quot; so Avinash Gore can review them before your guidance session.
           </div>
         )}
       </div>
@@ -349,11 +361,11 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
                 <span style={{ fontSize: '1.25rem' }}>🔔</span>
                 <strong style={{ fontSize: '1rem', color: '#92400E' }}>
-                  Meeting Completed! Submit Your Follow-Up &amp; Action Plan
+                  Guidance Session Completed! Submit Your Follow-Up &amp; Action Plan
                 </strong>
               </div>
               <p style={{ margin: '0 0 0.85rem 0', fontSize: '0.88rem', color: '#78350F', lineHeight: '1.5' }}>
-                Please record the key takeaways and specific execution tasks discussed with Avinash S. Gore. You must track and complete these tasks to achieve your session outcomes.
+                Please record the key career takeaways and specific action steps discussed with Avinash S. Gore. You must track and complete these tasks to reach your career roadmap milestones.
               </p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
                 <button
@@ -533,7 +545,7 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
         </div>
       ) : (
         <div style={{ fontSize: '0.8rem', color: '#64748B', fontStyle: 'italic', padding: '0.25rem 0' }}>
-          ⏳ Post-meeting follow-up checklist &amp; feedback form will activate once this consultation is conducted and marked Completed.
+          ⏳ Post-meeting follow-up checklist &amp; feedback form will activate once your career guidance session is conducted and marked Completed.
         </div>
       )}
 
@@ -557,10 +569,10 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800, color: '#7E22CE', fontSize: '0.92rem' }}>
-                  <span>⭐</span> How was your session? Share your feedback!
+                  <span>⭐</span> How was your career guidance session?
                 </div>
                 <div style={{ fontSize: '0.82rem', color: '#6B7280', marginTop: '0.15rem' }}>
-                  Follow-up completed! Tell us about your consultation experience with Avinash S. Gore.
+                  Follow-up completed! Tell us about your mentoring experience with Avinash S. Gore.
                 </div>
               </div>
               <button
@@ -593,7 +605,7 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
                     {'★'.repeat(appt.feedback.rating)}{'☆'.repeat(5 - appt.feedback.rating)}
                   </span>
                   <strong style={{ fontSize: '0.88rem', color: '#6B21A8' }}>
-                    Verified Session Feedback ({appt.feedback.rating}/5)
+                    Verified Guidance Feedback ({appt.feedback.rating}/5)
                   </strong>
                 </div>
                 <button
@@ -649,36 +661,36 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
             </button>
 
             <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.35rem 0' }}>
-              📋 Consultation Requirements &amp; Goals
+              📋 {isCareer ? 'Career Guidance Requirements & Questions' : 'Consultation Requirements & Goals'}
             </h3>
             <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '0 0 1.25rem 0' }}>
-              Avinash Gore will review these details prior to your session to tailor the guidance directly to your objectives.
+              Avinash Gore will review your career objectives and questions prior to your mentorship session.
             </p>
 
             <form onSubmit={handleSaveReq} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#334155', marginBottom: '0.35rem' }}>
-                  Primary Goal / Topic Focus (Optional)
+                  Target Career Goal / Focus (Optional)
                 </label>
                 <input
                   type="text"
                   value={reqGoals}
                   onChange={(e) => setReqGoals(e.target.value)}
-                  placeholder="e.g. Scaling customer acquisition / Validating MVP pricing"
+                  placeholder="e.g. Choosing between MBA vs Tech / Career transition roadmap"
                   style={{ width: '100%', padding: '0.6rem 0.85rem', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '0.9rem' }}
                 />
               </div>
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#334155', marginBottom: '0.35rem' }}>
-                  Detailed Requirements &amp; Current Situation *
+                  Detailed Situation, Challenges &amp; Requirements *
                 </label>
                 <textarea
                   rows="4"
                   required
                   value={reqText}
                   onChange={(e) => setReqText(e.target.value)}
-                  placeholder="Explain your venture or career background, key challenges you are encountering, and what guidance you require..."
+                  placeholder="Explain your current education/job status, what doubts or dilemmas you have, and what guidance you need..."
                   style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '0.9rem', resize: 'vertical' }}
                 />
               </div>
@@ -691,7 +703,7 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
                   rows="3"
                   value={reqQuestions}
                   onChange={(e) => setReqQuestions(e.target.value)}
-                  placeholder="1. How should I structure my B2B pricing?&#10;2. What key metrics should I track before raising seed capital?"
+                  placeholder="1. Does my natural archetype suit Product Management?&#10;2. What skills should I learn in the next 6 months?"
                   style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '0.9rem', resize: 'vertical' }}
                 />
               </div>
@@ -760,7 +772,7 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
                   rows="3"
                   value={followUpTakeaways}
                   onChange={(e) => setFollowUpTakeaways(e.target.value)}
-                  placeholder="Summarize the core insights, solutions, and strategic directions suggested by Avinash Gore..."
+                  placeholder="Summarize the core insights, career solutions, and directions suggested by Avinash Gore..."
                   style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '0.9rem', resize: 'vertical' }}
                 />
               </div>
@@ -798,7 +810,7 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
                         type="text"
                         value={task}
                         onChange={(e) => handleTaskChange(idx, e.target.value)}
-                        placeholder={`e.g. ${idx === 0 ? 'Revise customer onboarding pitch' : idx === 1 ? 'Schedule 5 user feedback interviews' : 'Draft financial projections for Q1'}`}
+                        placeholder={`e.g. ${idx === 0 ? 'Update LinkedIn profile with target archetype keywords' : idx === 1 ? 'Apply for 2 relevant trainee roles' : 'Enroll in recommended certification course'}`}
                         style={{ flex: 1, padding: '0.55rem 0.75rem', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.88rem' }}
                       />
                       {followUpTasks.length > 1 && (
@@ -876,10 +888,10 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
             </button>
 
             <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.35rem 0' }}>
-              ⭐ Consultation Feedback &amp; Review
+              ⭐ {isCareer ? 'Career Mentorship Feedback & Review' : 'Consultation Feedback & Review'}
             </h3>
             <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '0 0 1.25rem 0' }}>
-              How was your 1-on-1 session with Avinash S. Gore? Your review helps future entrepreneurs and students.
+              How was your session with Avinash S. Gore? Your review helps future students and professionals.
             </p>
 
             <form onSubmit={handleSaveFeedback} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
@@ -923,14 +935,14 @@ export default function ConsultationWorkflow({ appt, onUpdate, isStartup = false
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#334155', marginBottom: '0.35rem' }}>
-                  Your Feedback &amp; Key Value Received *
+                  Your Feedback &amp; Career Clarity Achieved *
                 </label>
                 <textarea
                   rows="4"
                   required
                   value={feedbackComment}
                   onChange={(e) => setFeedbackComment(e.target.value)}
-                  placeholder="How did the consultation help you? What insights or actionable guidance made the biggest impact?"
+                  placeholder="How did the career guidance help you? What insights or actionable steps provided the most clarity?"
                   style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid #CBD5E1', fontSize: '0.9rem', resize: 'vertical' }}
                 />
               </div>
