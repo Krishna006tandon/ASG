@@ -8,19 +8,24 @@ export async function PATCH(req, { params }) {
   try {
     await connectToDatabase();
     const { id } = await params;
-    const { status, paymentStatus, charges } = await req.json();
+    const body = await req.json();
+    const { status, paymentStatus, charges, meetingLink, followUp, requirements, taskId, taskCompleted } = body;
 
     const updateFields = {};
     if (status) updateFields.status = status;
     if (charges !== undefined) updateFields.charges = Number(charges);
+    if (meetingLink !== undefined) updateFields.meetingLink = meetingLink;
+    if (requirements !== undefined) updateFields.requirements = requirements;
+    if (followUp !== undefined) updateFields.followUp = followUp;
+
     if (paymentStatus) {
       updateFields.paymentStatus = paymentStatus;
-      if (paymentStatus === 'Paid') {
+      if (paymentStatus === 'Paid' && !meetingLink) {
         updateFields.meetingLink = "https://us05web.zoom.us/j/3410667455?pwd=ZXJyWUFTZW91N2lyekQ5NDJLVk1DQT09";
       }
     }
 
-    const updatedAppointment = await Consultation.findByIdAndUpdate(
+    let updatedAppointment = await Consultation.findByIdAndUpdate(
       id,
       { $set: updateFields },
       { returnDocument: 'after' }
@@ -28,6 +33,20 @@ export async function PATCH(req, { params }) {
 
     if (!updatedAppointment) {
       return NextResponse.json({ error: 'Appointment not found' }, { status: 404 });
+    }
+
+    // Support toggle task from admin
+    if (taskId) {
+      const task = updatedAppointment.followUp?.actionItems?.find(i => i.id === taskId);
+      if (task) {
+        task.completed = Boolean(taskCompleted);
+        task.completedAt = task.completed ? new Date() : null;
+        const total = updatedAppointment.followUp.actionItems.length;
+        const done = updatedAppointment.followUp.actionItems.filter(i => i.completed).length;
+        updatedAppointment.followUp.status = (total > 0 && done === total) ? 'completed' : 'in_progress';
+        updatedAppointment.followUp.updatedAt = new Date();
+        await updatedAppointment.save();
+      }
     }
 
     // Send email notification to client if session is Confirmed and charges are set
@@ -56,6 +75,7 @@ export async function PATCH(req, { params }) {
 
     return NextResponse.json(updatedAppointment, { status: 200 });
   } catch (error) {
+    console.error('Admin PATCH appointment error:', error);
     return NextResponse.json({ error: 'Failed to update appointment' }, { status: 500 });
   }
 }

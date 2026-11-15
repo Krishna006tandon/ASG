@@ -10,6 +10,7 @@ import InvoicePDF from '@/components/InvoicePDF';
 import CareerReportPDF from '@/components/CareerReportPDF';
 import ReviewModal from '@/components/ReviewModal';
 import StarRating from '@/components/StarRating';
+import ConsultationWorkflow from '@/components/ConsultationWorkflow';
 import { useRef } from 'react';
 import { getEbookUrl } from '@/lib/imageHelper';
 import styles from './dashboard.module.css';
@@ -166,6 +167,13 @@ export default function ClientDashboard() {
   };
 
   const handleReviewSuccess = (savedReview) => {
+    fetchMyReviews();
+  };
+
+  const handleConsultationUpdated = (updatedAppt) => {
+    if (!updatedAppt || !updatedAppt._id) return;
+    setConsultations(prev => prev.map(c => c._id === updatedAppt._id ? { ...c, ...updatedAppt } : c));
+    setStartupGuidance(prev => prev.map(c => c._id === updatedAppt._id ? { ...c, ...updatedAppt } : c));
     fetchMyReviews();
   };
 
@@ -781,6 +789,9 @@ export default function ClientDashboard() {
                           </div>
                         </div>
                       )}
+
+                      {/* Interactive Requirements, Post-Meeting Follow-up & Feedback Workflow */}
+                      <ConsultationWorkflow appt={appt} onUpdate={handleConsultationUpdated} isStartup={false} />
                     </div>
                   </div>
                 ))}
@@ -1050,6 +1061,9 @@ export default function ClientDashboard() {
                             </button>
                           </div>
                         </div>
+
+                        {/* Interactive Requirements, Post-Meeting Follow-up & Feedback Workflow */}
+                        <ConsultationWorkflow appt={item} onUpdate={handleConsultationUpdated} isStartup={true} />
                       </div>
                     </div>
                   );

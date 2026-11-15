@@ -53,6 +53,12 @@ ${message || 'N/A'}
       date: preferredDate ? new Date(preferredDate) : new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // Default 2 days ahead
       time: 'Flexible / By Mutual Agreement',
       message: compiledMessage,
+      requirements: {
+        text: compiledMessage,
+        goals: message || businessIdea || '',
+        specificQuestions: Array.isArray(challenges) ? challenges : [],
+        updatedAt: new Date()
+      },
       status: 'Pending',
       paymentStatus: 'Unpaid'
     });
