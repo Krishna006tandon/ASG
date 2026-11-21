@@ -66,6 +66,7 @@ export default function ClientDashboard() {
   const [activeTab, setActiveTab] = useState('consultations'); // 'consultations', 'career', 'orders', 'webinars', 'seminars', 'reviews'
   const [generatingPdfFor, setGeneratingPdfFor] = useState(null);
   const [sharingFor, setSharingFor] = useState(null);
+  const [qrModalTicket, setQrModalTicket] = useState(null);
   
   // Invoice state
   const [generatingInvoiceFor, setGeneratingInvoiceFor] = useState(null);
@@ -1523,50 +1524,114 @@ export default function ClientDashboard() {
             ) : (
               <div className={styles.grid}>
                 {seminars.map(reg => (
-                  <div key={reg._id} className={styles.card} style={{ borderLeft: '4px solid #059669', overflow: 'hidden' }}>
-                    <div style={{ background: '#059669', color: 'white', padding: '0.5rem 1rem', fontSize: '0.85rem', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span>ASG VIP TICKET</span>
+                  <div key={reg._id} className={styles.card} style={{ 
+                    borderLeft: reg.checkedIn ? '4px solid #DC2626' : !reg.seminarId ? '4px solid #D97706' : '4px solid #059669', 
+                    overflow: 'hidden' 
+                  }}>
+                    <div style={{ 
+                      background: reg.checkedIn ? '#DC2626' : !reg.seminarId ? '#D97706' : '#059669', 
+                      color: 'white', 
+                      padding: '0.5rem 1rem', 
+                      fontSize: '0.85rem', 
+                      fontWeight: 'bold', 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center' 
+                    }}>
+                      <span>
+                        {reg.checkedIn ? '⛔ TICKET USED / SCANNED' : !reg.seminarId ? '⚠️ EVENT OVER' : 'ASG VIP TICKET'}
+                      </span>
                       <span style={{ fontFamily: 'monospace', fontSize: '1rem', letterSpacing: '2px' }}>{reg.ticketNumber}</span>
                     </div>
                     <div className={styles.cardHeader} style={{ paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between' }}>
                       <div style={{ display: 'flex', gap: '1rem' }}>
-                        <div className={styles.dateBadge} style={{ background: '#ECFDF5', color: '#059669' }}>
+                        <div className={styles.dateBadge} style={{ 
+                          background: reg.checkedIn ? '#FEF2F2' : !reg.seminarId ? '#FFFBEB' : '#ECFDF5', 
+                          color: reg.checkedIn ? '#DC2626' : !reg.seminarId ? '#D97706' : '#059669' 
+                        }}>
                           <span className={styles.month}>{new Date(reg.seminarId?.date).toLocaleDateString('en-US', { month: 'short' })}</span>
                           <span className={styles.day}>{new Date(reg.seminarId?.date).getDate()}</span>
                         </div>
                         <div className={styles.timeInfo}>
-                          <h3>{reg.seminarId?.time}</h3>
-                          <span className={`${styles.statusBadge} ${styles.paid}`}>
-                            {reg.paymentStatus}
-                          </span>
+                          <h3>{reg.seminarId?.time || 'Completed'}</h3>
+                          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.25rem' }}>
+                            <span className={`${styles.statusBadge} ${styles.paid}`}>
+                              {reg.paymentStatus}
+                            </span>
+                            {reg.checkedIn ? (
+                              <span style={{ background: '#FEE2E2', color: '#991B1B', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                                ⛔ Scanned (Used)
+                              </span>
+                            ) : !reg.seminarId ? (
+                              <span style={{ background: '#FEF3C7', color: '#92400E', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                                ⚠️ Event Over
+                              </span>
+                            ) : (
+                              <span style={{ background: '#D1FAE5', color: '#065F46', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                                ✓ Verified
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       
-                      {/* QR Code Block */}
-                      <div style={{ background: 'white', padding: '0.5rem', borderRadius: '8px', border: '1px solid #E5E7EB', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                      {/* QR Code Block - Clickable to open enlarged QR on website */}
+                      <div 
+                        onClick={() => setQrModalTicket(reg)}
+                        title="Click to view large QR code"
+                        style={{ 
+                          background: 'white', 
+                          padding: '0.5rem', 
+                          borderRadius: '8px', 
+                          border: reg.checkedIn ? '1px solid #FCA5A5' : '1px solid #E5E7EB', 
+                          display: 'flex', 
+                          flexDirection: 'column', 
+                          alignItems: 'center', 
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+                          transition: 'transform 0.15s'
+                        }}
+                      >
                         <QRCodeCanvas 
                           value={`${typeof window !== 'undefined' ? window.location.origin : ''}/ticket/${reg.ticketNumber}`} 
-                          size={60} 
+                          size={64} 
                           bgColor={"#ffffff"}
                           fgColor={"#000000"}
                           level={"Q"}
                           includeMargin={false}
                         />
-                        <span style={{ fontSize: '0.6rem', color: '#6B7280', marginTop: '0.25rem' }}>Scan at Entry</span>
+                        <span style={{ 
+                          fontSize: '0.65rem', 
+                          color: reg.checkedIn ? '#DC2626' : '#4F46E5', 
+                          fontWeight: '700', 
+                          marginTop: '0.3rem' 
+                        }}>
+                          {reg.checkedIn ? '⛔ Used' : '📱 Show QR'}
+                        </span>
                       </div>
                     </div>
                     
                     <div className={styles.cardBody}>
-                      <h4 style={{margin: '0 0 0.5rem 0', color: '#111827', fontSize: '1.2rem'}}>{reg.seminarId?.title}</h4>
+                      <h4 style={{margin: '0 0 0.5rem 0', color: '#111827', fontSize: '1.2rem'}}>{reg.seminarId?.title || 'Workshop Session'}</h4>
                       
                       <div style={{ padding: '1rem', background: '#F9FAFB', borderRadius: '8px', marginBottom: '1rem', border: '1px dashed #D1D5DB' }}>
                         <div style={{ fontSize: '0.85rem', color: '#6B7280', marginBottom: '0.25rem' }}>VENUE LOCATION</div>
-                        <div style={{ fontWeight: '500', color: '#111827' }}>📍 {reg.seminarId?.locationAddress}</div>
+                        <div style={{ fontWeight: '500', color: '#111827' }}>📍 {reg.seminarId?.locationAddress || 'Venue details provided upon confirmation'}</div>
                       </div>
 
-                      <div className={styles.paidContainer} style={{ background: '#ECFDF5', border: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div className={styles.paidBadge} style={{ color: '#059669' }}>✓ Ticket Confirmed for {reg.registrationData?.name}</div>
+                      <div className={styles.paidContainer} style={{ background: reg.checkedIn ? '#FEF2F2' : '#ECFDF5', border: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div className={styles.paidBadge} style={{ color: reg.checkedIn ? '#DC2626' : '#059669' }}>
+                          {reg.checkedIn ? '⛔ Ticket Already Scanned / Used' : `✓ Ticket Confirmed for ${reg.registrationData?.name}`}
+                        </div>
                         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                          <button 
+                            className="btn-accent" 
+                            style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#4F46E5', color: 'white', border: 'none' }}
+                            onClick={() => setQrModalTicket(reg)}
+                          >
+                            📱 View QR
+                          </button>
                           <button 
                             className="btn-accent" 
                             style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#25D366', color: 'white' }}
@@ -1760,6 +1825,147 @@ export default function ClientDashboard() {
                 style={{ width: '100%', height: '100%', border: 'none' }}
                 title={readerModal.title || "E-Book Reader"}
               />
+            </div>
+          </div>
+        )}
+
+        {/* Website QR Ticket Modal */}
+        {qrModalTicket && (
+          <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)', zIndex: 9999,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+          }}>
+            <div style={{
+              background: '#FFFFFF', borderRadius: '20px', maxWidth: '420px', width: '100%',
+              overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              border: '1px solid #E2E8F0', textAlign: 'center'
+            }}>
+              {/* Modal Header */}
+              <div style={{
+                background: qrModalTicket.checkedIn ? '#FEF2F2' : !qrModalTicket.seminarId ? '#FFFBEB' : '#ECFDF5',
+                padding: '1.25rem', borderBottom: '1px dashed #CBD5E1', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+              }}>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{
+                    fontSize: '0.75rem', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase',
+                    color: qrModalTicket.checkedIn ? '#DC2626' : !qrModalTicket.seminarId ? '#D97706' : '#059669'
+                  }}>
+                    {qrModalTicket.checkedIn ? '⛔ TICKET ALREADY SCANNED / USED' : !qrModalTicket.seminarId ? '⚠️ EVENT OVER / DELETED' : '✅ VERIFIED PASS'}
+                  </div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#1E293B', marginTop: '0.2rem' }}>
+                    VIP Workshop Pass
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setQrModalTicket(null)}
+                  style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: '#64748B', padding: '0.25rem 0.5rem', lineHeight: 1 }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* QR Canvas Display */}
+              <div style={{ padding: '1.75rem 1.5rem 1.25rem 1.5rem', background: '#F8FAFC', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{
+                  position: 'relative', background: '#FFFFFF', padding: '1rem', borderRadius: '16px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.06)', border: '1px solid #E2E8F0', display: 'inline-block'
+                }}>
+                  <QRCodeCanvas 
+                    value={`${typeof window !== 'undefined' ? window.location.origin : ''}/ticket/${qrModalTicket.ticketNumber}`}
+                    size={220}
+                    bgColor={"#ffffff"}
+                    fgColor={"#000000"}
+                    level={"Q"}
+                    includeMargin={true}
+                  />
+                  {qrModalTicket.checkedIn && (
+                    <div style={{
+                      position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(-18deg)',
+                      background: 'rgba(220, 38, 38, 0.92)', color: 'white', padding: '0.4rem 1.2rem',
+                      borderRadius: '8px', fontSize: '1.1rem', fontWeight: '900', letterSpacing: '2px',
+                      border: '3px solid white', boxShadow: '0 4px 10px rgba(0,0,0,0.3)', pointerEvents: 'none', whiteSpace: 'nowrap'
+                    }}>
+                      USED / SCANNED
+                    </div>
+                  )}
+                  {!qrModalTicket.seminarId && (
+                    <div style={{
+                      position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(-18deg)',
+                      background: 'rgba(217, 119, 6, 0.92)', color: 'white', padding: '0.4rem 1.2rem',
+                      borderRadius: '8px', fontSize: '1.1rem', fontWeight: '900', letterSpacing: '2px',
+                      border: '3px solid white', boxShadow: '0 4px 10px rgba(0,0,0,0.3)', pointerEvents: 'none', whiteSpace: 'nowrap'
+                    }}>
+                      EVENT OVER
+                    </div>
+                  )}
+                </div>
+
+                <div style={{
+                  marginTop: '1rem', fontFamily: 'monospace', fontSize: '1.2rem', fontWeight: '800',
+                  letterSpacing: '2px', color: '#1E293B', background: '#FFFFFF', padding: '0.35rem 1rem',
+                  borderRadius: '8px', border: '1px solid #E2E8F0'
+                }}>
+                  {qrModalTicket.ticketNumber}
+                </div>
+
+                <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#64748B' }}>
+                  {qrModalTicket.checkedIn 
+                    ? '⚠️ This ticket was already scanned. Duplicate entry will be rejected.' 
+                    : '📱 Present this QR Code at the registration desk for check-in.'}
+                </div>
+              </div>
+
+              {/* Ticket Info */}
+              <div style={{ padding: '1.25rem 1.5rem', textAlign: 'left', background: '#FFFFFF' }}>
+                <div style={{ fontSize: '0.8rem', color: '#64748B', textTransform: 'uppercase', fontWeight: '700' }}>Attendee</div>
+                <div style={{ fontSize: '1.05rem', fontWeight: '700', color: '#1E293B', marginBottom: '0.75rem' }}>
+                  {qrModalTicket.registrationData?.name}
+                </div>
+
+                <div style={{ fontSize: '0.8rem', color: '#64748B', textTransform: 'uppercase', fontWeight: '700' }}>Workshop / Seminar</div>
+                <div style={{ fontSize: '0.95rem', fontWeight: '600', color: '#1E293B', marginBottom: '0.75rem' }}>
+                  {qrModalTicket.seminarId?.title || 'Workshop Session'}
+                </div>
+
+                {qrModalTicket.seminarId?.locationAddress && (
+                  <>
+                    <div style={{ fontSize: '0.8rem', color: '#64748B', textTransform: 'uppercase', fontWeight: '700' }}>Venue</div>
+                    <div style={{ fontSize: '0.85rem', color: '#334155' }}>
+                      📍 {qrModalTicket.seminarId.locationAddress}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Modal Actions */}
+              <div style={{ padding: '1rem 1.5rem 1.5rem 1.5rem', background: '#F8FAFC', borderTop: '1px solid #E2E8F0', display: 'flex', gap: '0.75rem' }}>
+                <Link 
+                  href={`/ticket/${qrModalTicket.ticketNumber}`}
+                  target="_blank"
+                  style={{
+                    flex: 1, padding: '0.75rem', background: '#4F46E5', color: '#FFFFFF',
+                    borderRadius: '8px', textDecoration: 'none', fontWeight: '700', fontSize: '0.9rem',
+                    textAlign: 'center'
+                  }}
+                >
+                  Open Ticket Page ↗
+                </Link>
+                <button 
+                  onClick={() => {
+                    const t = qrModalTicket;
+                    setQrModalTicket(null);
+                    handleDownloadPDF(t);
+                  }}
+                  style={{
+                    padding: '0.75rem 1rem', background: '#FFFFFF', color: '#1E293B',
+                    borderRadius: '8px', border: '1px solid #CBD5E1', fontWeight: '600', fontSize: '0.9rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  ⬇ PDF
+                </button>
+              </div>
             </div>
           </div>
         )}

@@ -93,56 +93,175 @@
   text-align: center;
   padding: 2rem;
   animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
 }
 
-.successBg {
-  background: rgba(16, 185, 129, 0.95);
+.verifiedBg {
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.97) 0%, rgba(16, 185, 129, 0.97) 100%);
   color: white;
 }
 
-.errorBg {
-  background: rgba(239, 68, 68, 0.95);
+.unverifiedBg {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.97) 0%, rgba(239, 68, 68, 0.97) 100%);
   color: white;
 }
 
-.resultOverlay h2 {
-  font-size: 2.5rem;
+.eventOverBg {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.97) 0%, rgba(245, 158, 11, 0.97) 100%);
+  color: white;
+}
+
+.alreadyScannedBg {
+  background: linear-gradient(135deg, rgba(153, 27, 27, 0.97) 0%, rgba(185, 28, 28, 0.97) 100%);
+  color: white;
+}
+
+.statusIcon {
+  font-size: 3.5rem;
+  margin-bottom: 0.5rem;
+  animation: pulse 1s infinite alternate;
+}
+
+.statusTitle {
+  font-size: 2.2rem;
   font-weight: 900;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.statusSubtitle {
+  font-size: 1rem;
+  max-width: 480px;
+  margin: 0 auto 1.5rem auto;
+  opacity: 0.95;
+  line-height: 1.4;
+}
+
+.ticketInfoCard {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 1.25rem;
+  width: 100%;
+  max-width: 440px;
+  margin-bottom: 1.5rem;
+  text-align: left;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 0.95rem;
+}
+
+.infoRow:last-child {
+  border-bottom: none;
+}
+
+.infoLabel {
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.infoValue {
+  font-weight: 700;
+  text-align: right;
+  max-width: 65%;
+  word-break: break-word;
 }
 
 .scannedData {
   font-family: monospace;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.25);
   padding: 0.5rem 1rem;
   border-radius: 8px;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   word-break: break-all;
+  font-size: 0.85rem;
+  max-width: 90%;
 }
 
 .resumeBtn {
   background: white;
   color: #111827;
   border: none;
-  padding: 1rem 2rem;
+  padding: 1rem 2.5rem;
   font-size: 1.1rem;
   font-weight: 800;
   border-radius: 99px;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  transition: transform 0.2s;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
 }
 
 .resumeBtn:hover {
   transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.manualSection {
+  margin-top: 1.5rem;
+  background: white;
+  padding: 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  border: 1px solid #E5E7EB;
+}
+
+.manualSection h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  color: #374151;
+}
+
+.manualForm {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.manualInput {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: monospace;
+  text-transform: uppercase;
+}
+
+.manualBtn {
+  background: #4F46E5;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.manualBtn:hover {
+  background: #4338CA;
+}
+
+.manualBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .instructions {
-  margin-top: 2rem;
+  margin-top: 1.5rem;
   background: #F9FAFB;
-  padding: 1.5rem;
+  padding: 1.25rem;
   border-radius: 12px;
   border: 1px solid #E5E7EB;
 }
@@ -150,22 +269,28 @@
 .instructions h3 {
   margin-top: 0;
   color: #374151;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .instructions ul {
-  padding-left: 1.5rem;
+  padding-left: 1.25rem;
   color: #4B5563;
   margin-bottom: 0;
+  font-size: 0.9rem;
 }
 
 .instructions li {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
 }
 
 @keyframes popIn {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
 }
 
 @media (max-width: 768px) {
@@ -181,13 +306,15 @@
     padding: 1rem 0.5rem;
   }
 
-  .qrReader select {
-    min-width: auto;
-    width: 100%;
+  .statusTitle {
+    font-size: 1.75rem;
   }
 
-  .qrReader button {
+  .manualForm {
+    flex-direction: column;
+  }
+
+  .manualBtn {
     width: 100%;
-    padding: 0.65rem 1rem;
   }
 }

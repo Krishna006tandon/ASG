@@ -3,50 +3,59 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-color);
-  padding: 2rem;
+  background: var(--bg-color, #f8fafc);
+  padding: 2rem 1rem;
   font-family: system-ui, -apple-system, sans-serif;
 }
 
-.validCard {
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
+.ticketCard {
+  background: white;
   width: 100%;
-  max-width: 450px;
-  border-radius: 20px;
+  max-width: 480px;
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: var(--glass-shadow);
-  border-top: 8px solid var(--primary-color);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid #E2E8F0;
+  transition: all 0.3s ease;
 }
 
-.invalidCard {
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  width: 100%;
-  max-width: 450px;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: var(--glass-shadow);
+.validBorder {
+  border-top: 8px solid #059669;
+}
+
+.alreadyScannedBorder {
   border-top: 8px solid #DC2626;
-  text-align: center;
-  padding: 3rem 2rem;
 }
 
-.invalidCard .icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+.eventOverBorder {
+  border-top: 8px solid #D97706;
 }
 
-.invalidCard h2 {
-  color: #DC2626;
-  margin-bottom: 0.5rem;
+.unverifiedBorder {
+  border-top: 8px solid #991B1B;
 }
 
 .header {
-  background: var(--primary-light);
-  padding: 2rem;
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
   text-align: center;
-  border-bottom: 1px dashed var(--border-color);
+  border-bottom: 1px dashed #CBD5E1;
+  position: relative;
+}
+
+.headerVerified {
+  background: #ECFDF5;
+}
+
+.headerAlreadyScanned {
+  background: #FEF2F2;
+}
+
+.headerEventOver {
+  background: #FFFBEB;
+}
+
+.headerUnverified {
+  background: #FEF2F2;
 }
 
 .header .icon {
@@ -55,17 +64,120 @@
 }
 
 .header h2 {
-  color: var(--primary-color);
-  margin: 0;
+  margin: 0 0 0.5rem 0;
   font-size: 1.5rem;
+  font-weight: 800;
   letter-spacing: 1px;
 }
 
-.ticketDetails {
-  padding: 2rem;
+.headerVerified h2 {
+  color: #065F46;
+}
+
+.headerAlreadyScanned h2 {
+  color: #991B1B;
+}
+
+.headerEventOver h2 {
+  color: #92400E;
+}
+
+.headerUnverified h2 {
+  color: #991B1B;
+}
+
+.statusDesc {
+  font-size: 0.9rem;
+  margin: 0;
+  opacity: 0.85;
+}
+
+/* Website QR Code Section */
+.qrSection {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  padding: 1.75rem 1.5rem;
+  background: #FAFAFA;
+  border-bottom: 1px dashed #CBD5E1;
+}
+
+.qrWrapper {
+  position: relative;
+  background: white;
+  padding: 1rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #E2E8F0;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qrStamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-18deg);
+  background: rgba(220, 38, 38, 0.92);
+  color: white;
+  padding: 0.4rem 1.2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 3px solid white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.qrEventOverStamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-18deg);
+  background: rgba(217, 119, 6, 0.92);
+  color: white;
+  padding: 0.4rem 1.2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 3px solid white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.qrCaption {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: #64748B;
+  font-weight: 500;
+  text-align: center;
+}
+
+.ticketNumberDisplay {
+  margin-top: 0.5rem;
+  font-family: monospace;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #1E293B;
+  background: #F1F5F9;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+}
+
+.ticketDetails {
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 .row {
@@ -75,42 +187,100 @@
 }
 
 .label {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+  font-size: 0.8rem;
+  color: #64748B;
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.5px;
 }
 
 .value {
-  font-size: 1.1rem;
-  color: var(--text-primary);
-  font-weight: 500;
+  font-size: 1.05rem;
+  color: #0F172A;
+  font-weight: 600;
 }
 
 .badge {
   display: inline-block;
-  background: var(--primary-medium-light);
-  color: var(--primary-color);
   padding: 0.25rem 0.75rem;
   border-radius: 99px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   width: fit-content;
 }
 
-.footer {
-  background: var(--bg-color);
+.badgePaid {
+  background: #ECFDF5;
+  color: #059669;
+}
+
+.badgeUsed {
+  background: #FEF2F2;
+  color: #DC2626;
+}
+
+.badgePending {
+  background: #FFFBEB;
+  color: #D97706;
+}
+
+.scanNotice {
+  margin: 0 1.75rem 1.5rem 1.75rem;
   padding: 1rem;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: #991B1B;
+}
+
+.scanNotice strong {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.adminAction {
+  padding: 0 1.75rem 1.75rem 1.75rem;
+}
+
+.admitBtn {
+  width: 100%;
+  padding: 1rem;
+  background: #059669;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+  transition: all 0.2s;
+}
+
+.admitBtn:hover {
+  background: #047857;
+  transform: translateY(-1px);
+}
+
+.admitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.footer {
+  background: #F8FAFC;
+  padding: 1.25rem;
   text-align: center;
   font-size: 0.8rem;
-  color: var(--text-secondary);
-  border-top: 1px solid var(--border-color);
+  color: #64748B;
+  border-top: 1px solid #E2E8F0;
 }
 
 @media (max-width: 480px) {
   .container {
-    padding: 1rem;
+    padding: 1rem 0.5rem;
   }
 
   .header {
@@ -118,12 +288,11 @@
   }
 
   .ticketDetails {
-    padding: 1.5rem 1.25rem;
+    padding: 1.25rem 1rem;
     gap: 1rem;
   }
 
   .value {
-    font-size: 1rem;
-    word-break: break-all;
+    font-size: 0.95rem;
   }
 }
