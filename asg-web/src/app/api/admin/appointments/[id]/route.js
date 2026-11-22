@@ -21,7 +21,14 @@ export async function PATCH(req, { params }) {
     if (paymentStatus) {
       updateFields.paymentStatus = paymentStatus;
       if (paymentStatus === 'Paid' && !meetingLink) {
-        updateFields.meetingLink = "https://us05web.zoom.us/j/3410667455?pwd=ZXJyWUFTZW91N2lyekQ5NDJLVk1DQT09";
+        const existing = await Consultation.findById(id).select('meetingLink');
+        if (!existing?.meetingLink) {
+          let defaultLink = (process.env.ADMIN_MEETING_LINK || process.env.DEFAULT_MEETING_LINK || "https://us05web.zoom.us/j/3410667455?pwd=ZXJyWUFTZW91N2lyekQ5NDJLVk1DQT09").trim();
+          if (defaultLink.includes('zoom.us/s/')) {
+            defaultLink = defaultLink.replace('zoom.us/s/', 'zoom.us/j/');
+          }
+          updateFields.meetingLink = defaultLink;
+        }
       }
     }
 

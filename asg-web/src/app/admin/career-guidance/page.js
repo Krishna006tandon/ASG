@@ -153,9 +153,17 @@ ${questions}
     alert('📋 Career Meeting Brief copied to clipboard! You can paste it into Zoom chat or your notes.');
   };
 
+  const getHostMeetingLink = (link) => {
+    if (!link) return '';
+    if (link.includes('zoom.us/j/')) {
+      return link.replace('zoom.us/j/', 'zoom.us/s/');
+    }
+    return link;
+  };
+
   const handleJoinWithCompanion = (assessment) => {
     if (assessment.meetingLink) {
-      window.open(assessment.meetingLink, '_blank');
+      window.open(getHostMeetingLink(assessment.meetingLink), '_blank');
     }
     setSelectedAssessment(assessment);
     setEditingMeetingLink(assessment.meetingLink || '');
@@ -547,8 +555,9 @@ ${questions}
                     fontWeight: 700,
                     cursor: 'pointer'
                   }}
+                  title="Starts call in Host Mode"
                 >
-                  📹 Join Zoom Call
+                  👑 Start Meeting as Host
                 </button>
               )}
 

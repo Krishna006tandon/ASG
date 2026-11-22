@@ -767,8 +767,13 @@ export default function ClientDashboard() {
                           <div className={styles.paidBadge}>✓ Payment Complete</div>
                           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                             {appt.meetingLink ? (
-                              <a href={appt.meetingLink} target="_blank" rel="noopener noreferrer" className={`btn-primary ${styles.zoomBtn}`}>
-                                📹 Join Zoom Meeting
+                              <a 
+                                href={appt.meetingLink.includes('zoom.us/s/') ? appt.meetingLink.replace('zoom.us/s/', 'zoom.us/j/') : appt.meetingLink} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className={`btn-primary ${styles.zoomBtn}`}
+                              >
+                                📹 Join Meeting
                               </a>
                             ) : (
                               <div className={styles.pendingLink}>Meeting link pending...</div>
@@ -970,7 +975,7 @@ export default function ClientDashboard() {
                           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
                             {item.meetingLink ? (
                               <a 
-                                href={item.meetingLink} 
+                                href={item.meetingLink.includes('zoom.us/s/') ? item.meetingLink.replace('zoom.us/s/', 'zoom.us/j/') : item.meetingLink} 
                                 target="_blank" 
                                 rel="noopener noreferrer" 
                                 className="btn-primary"
@@ -1476,7 +1481,12 @@ export default function ClientDashboard() {
                         <div className={styles.paidBadge}>✓ Registration Confirmed</div>
                         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                           {reg.webinarId?.meetingLink ? (
-                            <a href={reg.webinarId.meetingLink} target="_blank" rel="noopener noreferrer" className={`btn-primary ${styles.zoomBtn}`}>
+                            <a 
+                              href={reg.webinarId.meetingLink.includes('zoom.us/s/') ? reg.webinarId.meetingLink.replace('zoom.us/s/', 'zoom.us/j/') : reg.webinarId.meetingLink} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className={`btn-primary ${styles.zoomBtn}`}
+                            >
                               📹 Join Meeting
                             </a>
                           ) : (

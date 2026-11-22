@@ -22,16 +22,26 @@ export async function POST(req) {
     // Payment verified successfully.
     await connectToDatabase();
     
-    // Instead of using the complex Server-to-Server Zoom API,
-    // we use the Admin's static Personal Meeting ID (PMI) link.
-    const pmiLink = "https://us05web.zoom.us/j/3410667455?pwd=ZXJyWUFTZW91N2lyekQ5NDJLVk1DQT09";
+    // Check if appointment already has a custom meeting link set by admin
+    const existingAppt = await Consultation.findById(appointmentId);
+    let assignedLink = existingAppt?.meetingLink;
+
+    if (!assignedLink) {
+      // Use configured Admin Meeting Link (Google Meet or Zoom)
+      assignedLink = (process.env.ADMIN_MEETING_LINK || process.env.DEFAULT_MEETING_LINK || "https://us05web.zoom.us/j/3410667455?pwd=ZXJyWUFTZW91N2lyekQ5NDJLVk1DQT09").trim();
+    }
+
+    // Ensure link saved for customer is always a participant join link (never host start link)
+    if (assignedLink.includes('zoom.us/s/')) {
+      assignedLink = assignedLink.replace('zoom.us/s/', 'zoom.us/j/');
+    }
 
     await Consultation.findByIdAndUpdate(appointmentId, { 
       paymentStatus: 'Paid',
-      meetingLink: pmiLink
+      meetingLink: assignedLink
     });
 
-    return NextResponse.json({ message: 'Payment verified successfully', meetingLink: pmiLink }, { status: 200 });
+    return NextResponse.json({ message: 'Payment verified successfully', meetingLink: assignedLink }, { status: 200 });
 
   } catch (error) {
     console.error('Razorpay Verify Error:', error);

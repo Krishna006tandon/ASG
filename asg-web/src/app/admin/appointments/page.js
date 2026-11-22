@@ -117,9 +117,18 @@ ${questions}
     alert('📋 Meeting Brief copied to clipboard! You can paste it into Zoom in-call chat or your notepad.');
   };
 
+  const getHostMeetingLink = (link) => {
+    if (!link) return '';
+    // If it's a Zoom participant link (/j/), switch to host start link (/s/) so Admin starts as Host
+    if (link.includes('zoom.us/j/')) {
+      return link.replace('zoom.us/j/', 'zoom.us/s/');
+    }
+    return link;
+  };
+
   const handleJoinWithCompanion = (appt) => {
     if (appt.meetingLink) {
-      window.open(appt.meetingLink, '_blank');
+      window.open(getHostMeetingLink(appt.meetingLink), '_blank');
     }
     setSelectedAppt(appt);
     setEditingMeetingLink(appt.meetingLink || '');
@@ -373,8 +382,9 @@ ${questions}
                             type="button" 
                             onClick={() => handleJoinWithCompanion(appt)}
                             style={{ background: '#2563EB', color: '#FFFFFF', border: 'none', padding: '0.25rem 0.55rem', borderRadius: '4px', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer' }}
+                            title="Launch meeting in Host Mode with briefing notes"
                           >
-                            📹 Join + Companion
+                            👑 Host Meet + Notes
                           </button>
                         </div>
                       )}
@@ -704,10 +714,10 @@ ${questions}
                 📋 Copy Meeting Brief
               </button>
 
-              {/* 📹 Launch Zoom with Companion Mode */}
+              {/* 👑 Launch Meeting as Host */}
               {selectedAppt.meetingLink && (
                 <a
-                  href={selectedAppt.meetingLink}
+                  href={getHostMeetingLink(selectedAppt.meetingLink)}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
@@ -722,8 +732,9 @@ ${questions}
                     fontSize: '0.85rem',
                     fontWeight: 700
                   }}
+                  title="Starts call in Host Mode"
                 >
-                  📹 Launch Zoom Call
+                  👑 Start Meeting as Host
                 </a>
               )}
 
@@ -791,6 +802,9 @@ ${questions}
                 >
                   Save Link
                 </button>
+              </div>
+              <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '0.5rem', lineHeight: '1.4' }}>
+                💡 <strong>Host Tip:</strong> For <strong>Google Meet</strong>, create the meeting from your admin Google account (avinashsgore@gmail.com) so you are automatically the Host. For <strong>Zoom</strong>, clicking &quot;Start Meeting as Host&quot; opens in Host Mode.
               </div>
             </div>
 
