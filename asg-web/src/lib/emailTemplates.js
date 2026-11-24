@@ -1,3 +1,41 @@
+export const otpVerificationTemplate = (otp, purposeText = 'booking/purchase', name = '') => `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px; background: #ffffff;">
+    <div style="border-bottom: 2px solid #059669; padding-bottom: 12px; margin-bottom: 16px;">
+      <h2 style="color: #111827; margin: 0; font-size: 22px;">Email Verification Code</h2>
+      <p style="color: #059669; font-weight: 600; margin: 4px 0 0;">Avinash S. Gore Platform</p>
+    </div>
+    
+    <p>Hello ${name ? name.trim() : 'there'},</p>
+    
+    <p style="color: #374151; font-size: 15px; line-height: 1.6;">
+      To complete your <strong>${purposeText}</strong> on avinashsgore.com, please use the following One-Time Password (OTP) to verify your email address:
+    </p>
+    
+    <div style="margin: 28px 0; text-align: center;">
+      <div style="display: inline-block; padding: 14px 32px; background: #ECFDF5; border: 2px dashed #059669; border-radius: 10px; font-size: 32px; font-weight: 900; letter-spacing: 8px; color: #047857; font-family: monospace;">
+        ${otp}
+      </div>
+      <div style="margin-top: 8px; font-size: 13px; color: #6B7280;">
+        Valid for <strong>10 minutes</strong> &middot; Single use only
+      </div>
+    </div>
+    
+    <div style="background: #FFFBEB; border-left: 4px solid #F59E0B; padding: 12px 14px; margin: 20px 0; border-radius: 4px; font-size: 13px; color: #92400E;">
+      🔒 <strong>Security Notice:</strong> Never share this OTP with anyone. Our team will never ask for your verification code.
+    </div>
+    
+    <p style="font-size: 13px; color: #6B7280; line-height: 1.5;">
+      If you did not initiate this request on avinashsgore.com, please ignore this email. No booking or purchase will be processed without this verification.
+    </p>
+    
+    <div style="margin-top: 24px; border-top: 1px solid #E5E7EB; padding-top: 16px; font-size: 13px; color: #374151;">
+      <p style="margin: 0;">Warm Regards,</p>
+      <p style="margin: 4px 0 0 0; font-weight: bold; color: #111827;">Avinash S. Gore &amp; Team</p>
+      <p style="margin: 2px 0 0 0; font-size: 12px; color: #6B7280;">avinashsgore.com</p>
+    </div>
+  </div>
+`;
+
 export const forgotPasswordTemplate = (resetUrl) => `
   <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px; background: #ffffff;">
     <div style="border-bottom: 2px solid #7942B5; padding-bottom: 12px; margin-bottom: 16px;">

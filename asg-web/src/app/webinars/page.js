@@ -6,6 +6,7 @@ import styles from './webinar.module.css';
 import StarRating from '@/components/StarRating';
 import ReviewModal from '@/components/ReviewModal';
 import ReviewsListModal from '@/components/ReviewsListModal';
+import EmailOtpModal from '@/components/EmailOtpModal';
 
 export default function Webinars() {
   const [webinars, setWebinars] = useState([]);
@@ -17,6 +18,8 @@ export default function Webinars() {
   const [formData, setFormData] = useState({
     name: '', email: '', whatsapp: '', profession: ''
   });
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
 
   // Reviews State
   const [reviewsData, setReviewsData] = useState({});
@@ -164,6 +167,12 @@ export default function Webinars() {
       if (!token) {
         alert("Please login to register for a webinar.");
         window.location.href = '/login';
+        return;
+      }
+
+      if (!isOtpVerified) {
+        setShowOtpModal(true);
+        setIsProcessing(false);
         return;
       }
 
@@ -624,6 +633,22 @@ export default function Webinars() {
           }}
         />
       )}
+      {/* EMAIL OTP VERIFICATION MODAL */}
+      <EmailOtpModal
+        isOpen={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        email={formData.email}
+        name={formData.name}
+        purpose="booking"
+        purposeLabel="Webinar Registration"
+        onVerified={() => {
+          setIsOtpVerified(true);
+          // Auto resume registration
+          setTimeout(() => {
+            document.querySelector(`.${styles.confirmBtn}`)?.click();
+          }, 100);
+        }}
+      />
     </main>
   );
 }

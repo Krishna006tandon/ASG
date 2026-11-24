@@ -6,6 +6,7 @@ import Coupon from '@/models/Coupon';
 import { authenticateApi } from '@/lib/auth';
 import { sendEmail } from '@/lib/mailer';
 import { orderConfirmationTemplate, adminNotificationTemplate } from '@/lib/emailTemplates';
+import { verifyEmailOtpStatus } from '@/lib/otpVerification';
 
 export async function POST(req) {
   try {
@@ -18,6 +19,12 @@ export async function POST(req) {
 
     if (!cart || cart.length === 0) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
+    }
+
+    const buyerEmail = customerDetails.email || user.email;
+    const otpCheck = await verifyEmailOtpStatus(buyerEmail, 'product_purchase');
+    if (!otpCheck.verified) {
+      return NextResponse.json({ error: otpCheck.error }, { status: 403 });
     }
 
     await connectToDatabase();

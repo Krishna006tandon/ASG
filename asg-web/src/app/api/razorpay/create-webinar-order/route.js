@@ -8,6 +8,7 @@ import { headers } from 'next/headers';
 import jwt from 'jsonwebtoken';
 import { sendEmail } from '@/lib/mailer';
 import { webinarRegistrationTemplate } from '@/lib/emailTemplates';
+import { verifyEmailOtpStatus } from '@/lib/otpVerification';
 
 export async function POST(req) {
   try {
@@ -24,6 +25,12 @@ export async function POST(req) {
     await connectToDatabase();
     
     const { webinarId, registrationData, couponCode } = await req.json();
+
+    const registrantEmail = registrationData?.email || decoded.email;
+    const otpCheck = await verifyEmailOtpStatus(registrantEmail, 'booking');
+    if (!otpCheck.verified) {
+      return NextResponse.json({ error: otpCheck.error }, { status: 403 });
+    }
 
     const webinar = await Webinar.findById(webinarId);
     if (!webinar) {

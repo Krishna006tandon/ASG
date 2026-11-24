@@ -5,6 +5,7 @@ import CareerSetting from '@/models/CareerSetting';
 import CareerAssessment from '@/models/CareerAssessment';
 import Coupon from '@/models/Coupon';
 import { authenticateApi } from '@/lib/auth';
+import { verifyEmailOtpStatus } from '@/lib/otpVerification';
 
 export async function POST(req) {
   try {
@@ -12,6 +13,11 @@ export async function POST(req) {
 
     if (!candidateDetails || !candidateDetails.name || !candidateDetails.email || !candidateDetails.phone) {
       return NextResponse.json({ error: 'Name, email, and phone number are required.' }, { status: 400 });
+    }
+
+    const otpCheck = await verifyEmailOtpStatus(candidateDetails.email, 'booking');
+    if (!otpCheck.verified) {
+      return NextResponse.json({ error: otpCheck.error }, { status: 403 });
     }
 
     const decoded = authenticateApi(req);

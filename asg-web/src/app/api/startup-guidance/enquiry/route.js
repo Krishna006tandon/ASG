@@ -4,6 +4,7 @@ import Consultation from '@/models/Consultation';
 import { sendEmail } from '@/lib/mailer';
 import { adminNotificationTemplate } from '@/lib/emailTemplates';
 import { authenticateApi } from '@/lib/auth';
+import { verifyEmailOtpStatus } from '@/lib/otpVerification';
 
 export async function POST(req) {
   try {
@@ -21,11 +22,20 @@ export async function POST(req) {
       challenges = [], 
       message, 
       sessionMode = 'Virtual (Google Meet/Zoom)',
-      preferredDate
+      preferredDate,
+      agreementAccepted
     } = body;
 
     if (!name || !email) {
       return NextResponse.json({ error: 'Name and email are required.' }, { status: 400 });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Verify Email OTP before accepting startup mentorship booking
+    const otpCheck = await verifyEmailOtpStatus(cleanEmail, 'consultation');
+    if (!otpCheck.verified) {
+      return NextResponse.json({ error: otpCheck.error }, { status: 403 });
     }
 
     const compiledMessage = `
@@ -33,6 +43,7 @@ export async function POST(req) {
 Current Status / Stage: ${currentStage || 'Not specified'}
 Preferred Mode: ${sessionMode}
 Selected Discussion Areas: ${Array.isArray(challenges) && challenges.length > 0 ? challenges.join(', ') : 'General Discussion'}
+Mentorship Agreement: ${agreementAccepted ? 'Accepted & Agreed' : 'Not specified'}
 
 Business Idea / Venture Overview:
 ${businessIdea || 'N/A'}
@@ -110,6 +121,7 @@ ${message || 'N/A'}
         <p><strong>Current Stage:</strong> ${currentStage || 'N/A'}</p>
         <p><strong>Preferred Mode:</strong> ${sessionMode}</p>
         <p><strong>Preferred Date:</strong> ${preferredDate || 'Flexible'}</p>
+        <p><strong>Mentorship Agreement:</strong> ${agreementAccepted ? '✅ Accepted & Agreed' : 'Not specified'}</p>
         <p><strong>Discussion Pillars:</strong> ${Array.isArray(challenges) ? challenges.join(', ') : 'N/A'}</p>
         <p><strong>Business Idea / Overview:</strong></p>
         <blockquote style="background:#f3f4f6; padding: 10px; border-left: 3px solid #059669; margin: 0;">${businessIdea || 'N/A'}</blockquote>

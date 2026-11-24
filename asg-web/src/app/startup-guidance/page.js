@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import EmailOtpModal from '@/components/EmailOtpModal';
 import styles from './startupGuidance.module.css';
 
 function getEmbedUrl(url) {
@@ -21,6 +22,7 @@ function getEmbedUrl(url) {
 export default function StartupGuidancePage() {
   // Modal states
   const [activeVideoModal, setActiveVideoModal] = useState(null); // 'intro' | 1 | 2 | 3 | null
+  const [showAgreementModal, setShowAgreementModal] = useState(false);
 
   // Dynamic Video Settings from Admin
   const [videoSettings, setVideoSettings] = useState({
@@ -75,11 +77,253 @@ export default function StartupGuidancePage() {
     challenges: [],
     message: '',
     sessionMode: 'Virtual (Google Meet/Zoom)',
-    preferredDate: ''
+    preferredDate: '',
+    agreementAccepted: false
   });
   const [formLoading, setFormLoading] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
   const [formError, setFormError] = useState('');
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+
+
+  // 10 stages of starting and growing a business (ChatGPT Roadmap)
+  const startupStages = [
+    {
+      num: "01",
+      title: "Self-Discovery & Entrepreneurial Mindset",
+      badge: "Founder readiness",
+      badgeType: styles.stageTagInfo,
+      phase: "Phase 1: DREAM",
+      points: [
+        "Understand your strengths, interests and values.",
+        "Identify your purpose (Swadharma).",
+        "Assess risk appetite, financial position and family responsibilities.",
+        "Decide why you want to start a business."
+      ]
+    },
+    {
+      num: "02",
+      title: "Idea Generation & Opportunity Identification",
+      badge: "Idea stage",
+      badgeType: styles.stageTagNeutral,
+      phase: "Phase 1: DREAM",
+      points: [
+        "Identify a problem worth solving.",
+        "Find gaps in the market.",
+        "Identify your target customers.",
+        "Convert skills, experience or passion into a business opportunity."
+      ]
+    },
+    {
+      num: "03",
+      title: "Market Research & Idea Validation",
+      badge: "Validation stage",
+      badgeType: styles.stageTagNeutral,
+      phase: "Phase 2: DESIGN",
+      points: [
+        "Understand customer needs.",
+        "Study competitors.",
+        "Conduct customer interviews.",
+        "Test whether customers are willing to pay.",
+        "Validate market size and demand."
+      ]
+    },
+    {
+      num: "04",
+      title: "Business Model Development",
+      badge: "Business design",
+      badgeType: styles.stageTagNeutral,
+      phase: "Phase 2: DESIGN",
+      points: [
+        "Define products and services.",
+        "Decide pricing and revenue streams.",
+        "Identify costs and profit margins.",
+        "Decide how you will acquire and serve customers.",
+        "Prepare a Business Model Canvas."
+      ]
+    },
+    {
+      num: "05",
+      title: "Business Planning & Financial Preparation",
+      badge: "Planning stage",
+      badgeType: styles.stageTagNeutral,
+      phase: "Phase 2: DESIGN",
+      points: [
+        "Prepare a business plan.",
+        "Estimate initial investment and working capital.",
+        "Prepare cash-flow projections.",
+        "Define short- and long-term goals.",
+        "Decide funding sources and break-even expectations."
+      ]
+    },
+    {
+      num: "06",
+      title: "Business Setup & Legal Formalities",
+      badge: "Establishment stage",
+      badgeType: styles.stageTagNeutral,
+      phase: "Phase 3: START",
+      points: [
+        "Select proprietorship, partnership, LLP or Pvt Ltd.",
+        "Complete applicable registrations, licences and tax formalities.",
+        "Establish banking, accounting and compliance systems.",
+        "Arrange infrastructure, technology and suppliers."
+      ]
+    },
+    {
+      num: "07",
+      title: "Product Development & Launch",
+      badge: "Market entry",
+      badgeType: styles.stageTagSuccess,
+      phase: "Phase 3: START",
+      points: [
+        "Develop the initial product or service.",
+        "Create a Minimum Viable Product (MVP).",
+        "Conduct pilot trials.",
+        "Collect customer feedback.",
+        "Launch commercially."
+      ]
+    },
+    {
+      num: "08",
+      title: "Customer Acquisition & Survival",
+      badge: "Survival stage",
+      badgeType: styles.stageTagWarning,
+      phase: "Phase 4: SURVIVE & GROW",
+      points: [
+        "Generate leads.",
+        "Build a sales pipeline.",
+        "Convert enquiries into paying customers.",
+        "Deliver quality and build trust.",
+        "Maintain positive cash flow."
+      ]
+    },
+    {
+      num: "09",
+      title: "Growth, Team Building & Systemisation",
+      badge: "Growth stage",
+      badgeType: styles.stageTagInfo,
+      phase: "Phase 4: SURVIVE & GROW",
+      points: [
+        "Build a capable team.",
+        "Delegate responsibilities.",
+        "Develop SOPs and processes.",
+        "Strengthen marketing and sales.",
+        "Improve profitability and expand markets."
+      ]
+    },
+    {
+      num: "10",
+      title: "Scaling, Sustainability & Legacy",
+      badge: "Maturity stage",
+      badgeType: styles.stageTagSuccess,
+      phase: "Phase 5: SCALE & SUSTAIN",
+      points: [
+        "Expand geographically or through new products.",
+        "Build leadership beyond the founder.",
+        "Develop independent management systems.",
+        "Create sustainable wealth and employment.",
+        "Build an organisation that can outlive its founder."
+      ]
+    }
+  ];
+
+  // 5 Broader Phases (The "Job to Business" Roadmap)
+  const fivePhases = [
+    {
+      num: "01",
+      name: "DREAM",
+      tagline: "Discover yourself, identify an idea and envision the opportunity.",
+      color: "#64748B",
+      stages: "Stages 1 & 2"
+    },
+    {
+      num: "02",
+      name: "DESIGN",
+      tagline: "Research, validate, develop the business model and plan finances.",
+      color: "#0D9488",
+      stages: "Stages 3, 4 & 5"
+    },
+    {
+      num: "03",
+      name: "START",
+      tagline: "Set up, develop the offering and launch.",
+      color: "#2563EB",
+      stages: "Stages 6 & 7"
+    },
+    {
+      num: "04",
+      name: "SURVIVE & GROW",
+      tagline: "Acquire customers, generate revenue, manage cash flow and build a team.",
+      color: "#D97706",
+      stages: "Stages 8 & 9"
+    },
+    {
+      num: "05",
+      name: "SCALE & SUSTAIN",
+      tagline: "Systemise, expand, develop leadership and create long-term value.",
+      color: "#16A34A",
+      stages: "Stage 10"
+    }
+  ];
+
+  // 3 Foundational Life Dimensions to Balance Alongside Entrepreneurship
+  const lifeDimensions = [
+    {
+      icon: "🧘",
+      name: "Health",
+      desc: "Physical and mental health must not be sacrificed for business. Stamina, energy, and cognitive resilience are your greatest assets as a founder."
+    },
+    {
+      icon: "🤝",
+      name: "Relationships",
+      desc: "Family, friends and social responsibilities must remain meaningful. Sustainable success is built upon a foundation of strong relationships and mutual trust."
+    },
+    {
+      icon: "🧭",
+      name: "Spirituality & Character",
+      desc: "Become a good human being, practise integrity and understand the larger purpose of life. Business is a vehicle for creating genuine social value."
+    }
+  ];
+
+  // Mentorship Agreement clauses overview
+  const agreementClauses = [
+    {
+      num: "1",
+      title: "Purpose of Mentorship",
+      snippet: "Guides the Mentee in developing an entrepreneurial mindset, evaluating opportunities, and progressing across the 10 stages towards sustainable growth."
+    },
+    {
+      num: "2",
+      title: "Role of the Mentor",
+      snippet: "Provides guidance, shares real-world experience, facilitates learning, and assists the Mentee in evaluating business challenges."
+    },
+    {
+      num: "3",
+      title: "Commitment of the Mentee",
+      snippet: "Actively participate in mentoring, share accurate information, complete action points, take ownership of decisions, and respect time."
+    },
+    {
+      num: "4",
+      title: "Nature & Limitations",
+      snippet: "Mentorship is a guidance arrangement without guarantee of financial success. All business, financial, and legal decisions remain the Mentee's responsibility."
+    },
+    {
+      num: "5",
+      title: "Confidentiality",
+      snippet: "Both parties agree to maintain strict confidentiality regarding sensitive business data, personal information, and strategic discussions."
+    },
+    {
+      num: "6",
+      title: "Duration & Engagement",
+      snippet: "Session duration, frequency, interaction modes, and mentoring fees are mutually agreed and communicated separately. Discontinuation upon reasonable notice."
+    },
+    {
+      num: "7",
+      title: "Acceptance & Declaration",
+      snippet: "Mentee declaration acknowledging that the entrepreneurial journey depends primarily on personal commitment, execution, and perseverance."
+    }
+  ];
 
   // Introspective questions
   const introspectiveQuestions = [
@@ -308,7 +552,27 @@ export default function StartupGuidancePage() {
   };
 
   const handleFormSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
+
+    if (!formData.name || !formData.email) {
+      setFormError('Please enter your full name and email address.');
+      return;
+    }
+
+    if (!isOtpVerified) {
+      setShowOtpModal(true);
+      return;
+    }
+
+    executeStartupEnquirySubmit();
+  };
+
+  const handleOtpVerified = () => {
+    setIsOtpVerified(true);
+    executeStartupEnquirySubmit();
+  };
+
+  const executeStartupEnquirySubmit = async () => {
     setFormLoading(true);
     setFormError('');
 
@@ -390,7 +654,7 @@ export default function StartupGuidancePage() {
               onClick={() => setActiveVideoModal('intro')}
               className={styles.ctaSecondary}
             >
-              <span>▶</span> Watch Introduction Video ({videoSettings.introVideo.duration || '2 Min'})
+              <span>▶</span> Watch Intro Video ({videoSettings.introVideo.duration || '2 Min'})
             </button>
           ) : (
             <button 
@@ -400,6 +664,24 @@ export default function StartupGuidancePage() {
               <span>⏳</span> Intro Video (Coming Soon)
             </button>
           )}
+          <button 
+            onClick={() => {
+              const el = document.getElementById('startup-stages-section');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className={styles.ctaSecondary}
+          >
+            <span>🗺️</span> 10 Startup Stages
+          </button>
+          <button 
+            onClick={() => {
+              const el = document.getElementById('mentorship-agreement-section');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className={styles.ctaSecondary}
+          >
+            <span>📜</span> Mentorship Agreement
+          </button>
         </div>
 
         {/* Key Feature Stats Pills */}
@@ -728,6 +1010,107 @@ export default function StartupGuidancePage() {
         </div>
       </section>
 
+
+      {/* 8. 10 STAGES OF STARTING AND GROWING A BUSINESS */}
+      <section id="startup-stages-section" className={styles.stagesSection}>
+        <div className={styles.sectionHeader}>
+          <span className={styles.sectionBadge}>The Complete Roadmap</span>
+          <h2 className={styles.sectionTitle}>10 Stages of Starting and Growing a Business</h2>
+          <p className={styles.sectionDesc}>
+            Starting a new business is not a single event; it is a structured journey through progressive stages. A founder moves from an idea to a sustainable business, and eventually to an organisation that can operate independently.
+          </p>
+        </div>
+
+        {/* Intro philosophy card */}
+        <div className={styles.stagesIntroBox}>
+          <p className={styles.stagesIntroLead}>
+            &ldquo;A person moves from <strong>an idea to a sustainable business, and eventually to an organisation that can operate independently of its founder.</strong> I divide the startup journey into 10 structured stages, particularly for someone transitioning from a job to entrepreneurship.&rdquo;
+          </p>
+          <div style={{ marginTop: '0.75rem', fontSize: '0.92rem', color: '#94A3B8', textAlign: 'right' }}>
+            &mdash; Avinash S. Gore
+          </div>
+        </div>
+
+        {/* 10 Stages Grid */}
+        <div className={styles.stagesGrid}>
+          {startupStages.map((st) => (
+            <div key={st.num} className={styles.stageCard}>
+              <div className={styles.stageTopRow}>
+                <span className={styles.stageNumBadge}>{st.num}</span>
+                <span className={`${styles.stageTag} ${st.badgeType}`}>{st.badge}</span>
+              </div>
+              <h3 className={styles.stageTitle}>{st.num}. {st.title}</h3>
+              <ul className={styles.stagePointsList}>
+                {st.points.map((pt, pIdx) => (
+                  <li key={pIdx}>{pt}</li>
+                ))}
+              </ul>
+              <div className={styles.stageFooter}>
+                <span className={styles.stagePhasePill}>{st.phase}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* The 5 Broader Phases (The "Job to Business" Roadmap) */}
+        <div className={styles.phasesCard}>
+          <div className={styles.phasesHeader}>
+            <span className={styles.phasesBadge}>Teaching &amp; Author Framework</span>
+            <h3 className={styles.phasesTitle}>An Alternative: 5 Broader Phases</h3>
+            <p className={styles.phasesSubtitle}>
+              For teaching entrepreneurship or structuring the roadmap in <em>Job to Business</em>, these ten stages simplify into five memorable, actionable phases:
+            </p>
+          </div>
+
+          <div className={styles.phasesGrid}>
+            {fivePhases.map((phase) => (
+              <div key={phase.num} className={styles.phaseItem}>
+                <div className={styles.phaseTop}>
+                  <div className={styles.phaseNumberBox} style={{ background: phase.color }}>
+                    {phase.num}
+                  </div>
+                  <div className={styles.phaseName}>{phase.name}</div>
+                </div>
+                <p className={styles.phaseTagline}>{phase.tagline}</p>
+                <div className={styles.phaseStagesPill}>{phase.stages}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 3 Core Dimensions of Life Balance */}
+        <div className={styles.dimensionsCard}>
+          <div className={styles.dimensionsHeader}>
+            <span className={styles.dimensionsBadge}>One Important Principle</span>
+            <h3 className={styles.dimensionsTitle}>3 Dimensions to Balance Alongside Entrepreneurship</h3>
+            <p className={styles.dimensionsSubtitle}>
+              Entrepreneurship is not just about starting and making money. We place three non-negotiable dimensions alongside all phases:
+            </p>
+          </div>
+
+          <div className={styles.dimensionsGrid}>
+            {lifeDimensions.map((dim, dIdx) => (
+              <div key={dIdx} className={styles.dimensionItem}>
+                <div className={styles.dimensionIcon}>{dim.icon}</div>
+                <h4 className={styles.dimensionName}>{dIdx + 1}. {dim.name}</h4>
+                <p className={styles.dimensionDesc}>{dim.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Central Distinction / Transformation Banner */}
+        <div className={styles.transformationBanner}>
+          <span className={styles.transformationBadge}>Core Principle &middot; Job to Business</span>
+          <blockquote className={styles.transformationQuote}>
+            &ldquo;Make one important distinction between <span className={styles.transformationHighlight}>starting a business</span> and <span className={styles.transformationHighlight}>becoming an entrepreneur</span>. Starting a business is an activity; becoming an entrepreneur is a transformation in mindset, responsibility, decision-making and leadership.&rdquo;
+          </blockquote>
+          <div className={styles.transformationAuthor}>
+            &mdash; Avinash S. Gore &middot; Guiding Principles for Aspiring Founders
+          </div>
+        </div>
+      </section>
+
       {/* 9. WHO SHOULD APPROACH ME? (7 Personas) */}
       <section style={{ marginBottom: '4.5rem' }}>
         <div className={styles.sectionHeader}>
@@ -807,6 +1190,98 @@ export default function StartupGuidancePage() {
               </div>
             );
           })}
+        </div>
+      </section>
+
+
+      {/* 10B. ENTREPRENEURSHIP MENTORSHIP AGREEMENT */}
+      <section id="mentorship-agreement-section" className={styles.agreementSection}>
+        <div className={styles.sectionHeader}>
+          <span className={styles.sectionBadge}>Formal Mutual Commitment</span>
+          <h2 className={styles.sectionTitle}>Entrepreneurship Mentorship Agreement</h2>
+          <p className={styles.sectionDesc}>
+            Clear expectations, ethical integrity, and mutual respect form the bedrock of meaningful mentoring. This agreement establishes our code of practice and commitment to your entrepreneurial growth.
+          </p>
+        </div>
+
+        <div className={styles.agreementCard}>
+          <div className={styles.agreementWatermark}>AGREEMENT</div>
+          
+          <div className={styles.agreementTopRow}>
+            <div className={styles.agreementOfficialBadge}>
+              Official Mentorship Framework
+            </div>
+            <div className={styles.agreementCtas}>
+              <Link 
+                href="/startup-guidance/agreement" 
+                target="_blank" 
+                className={styles.agreementPrintBtn}
+              >
+                <span>🖨️</span> Open Printable Agreement / PDF
+              </Link>
+              <button 
+                type="button" 
+                onClick={() => setShowAgreementModal(true)} 
+                className={styles.agreementModalTriggerBtn}
+              >
+                <span>📖</span> Read Full Document
+              </button>
+            </div>
+          </div>
+
+          <h3 className={styles.agreementDocTitle}>ENTREPRENEURSHIP MENTORSHIP AGREEMENT</h3>
+          <div className={styles.agreementDocMeta}>
+            <strong>Mentor:</strong> Mr. Avinash S. Gore &middot; <strong>Website:</strong> <a href="https://avinashsgore.com" target="_blank" rel="noopener noreferrer" style={{ color: '#059669', textDecoration: 'underline' }}>https://avinashsgore.com</a>
+          </div>
+
+          {/* Parties Grid */}
+          <div className={styles.agreementPartiesGrid}>
+            <div>
+              <div className={styles.partyItemTitle}>Mentor</div>
+              <div className={styles.partyItemValue}>Mr. Avinash S. Gore</div>
+            </div>
+            <div>
+              <div className={styles.partyItemTitle}>Mentee / Participant</div>
+              <div className={styles.partyItemValue}>{formData.name || 'Registered Founder / Participant'}</div>
+            </div>
+            <div>
+              <div className={styles.partyItemTitle}>Proposed Venture</div>
+              <div className={styles.partyItemValue}>{formData.businessIdea ? formData.businessIdea.slice(0, 40) + '...' : 'Proposed Venture / Business'}</div>
+            </div>
+            <div>
+              <div className={styles.partyItemTitle}>Curriculum Basis</div>
+              <div className={styles.partyItemValue}>10 Stages of Entrepreneurship</div>
+            </div>
+          </div>
+
+          {/* Key Clauses Preview Grid */}
+          <div className={styles.agreementClausesPreview}>
+            {agreementClauses.map((cl) => (
+              <div key={cl.num} className={styles.clausePreviewCard}>
+                <div className={styles.clausePreviewNum}>Clause {cl.num}</div>
+                <div className={styles.clausePreviewTitle}>{cl.title}</div>
+                <p className={styles.clausePreviewSnippet}>{cl.snippet}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Agreement Motto Banner */}
+          <div className={styles.agreementMottoBanner}>
+            <p className={styles.agreementMottoText}>
+              &ldquo;More than starting a business, the objective is to develop an entrepreneur capable of building a responsible, sustainable and meaningful enterprise.&rdquo;
+            </p>
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
+            <button 
+              type="button" 
+              onClick={() => setShowAgreementModal(true)} 
+              className={styles.ctaPrimary}
+              style={{ display: 'inline-flex', padding: '0.65rem 1.75rem', fontSize: '0.95rem' }}
+            >
+              Review Full Agreement Clauses &amp; Signatures &rarr;
+            </button>
+          </div>
         </div>
       </section>
 
@@ -997,6 +1472,26 @@ export default function StartupGuidancePage() {
                   className={styles.formInput}
                 />
               </div>
+            </div>
+
+
+            {/* Mentorship Agreement Acceptance Checkbox */}
+            <div className={styles.agreementCheckboxRow}>
+              <input
+                type="checkbox"
+                id="agreement-accepted-checkbox"
+                className={styles.agreementCheckbox}
+                checked={formData.agreementAccepted || false}
+                onChange={(e) => setFormData(prev => ({ ...prev, agreementAccepted: e.target.checked }))}
+                required
+              />
+              <label htmlFor="agreement-accepted-checkbox" className={styles.agreementLabelText}>
+                I have read and agree to the terms of the{' '}
+                <Link href="/startup-guidance/agreement" target="_blank">
+                  Entrepreneurship Mentorship Agreement
+                </Link>{' '}
+                and understand that mentorship is based on the 10 stages of entrepreneurship with personal ownership of business execution.
+              </label>
             </div>
 
             {/* Session Confirmation Notice */}
@@ -1252,6 +1747,169 @@ export default function StartupGuidancePage() {
           </div>
         </div>
       )}
+
+      {/* MODAL: FULL ENTREPRENEURSHIP MENTORSHIP AGREEMENT */}
+      {showAgreementModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowAgreementModal(false)}>
+          <div 
+            className={`${styles.modalContent} ${styles.agreementModalSheet}`}
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '820px', padding: '2.5rem' }}
+          >
+            <button 
+              onClick={() => setShowAgreementModal(false)}
+              className={styles.modalCloseBtn}
+              aria-label="Close Agreement Modal"
+            >
+              ✕
+            </button>
+
+            <div style={{ textAlign: 'center', marginBottom: '1.5rem', borderBottom: '2px solid #059669', paddingBottom: '1rem' }}>
+              <div style={{ fontSize: '0.78rem', fontWeight: '800', letterSpacing: '0.1em', color: '#059669', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                OFFICIAL CODE OF PRACTICE
+              </div>
+              <h2 style={{ fontSize: '1.65rem', fontWeight: '900', color: '#0F172A', margin: '0 0 0.5rem' }}>
+                ENTREPRENEURSHIP MENTORSHIP AGREEMENT
+              </h2>
+              <div style={{ fontSize: '0.92rem', color: '#475569' }}>
+                <strong>Mentor:</strong> Mr. Avinash S. Gore &middot; <strong>Website:</strong> <a href="https://avinashsgore.com" target="_blank" rel="noopener noreferrer" style={{ color: '#0284C7' }}>https://avinashsgore.com</a>
+              </div>
+            </div>
+
+            <div style={{ background: '#F8FAFC', borderRadius: '10px', padding: '1rem 1.25rem', marginBottom: '1.5rem', border: '1px solid #E2E8F0', fontSize: '0.92rem', lineHeight: '1.6' }}>
+              <div><strong>This agreement is entered into between:</strong></div>
+              <div style={{ marginTop: '0.4rem' }}>&bull; <strong>Mentor:</strong> Mr. Avinash S. Gore</div>
+              <div>&bull; <strong>Mentee / Participant:</strong> {formData.name || '__________________________________'}</div>
+              <div>&bull; <strong>Business / Proposed Venture:</strong> {formData.businessIdea ? formData.businessIdea.slice(0, 60) : '____________________________'}</div>
+              <div>&bull; <strong>Date of Registration:</strong> {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', fontSize: '0.92rem', color: '#334155', lineHeight: '1.65' }}>
+              <div>
+                <h4 style={{ margin: '0 0 0.35rem', color: '#0F172A', fontSize: '1.05rem', fontWeight: '800' }}>1. Purpose of Mentorship</h4>
+                <p style={{ margin: 0 }}>
+                  The purpose of this mentorship is to guide the Mentee in developing an entrepreneurial mindset, evaluating business opportunities, establishing a new business and progressing towards sustainable growth.
+                </p>
+                <p style={{ margin: '0.5rem 0 0' }}>The mentorship will follow the following ten stages of entrepreneurship:</p>
+                <ol style={{ margin: '0.4rem 0 0', paddingLeft: '1.25rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.25rem 1rem' }}>
+                  <li>Self-Discovery &amp; Mindset</li>
+                  <li>Idea Generation</li>
+                  <li>Market Research &amp; Validation</li>
+                  <li>Business Model Development</li>
+                  <li>Business Planning &amp; Finance</li>
+                  <li>Business Setup &amp; Legal</li>
+                  <li>Product Development &amp; Launch</li>
+                  <li>Customer Acquisition &amp; Survival</li>
+                  <li>Growth &amp; Systemisation</li>
+                  <li>Scaling, Sustainability &amp; Legacy</li>
+                </ol>
+                <div style={{ fontSize: '0.82rem', color: '#64748B', fontStyle: 'italic', marginTop: '0.4rem' }}>
+                  Detailed descriptions, learning resources and guidance relating to these stages are available on https://avinashsgore.com.
+                </div>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.35rem', color: '#0F172A', fontSize: '1.05rem', fontWeight: '800' }}>2. Role of the Mentor</h4>
+                <p style={{ margin: 0 }}>
+                  The Mentor shall provide guidance, share experience, facilitate learning, offer suggestions and assist the Mentee in evaluating business-related opportunities and challenges.
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.35rem', color: '#0F172A', fontSize: '1.05rem', fontWeight: '800' }}>3. Commitment of the Mentee</h4>
+                <p style={{ margin: 0 }}>The Mentee agrees to:</p>
+                <ul style={{ margin: '0.3rem 0 0', paddingLeft: '1.25rem' }}>
+                  <li>Actively participate in mentoring sessions.</li>
+                  <li>Share relevant and accurate information.</li>
+                  <li>Complete agreed assignments and action points.</li>
+                  <li>Take ownership of business decisions and implementation.</li>
+                  <li>Maintain professional conduct and respect the Mentor&apos;s time.</li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.35rem', color: '#0F172A', fontSize: '1.05rem', fontWeight: '800' }}>4. Nature and Limitations of Mentorship</h4>
+                <p style={{ margin: 0 }}>
+                  The Mentee understands that mentorship is a guidance and knowledge-sharing arrangement. It does not constitute a guarantee of business success, profitability, funding, customers or any specific financial outcome. All business, financial, legal and operational decisions shall remain the responsibility of the Mentee.
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.35rem', color: '#0F172A', fontSize: '1.05rem', fontWeight: '800' }}>5. Confidentiality</h4>
+                <p style={{ margin: 0 }}>
+                  Both parties agree to maintain confidentiality regarding sensitive business information, personal information, strategies and discussions shared during the mentorship, except where disclosure is legally required or mutually authorised.
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.35rem', color: '#0F172A', fontSize: '1.05rem', fontWeight: '800' }}>6. Duration and Engagement</h4>
+                <p style={{ margin: 0 }}>
+                  The duration, frequency of meetings, mode of interaction and applicable mentoring fees shall be as mutually agreed and communicated separately. Either party may discontinue the mentorship by providing reasonable notice.
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.35rem', color: '#0F172A', fontSize: '1.05rem', fontWeight: '800' }}>7. Acceptance and Declaration</h4>
+                <p style={{ margin: 0 }}>
+                  I confirm that I have understood the purpose, scope and limitations of the Entrepreneurship Mentorship Programme. I voluntarily register for this mentorship and acknowledge that my entrepreneurial journey will depend primarily on my commitment, learning, decisions, execution and perseverance. I understand that the Mentor is a guide and facilitator, while I remain responsible for building my business.
+                </p>
+              </div>
+            </div>
+
+            {/* Signature Block */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px dashed #CBD5E1', fontSize: '0.88rem' }}>
+              <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '8px' }}>
+                <div style={{ fontWeight: '800', color: '#64748B', fontSize: '0.75rem', textTransform: 'uppercase' }}>Mentee / Participant</div>
+                <div style={{ marginTop: '0.5rem' }}><strong>Name:</strong> {formData.name || '___________________'}</div>
+                <div style={{ marginTop: '0.35rem' }}><strong>Signature:</strong> ___________________</div>
+                <div style={{ marginTop: '0.35rem' }}><strong>Date:</strong> {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+              </div>
+
+              <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '8px' }}>
+                <div style={{ fontWeight: '800', color: '#64748B', fontSize: '0.75rem', textTransform: 'uppercase' }}>Mentor</div>
+                <div style={{ marginTop: '0.5rem' }}><strong>Name:</strong> Mr. Avinash S. Gore</div>
+                <div style={{ marginTop: '0.35rem', fontFamily: 'cursive', fontSize: '1.1rem', color: '#0F172A' }}>Avinash S. Gore</div>
+                <div style={{ marginTop: '0.35rem' }}><strong>Date:</strong> {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+              </div>
+            </div>
+
+            {/* Bottom Motto */}
+            <div style={{ textAlign: 'center', marginTop: '1.5rem', padding: '0.85rem', background: '#ECFDF5', borderRadius: '8px', color: '#065F46', fontWeight: '700', fontStyle: 'italic', fontSize: '0.92rem' }}>
+              &ldquo;More than starting a business, the objective is to develop an entrepreneur capable of building a responsible, sustainable and meaningful enterprise.&rdquo;
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', justifyContent: 'center' }}>
+              <Link
+                href={`/startup-guidance/agreement?name=${encodeURIComponent(formData.name || '')}&venture=${encodeURIComponent(formData.businessIdea || '')}`}
+                target="_blank"
+                className={styles.ctaPrimary}
+                style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                <span>🖨️</span> Open Printable Version / PDF
+              </Link>
+              <button
+                type="button"
+                onClick={() => setShowAgreementModal(false)}
+                className={styles.ctaSecondary}
+              >
+                Close Document
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: EMAIL OTP VERIFICATION */}
+      <EmailOtpModal
+        isOpen={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        email={formData.email}
+        name={formData.name}
+        purpose="consultation"
+        purposeLabel="Start-up Guidance Session"
+        onVerified={handleOtpVerified}
+      />
+
     </main>
   );
 }

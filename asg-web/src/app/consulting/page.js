@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import EmailOtpModal from '@/components/EmailOtpModal';
 import styles from './consulting.module.css';
 
 export default function Consulting() {
@@ -19,6 +20,8 @@ export default function Consulting() {
   const [questions, setQuestions] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
 
   // Auto-populate user details if logged in
   useEffect(() => {
@@ -34,12 +37,27 @@ export default function Consulting() {
   }, []);
 
   const handleBooking = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!selectedDate || !selectedTime || !name || !email || !requirements) {
       alert("Please fill in all required fields including your consultation requirements.");
       return;
     }
     
+    // Check if email OTP is verified
+    if (!isOtpVerified) {
+      setShowOtpModal(true);
+      return;
+    }
+
+    executeConsultationBooking();
+  };
+
+  const handleOtpVerified = () => {
+    setIsOtpVerified(true);
+    executeConsultationBooking();
+  };
+
+  const executeConsultationBooking = async () => {
     setIsSubmitting(true);
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('asg_token') : null;
@@ -259,6 +277,16 @@ export default function Consulting() {
           )}
         </div>
       </section>
+
+      <EmailOtpModal
+        isOpen={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        email={email}
+        name={name}
+        purpose="consultation"
+        purposeLabel="1-on-1 Strategy Consultation"
+        onVerified={handleOtpVerified}
+      />
     </main>
   );
 }

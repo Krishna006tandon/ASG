@@ -8,6 +8,7 @@ import { jsPDF } from 'jspdf';
 import styles from './career.module.css';
 import CareerDemoVideo from '@/components/CareerDemoVideo';
 import CareerReportPDF from '@/components/CareerReportPDF';
+import EmailOtpModal from '@/components/EmailOtpModal';
 import {
   CAREER_CATEGORIES,
   CAREER_QUESTIONS,
@@ -44,6 +45,8 @@ export default function CareerGuidancePage() {
   const [isSubmittingTest, setIsSubmittingTest] = useState(false);
   const [results, setResults] = useState(null);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
 
   // Discrete Coupon state (Hidden by default)
   const [showCouponInput, setShowCouponInput] = useState(false);
@@ -199,12 +202,21 @@ export default function CareerGuidancePage() {
 
   // Handle Pay and Unlock Test (Option A)
   const handleInitiatePayment = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!candidate.name || !candidate.email || !candidate.phone) {
       alert("Please fill in your name, email, and phone number.");
       return;
     }
 
+    if (!isOtpVerified) {
+      setShowOtpModal(true);
+      return;
+    }
+
+    executeCareerPayment();
+  };
+
+  const executeCareerPayment = async () => {
     setIsProcessingPayment(true);
 
     try {
@@ -1298,6 +1310,19 @@ export default function CareerGuidancePage() {
           </div>
         )}
       </div>
+      {/* EMAIL OTP VERIFICATION MODAL */}
+      <EmailOtpModal
+        isOpen={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        email={candidate.email}
+        name={candidate.name}
+        purpose="booking"
+        purposeLabel="Career Guidance Assessment"
+        onVerified={() => {
+          setIsOtpVerified(true);
+          executeCareerPayment();
+        }}
+      />
     </div>
   );
 }

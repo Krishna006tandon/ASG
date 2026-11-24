@@ -7,6 +7,7 @@ import Coupon from '@/models/Coupon';
 import { authenticateApi } from '@/lib/auth';
 import { sendEmail } from '@/lib/mailer';
 import { seminarTicketTemplate } from '@/lib/emailTemplates';
+import { verifyEmailOtpStatus } from '@/lib/otpVerification';
 
 export async function POST(req) {
   try {
@@ -18,6 +19,12 @@ export async function POST(req) {
     await connectToDatabase();
     
     const { seminarId, quantity = 1, attendees, couponCode } = await req.json();
+
+    const registrantEmail = attendees?.[0]?.email || decoded.email;
+    const otpCheck = await verifyEmailOtpStatus(registrantEmail, 'booking');
+    if (!otpCheck.verified) {
+      return NextResponse.json({ error: otpCheck.error }, { status: 403 });
+    }
 
     const seminar = await Seminar.findById(seminarId);
     if (!seminar) {

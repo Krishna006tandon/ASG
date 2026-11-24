@@ -4,6 +4,7 @@ import Consultation from '@/models/Consultation';
 import { sendEmail } from '@/lib/mailer';
 import { consultationBookingTemplate, adminNotificationTemplate } from '@/lib/emailTemplates';
 import { authenticateApi } from '@/lib/auth';
+import { verifyEmailOtpStatus } from '@/lib/otpVerification';
 
 export async function POST(req) {
   try {
@@ -18,6 +19,13 @@ export async function POST(req) {
     }
 
     const cleanEmail = String(email).trim().toLowerCase();
+
+    // Verify Email OTP before completing consultation booking
+    const otpCheck = await verifyEmailOtpStatus(cleanEmail, 'consultation');
+    if (!otpCheck.verified) {
+      return NextResponse.json({ error: otpCheck.error }, { status: 403 });
+    }
+
     const requirementsText = (requirements || message || '').trim();
     const questionsArray = Array.isArray(specificQuestions)
       ? specificQuestions.map(q => String(q).trim()).filter(Boolean)

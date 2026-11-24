@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
+import EmailOtpModal from '@/components/EmailOtpModal';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
@@ -28,6 +29,9 @@ export default function Navbar() {
   const [showCouponInput, setShowCouponInput] = useState(false);
   const [couponCodeInput, setCouponCodeInput] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
+  const [isStoreOtpVerified, setIsStoreOtpVerified] = useState(false);
+  const [showStoreOtpModal, setShowStoreOtpModal] = useState(false);
+  const [storeOtpEmail, setStoreOtpEmail] = useState('');
   const [couponError, setCouponError] = useState('');
 
   const updateCartItemPhysical = (id, checked) => {
@@ -179,7 +183,7 @@ export default function Navbar() {
     });
   };
 
-  const handleStoreCheckout = async () => {
+  const handleStoreCheckout = async (skipOtp = false) => {
     setIsCheckingOut(true);
     try {
       const token = localStorage.getItem('asg_token');
@@ -235,6 +239,21 @@ export default function Navbar() {
         phone: checkoutDetails.phone || '',
         address: checkoutDetails.address || ''
       };
+
+      if (!activeCustomerDetails.email) {
+        setShowCheckoutForm(true);
+        setIsCheckingOut(false);
+        alert("Please enter a valid email address.");
+        return;
+      }
+
+      // Check Email OTP Verification before creating store order
+      if (!skipOtp && !isStoreOtpVerified) {
+        setStoreOtpEmail(activeCustomerDetails.email);
+        setShowStoreOtpModal(true);
+        setIsCheckingOut(false);
+        return;
+      }
 
       // Create Order on Backend (pass couponCode if applied)
       const orderRes = await fetch('/api/razorpay/create-store-order', {
@@ -806,6 +825,19 @@ export default function Navbar() {
           </div>
         </div>
       )}
+      {/* STORE PRODUCT EMAIL OTP MODAL */}
+      <EmailOtpModal
+        isOpen={showStoreOtpModal}
+        onClose={() => setShowStoreOtpModal(false)}
+        email={storeOtpEmail}
+        name={checkoutDetails.name}
+        purpose="product_purchase"
+        purposeLabel="Product Purchase / Book Order"
+        onVerified={() => {
+          setIsStoreOtpVerified(true);
+          handleStoreCheckout(true);
+        }}
+      />
     </nav>
   );
 }

@@ -6,6 +6,7 @@ import styles from './seminar.module.css';
 import StarRating from '@/components/StarRating';
 import ReviewModal from '@/components/ReviewModal';
 import ReviewsListModal from '@/components/ReviewsListModal';
+import EmailOtpModal from '@/components/EmailOtpModal';
 
 export default function Seminars() {
   const [seminars, setSeminars] = useState([]);
@@ -19,6 +20,8 @@ export default function Seminars() {
   const [attendees, setAttendees] = useState([
     { name: '', email: '', whatsapp: '', profession: '' }
   ]);
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
 
   // Reviews State
   const [reviewsData, setReviewsData] = useState({});
@@ -197,6 +200,13 @@ export default function Seminars() {
       if (!token) {
         alert("Please login to register for a seminar.");
         window.location.href = '/login';
+        return;
+      }
+
+      const primaryEmail = attendees[0]?.email;
+      if (!isOtpVerified) {
+        setShowOtpModal(true);
+        setIsProcessing(false);
         return;
       }
 
@@ -725,6 +735,22 @@ export default function Seminars() {
           }}
         />
       )}
+      {/* EMAIL OTP VERIFICATION MODAL */}
+      <EmailOtpModal
+        isOpen={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        email={attendees[0]?.email}
+        name={attendees[0]?.name}
+        purpose="booking"
+        purposeLabel="Seminar Registration"
+        onVerified={() => {
+          setIsOtpVerified(true);
+          // Auto resume registration
+          setTimeout(() => {
+            document.querySelector(`.${styles.confirmBtn}`)?.click();
+          }, 100);
+        }}
+      />
     </main>
   );
 }
